@@ -50,11 +50,7 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(0.025,  0.025, math.radians(71.5)),
                               Position(0.05,   0.06, math.radians(50))]
 
-# Robot's starting position
-x = 0
-y = 0
-q = math.radians(90)
-
+FILE = open("points.json", "w")
 ###############################################################################
 
 
@@ -130,8 +126,11 @@ def rotate_all_pos(sensors, x, y, a):
 
     return sensors
 
+#! Keep in mind here that the box is larger at the top to prevent the Lidar module to fall in real life
+
 
 def has_collided(x, y, a):
+    a = a - math.radians(90)
     box_x = 0.0525
     box_y_top = 0.0725 + 0.03
     box_y_bottom = 0.0725 - 0.03
@@ -145,10 +144,35 @@ def has_collided(x, y, a):
     return collision_box.intersects(WORLD)
 
 
+### Start's variables #########################################################
+
+# Robot's starting position
+x = 0
+y = 0
+q = math.radians(90)
+
 sensors = PROXIMITY_SENSORS_POSITION
+
+world = {
+    "Name": "BaseArena",
+    "W": W,
+    "H": H,
+    "X0": x,
+    "Y0": y,
+    "Q0": q
+}
+
+FILE.write(json.dumps(world))
+
+###############################################################################
+
 for cnt in range(10000):
-    print(cnt)
     robot_position = Position(x, y, q)
+
+    if cnt % 20 == 0:
+        FILE.write("\n" + json.dumps(robot_position.__dict__))
+
+    print(robot_position)
     rays = create_rays(sensors)
 
     sensors_values = [
@@ -173,7 +197,7 @@ for cnt in range(10000):
 
     # # step simulation
     new_x, new_y, new_q = simulationstep(
-        x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
+        x, y, q, 0.5, 0.5)
 
     sensors = update_sensors_pos(
         sensors, new_x - x, new_y - y)
@@ -190,3 +214,5 @@ for cnt in range(10000):
     if collided:
         print("collided")
         break
+
+FILE.close()
