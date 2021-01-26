@@ -207,7 +207,7 @@ for cnt in range(10000):
     elif state == '00110' or state == '00010' or state == '00001' or state == '00011':
         LEFT_WHEEL_VELOCITY = -1
     else:
-        LEFT_WHEEL_VELOCITY = -1
+        LEFT_WHEEL_VELOCITY = 1
         RIGHT_WHEEL_VELOCITY = -1
 
     # elif state == '01100' or state == '01000':
