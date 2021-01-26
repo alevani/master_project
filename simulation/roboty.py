@@ -4,4 +4,5 @@ class Robot:
         self.sensors = sensors
         self.position = position
         self.draw_information = []
+        self.has_collided = False
         pass

@@ -154,7 +154,7 @@ def simulation(points):
             pygame.display.flip()  # render drawing
             fpsClock.tick(fps)
     except:
-        sleep(10)
+        sleep(50)
 
 
 simulation(points)

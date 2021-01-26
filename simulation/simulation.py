@@ -107,13 +107,14 @@ def get_sensors_state(sensors):
     leftest = sensors_values[0]
     rightest = sensors_values[4]
 
-    top_value = 1 if top < 0.5 else 0
-    left_value = 1 if left < 0.5 else 0
-    right_value = 1 if right < 0.5 else 0
-    leftest_value = 1 if leftest < 0.5 else 0
-    rightest_value = 1 if rightest < 0.5 else 0
+    top_value = 1 if top < 0.1 else 0
+    left_value = 1 if left < 0.1 else 0
+    right_value = 1 if right < 0.1 else 0
+    leftest_value = 1 if leftest < 0.1 else 0
+    rightest_value = 1 if rightest < 0.1 else 0
 
-    return (leftest_value, left_value, top_value, right_value, rightest_value)
+    # return (leftest_value, left_value, top_value, right_value, rightest_value)
+    return (leftest_value, top_value, rightest_value)
 
 
 def update_sensors_pos(sensors, x, y, q):
@@ -163,9 +164,10 @@ sensors = PROXIMITY_SENSORS_POSITION
 # sensors = update_sensors_pos(sensors, x, y, math.radians(90) - q)
 # sensors = rotate_all_pos(sensors, x, y, math.radians(90) - q)
 
-CNT = 10000
-DV = CNT / 20
-NBROBOT = 1
+CNT = 15000
+M = 100
+DV = CNT / M
+NBROBOT = 10
 
 world = {
     "NAME": "BaseArena",
@@ -189,12 +191,16 @@ try:
     for cnt in range(CNT):
         for robot in ROBOTS:
 
+            if robot.has_collided:
+                break
+
             draw_information = {
                 'cnt': cnt,
                 'rpos': [],  # Robot position
                 'spos': [],  # Sensors position
                 'sstate': [],  # Sensors state
-                'bpos': []   # Collision box position
+                'bpos': [],   # Collision box position
+                'lpos': []   # Keep track of where the robot has been
             }
 
             sensors = robot.sensors
@@ -207,37 +213,32 @@ try:
                 distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
 
             state = get_sensors_state(sensors_values)
-            draw_information['spos'] = spos
-            draw_information['sstate'] = state
 
-            # ! Temporary, going with 4 states now as it is easier
-            state = state[1:4]
+            LEFT_WHEEL_VELOCITY = 1
+            RIGHT_WHEEL_VELOCITY = 1
 
             if state == (0, 1, 0):
-                print("hmm")
                 if randint(0, 1):
-                    LEFT_WHEEL_VELOCITY = 1
                     RIGHT_WHEEL_VELOCITY = -1
                 else:
                     LEFT_WHEEL_VELOCITY = -1
-                    RIGHT_WHEEL_VELOCITY = 1
-            elif state == (1, 0, 0):
-                LEFT_WHEEL_VELOCITY = 1
+                # LEFT_WHEEL_VELOCITY = -1  # ! Random seems to make them wiggle to much :D
+            elif state == (1, 0, 0) or state == (1, 1, 0):
                 RIGHT_WHEEL_VELOCITY = -1
-            elif state == (0, 0, 1):
+            elif state == (0, 0, 1) or state == (0, 1, 1):
                 LEFT_WHEEL_VELOCITY = -1
-                RIGHT_WHEEL_VELOCITY = 1
+                # TODO robot somwhow still get stuck in the corner
+            elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
+                LEFT_WHEEL_VELOCITY = -1
             else:
-                LEFT_WHEEL_VELOCITY = -1
-                RIGHT_WHEEL_VELOCITY = -1
+                LEFT_WHEEL_VELOCITY = random()
+                RIGHT_WHEEL_VELOCITY = random()
 
-                # # step simulation
-
+            # # step simulation
             x = robot.position.x
             y = robot.position.y
             q = robot.position.q
-            print(RIGHT_WHEEL_VELOCITY)
-            print(LEFT_WHEEL_VELOCITY)
+
             new_x, new_y, new_q = simulationstep(
                 x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
@@ -252,19 +253,25 @@ try:
             # Update robot's information
             robot.sensors = deepcopy(sensors)
             robot.position = Position(new_x, new_y, new_q)
-            draw_information['bpos'] = collision_box
 
-            if cnt % 20 == 0:
+            draw_information['spos'] = spos
+            # ! (0,) is to fake ray for visu
+            draw_information['sstate'] = (0,) + state + (0,)
+            draw_information['bpos'] = collision_box
+            draw_information[]
+
+            if cnt % M == 0:
                 robot.draw_information.append(draw_information)
 
             if collided:
                 print("collided")
-                break
+                robot.has_collided = True
+
 except:
     print("ERROR")
     for robot in ROBOTS:
         FILE.write("\n" + json.dumps(robot.draw_information))
-    # print(e)
+
 
 for robot in ROBOTS:
     FILE.write("\n" + json.dumps(robot.draw_information))
@@ -311,3 +318,17 @@ FILE.close()
 # else:
 #     LEFT_WHEEL_VELOCITY = 1
 #     RIGHT_WHEEL_VELOCITY = -1
+
+# if state == (0, 0, 1, 0, 0):
+#     if randint(0, 1):
+#         RIGHT_WHEEL_VELOCITY = -1
+#     else:
+#         LEFT_WHEEL_VELOCITY = -1
+# elif state == (1, 0, 0, 0, 0) or state == (1, 1, 0, 0, 0)or state == (1, 1, 1, 0, 0):
+#     RIGHT_WHEEL_VELOCITY = -1
+# elif state == (0, 0, 0, 0, 1) or state == (0, 0, 0, 1, 1) or state == (0, 0, 1, 1, 1):
+#     LEFT_WHEEL_VELOCITY = -1
+# elif state == (0, 1, 0, 1, 0):
+#     LEFT_WHEEL_VELOCITY = -1
+# else:
+#     pass
