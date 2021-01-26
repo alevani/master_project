@@ -165,9 +165,9 @@ sensors = PROXIMITY_SENSORS_POSITION
 # sensors = rotate_all_pos(sensors, x, y, math.radians(90) - q)
 
 CNT = 15000
-M = 100
+M = 20
 DV = CNT / M
-NBROBOT = 10
+NBROBOT = 1
 
 world = {
     "NAME": "BaseArena",
@@ -200,12 +200,9 @@ try:
                 'spos': [],  # Sensors position
                 'sstate': [],  # Sensors state
                 'bpos': [],   # Collision box position
-                'lpos': []   # Keep track of where the robot has been
             }
 
             sensors = robot.sensors
-
-            draw_information['rpos'] = robot.position.__dict__
 
             rays, spos = create_rays(sensors)
 
@@ -258,9 +255,10 @@ try:
             # ! (0,) is to fake ray for visu
             draw_information['sstate'] = (0,) + state + (0,)
             draw_information['bpos'] = collision_box
-            draw_information[]
+            draw_information['rpos'] = robot.position.__dict__
 
             if cnt % M == 0:
+                robot.path.append(robot.position.__dict__)
                 robot.draw_information.append(draw_information)
 
             if collided:
@@ -270,11 +268,11 @@ try:
 except:
     print("ERROR")
     for robot in ROBOTS:
-        FILE.write("\n" + json.dumps(robot.draw_information))
+        FILE.write("\n" + json.dumps((robot.draw_information, robot.path)))
 
 
 for robot in ROBOTS:
-    FILE.write("\n" + json.dumps(robot.draw_information))
+    FILE.write("\n" + json.dumps((robot.draw_information, robot.path)))
 
 FILE.close()
 

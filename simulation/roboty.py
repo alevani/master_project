@@ -5,4 +5,5 @@ class Robot:
         self.position = position
         self.draw_information = []
         self.has_collided = False
+        self.path = []
         pass

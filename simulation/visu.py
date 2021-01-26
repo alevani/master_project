@@ -27,9 +27,11 @@ WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
 GRAY = (100, 100, 100)
 RED = (255, 0, 0)
+BLACK = (0, 0, 0)
 
 DRAW_BOX = False
 DRAW_RAYS = False
+DRAW_PATH = False
 
 ###############################################################################
 
@@ -74,7 +76,7 @@ def scale(x, y):
     return nx, ny
 
 
-def draw(screen, point, cr):
+def draw(screen, point, cr, i, path):
     global DRAW_BOX, DRAW_RAYS
 
     x, y, a = point['rpos']['x'], point['rpos']['y'], point['rpos']['q']
@@ -85,6 +87,14 @@ def draw(screen, point, cr):
 
     if DRAW_RAYS:
         draw_rays(screen, point['spos'], point['sstate'])
+
+    if DRAW_PATH:
+        for n in range(i):
+            draw_path(screen, path[n])
+
+
+def draw_path(screen, path):
+    pygame.draw.circle(screen, BLACK, scale(path['x'], path['y']), 1)
 
 
 def draw_box(screen, box):
@@ -106,8 +116,9 @@ def draw_rays(screen, rays, states):
                          (x_end, y_end))
 
 
+# TODO create a fastfoward by deleting some point?
 def simulation(points):
-    global DRAW_BOX, DRAW_RAYS
+    global DRAW_BOX, DRAW_RAYS, DRAW_PATH
     DISPLAY_HANDLER = 0
     pygame.init()
     fps = 24
@@ -116,45 +127,49 @@ def simulation(points):
 
     robots_color = [(randint(0, 255), randint(0, 255), randint(0, 255))
                     for _ in range(len(points))]
-    try:
-        for i in range(int(header['NBPOINTS'])):
-            draw_arena(screen)
-            for p, point in enumerate(points):
 
-                point = json.loads(point)[i]
-                draw(screen, point, robots_color[p])
+    # Loads path
+    paths = [json.loads(p)[1] for p in points]
 
-                for event in pygame.event.get():
-                    if event.type == QUIT:
+    for i in range(int(header['NBPOINTS'])):
+        draw_arena(screen)
+        for p, point in enumerate(points):
+
+            point = json.loads(point)[0][i]
+            draw(screen, point, robots_color[p], i, paths[p])
+
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        sleep(5)
+                    if event.key == pygame.K_q:
                         pygame.quit()
                         sys.exit()
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_p:
-                            sleep(5)
-                        if event.key == pygame.K_q:
-                            pygame.quit()
-                            sys.exit()
-                        if event.key == pygame.K_y:
-                            DISPLAY_HANDLER += 1
+                    if event.key == pygame.K_x:
+                        DRAW_PATH = not DRAW_PATH
+                        print("[Display] Toggle path visualization")
+                    if event.key == pygame.K_y:
+                        DISPLAY_HANDLER += 1
 
-                            if DISPLAY_HANDLER == 3:
-                                DRAW_RAYS = False
-                                DRAW_BOX = False
-                                DISPLAY_HANDLER = 0
-                                print(
-                                    "[Display] Rays and Box visualization desactivated")
-                            elif DISPLAY_HANDLER == 1:
-                                DRAW_RAYS = True
-                                print("[Display] Rays visualization activated")
-                            elif DISPLAY_HANDLER == 2:
-                                DRAW_BOX = True
-                                print(
-                                    "[Display] Rays and Box visualization activated")
+                        if DISPLAY_HANDLER == 3:
+                            DRAW_RAYS = False
+                            DRAW_BOX = False
+                            DISPLAY_HANDLER = 0
+                            print(
+                                "[Display] Rays and Box visualization desactivated")
+                        elif DISPLAY_HANDLER == 1:
+                            DRAW_RAYS = True
+                            print("[Display] Rays visualization activated")
+                        elif DISPLAY_HANDLER == 2:
+                            DRAW_BOX = True
+                            print(
+                                "[Display] Rays and Box visualization activated")
 
-            pygame.display.flip()  # render drawing
-            fpsClock.tick(fps)
-    except:
-        sleep(50)
+        pygame.display.flip()  # render drawing
+        fpsClock.tick(fps)
 
 
 simulation(points)
