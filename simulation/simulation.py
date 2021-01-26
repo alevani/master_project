@@ -107,13 +107,13 @@ def get_sensors_state(sensors):
     leftest = sensors_values[0]
     rightest = sensors_values[4]
 
-    top_value = 1 if top < 0.03 else 0
-    left_value = 1 if left < 0.03 else 0
-    right_value = 1 if right < 0.03 else 0
-    leftest_value = 1 if leftest < 0.03 else 0
-    rightest_value = 1 if rightest < 0.03 else 0
+    top_value = 1 if top < 0.5 else 0
+    left_value = 1 if left < 0.5 else 0
+    right_value = 1 if right < 0.5 else 0
+    leftest_value = 1 if leftest < 0.5 else 0
+    rightest_value = 1 if rightest < 0.5 else 0
 
-    return str(leftest_value) + str(left_value) + str(top_value) + str(right_value) + str(rightest_value)
+    return (leftest_value, left_value, top_value, right_value, rightest_value)
 
 
 def update_sensors_pos(sensors, x, y, q):
@@ -160,10 +160,12 @@ y = 0
 q = math.radians(90)
 
 sensors = PROXIMITY_SENSORS_POSITION
+# sensors = update_sensors_pos(sensors, x, y, math.radians(90) - q)
+# sensors = rotate_all_pos(sensors, x, y, math.radians(90) - q)
 
 CNT = 10000
 DV = CNT / 20
-NBROBOT = 5
+NBROBOT = 1
 
 world = {
     "NAME": "BaseArena",
@@ -183,81 +185,89 @@ ROBOTS = [Robot(n, deepcopy(sensors), Position(x, y, q))
           for n in range(NBROBOT)]
 
 ###############################################################################
+try:
+    for cnt in range(CNT):
+        for robot in ROBOTS:
 
-for cnt in range(CNT):
-    for robot in ROBOTS:
+            draw_information = {
+                'cnt': cnt,
+                'rpos': [],  # Robot position
+                'spos': [],  # Sensors position
+                'sstate': [],  # Sensors state
+                'bpos': []   # Collision box position
+            }
 
-        draw_information = {
-            'cnt': cnt,
-            'rpos': [],  # Robot position
-            'spos': [],  # Sensors position
-            'bpos': []   # Collision box position
-        }
+            sensors = robot.sensors
 
-        sensors = robot.sensors
+            draw_information['rpos'] = robot.position.__dict__
 
-        draw_information['rpos'] = robot.position.__dict__
+            rays, spos = create_rays(sensors)
 
-        rays, spos = create_rays(sensors)
-        draw_information['spos'] = spos
+            sensors_values = [
+                distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
 
-        sensors_values = [
-            distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
+            state = get_sensors_state(sensors_values)
+            draw_information['spos'] = spos
+            draw_information['sstate'] = state
 
-        state = get_sensors_state(sensors_values)
+            # ! Temporary, going with 4 states now as it is easier
+            state = state[1:4]
 
-        LEFT_WHEEL_VELOCITY = 1
-        RIGHT_WHEEL_VELOCITY = 1
-
-        if state == '00000':
-            LEFT_WHEEL_VELOCITY = random()
-            RIGHT_WHEEL_VELOCITY = random()
-        elif state == '00100':
-            # Vague state, choose randomly wheter to turn left or right
-            if randint(0, 1):
-                LEFT_WHEEL_VELOCITY = 0
+            if state == (0, 1, 0):
+                print("hmm")
+                if randint(0, 1):
+                    LEFT_WHEEL_VELOCITY = 1
+                    RIGHT_WHEEL_VELOCITY = -1
+                else:
+                    LEFT_WHEEL_VELOCITY = -1
+                    RIGHT_WHEEL_VELOCITY = 1
+            elif state == (1, 0, 0):
+                LEFT_WHEEL_VELOCITY = 1
+                RIGHT_WHEEL_VELOCITY = -1
+            elif state == (0, 0, 1):
+                LEFT_WHEEL_VELOCITY = -1
+                RIGHT_WHEEL_VELOCITY = 1
             else:
-                RIGHT_WHEEL_VELOCITY = 0
-        elif state == '01100' or state == '01000' or state == '10000' or state == '11000':
-            RIGHT_WHEEL_VELOCITY = -1
-        elif state == '00110' or state == '00010' or state == '00001' or state == '00011':
-            LEFT_WHEEL_VELOCITY = -1
-        else:
-            LEFT_WHEEL_VELOCITY = 1
-            RIGHT_WHEEL_VELOCITY = -1
+                LEFT_WHEEL_VELOCITY = -1
+                RIGHT_WHEEL_VELOCITY = -1
 
-        # # step simulation
+                # # step simulation
 
-        x = robot.position.x
-        y = robot.position.y
-        q = robot.position.q
+            x = robot.position.x
+            y = robot.position.y
+            q = robot.position.q
+            print(RIGHT_WHEEL_VELOCITY)
+            print(LEFT_WHEEL_VELOCITY)
+            new_x, new_y, new_q = simulationstep(
+                x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
-        new_x, new_y, new_q = simulationstep(
-            x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
+            sensors = update_sensors_pos(
+                sensors, new_x - x, new_y - y, new_q-q)
 
-        sensors = update_sensors_pos(
-            sensors, new_x - x, new_y - y, new_q-q)
+            sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
 
-        sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
+            # # check collision with arena walls
+            collided, collision_box = has_collided(x, y, q)
 
-        # # check collision with arena walls
-        collided, collision_box = has_collided(x, y, q)
+            # Update robot's information
+            robot.sensors = deepcopy(sensors)
+            robot.position = Position(new_x, new_y, new_q)
+            draw_information['bpos'] = collision_box
 
-        # Update robot's information
-        robot.sensors = deepcopy(sensors)
-        robot.position = Position(new_x, new_y, new_q)
-        draw_information['bpos'] = collision_box
+            if cnt % 20 == 0:
+                robot.draw_information.append(draw_information)
 
-        if cnt % 20 == 0:
-            robot.draw_information.append(draw_information)
-
-        if collided:
-            print("collided")
-            break
+            if collided:
+                print("collided")
+                break
+except:
+    print("ERROR")
+    for robot in ROBOTS:
+        FILE.write("\n" + json.dumps(robot.draw_information))
+    # print(e)
 
 for robot in ROBOTS:
     FILE.write("\n" + json.dumps(robot.draw_information))
-
 
 FILE.close()
 
@@ -269,3 +279,35 @@ FILE.close()
 #     LEFT_WHEEL_VELOCITY = 0.5
 # elif state == '00001' or state == '00011':
 #     RIGHT_WHEEL_VELOCITY = 0.5
+
+# if state == '00000':
+#     print("FORWARD")
+#     # LEFT_WHEEL_VELOCITY = random()
+#     # RIGHT_WHEEL_VELOCITY = random()
+#     pass
+# elif state == '00100' or state == '01110' or state == '11111' or state == '11011' or state == 'state = 10001':
+#     # Vague state, choose randomly wheter to turn left or right
+#     # if randint(0, 1):
+#     LEFT_WHEEL_VELOCITY = -1
+#     # else:
+#     #     RIGHT_WHEEL_VELOCITY = -1
+
+# elif state == '00010' or state == '00001':
+#     print("LEFT")
+#     LEFT_WHEEL_VELOCITY = -1
+#     RIGHT_WHEEL_VELOCITY = 1
+# elif state == '01000':
+#     print("RIGHT")
+#     RIGHT_WHEEL_VELOCITY = -1
+#     LEFT_WHEEL_VELOCITY = 1
+# else:
+#     print("BACKWARD")
+
+# elif state == '01100' or state == '01000' or state == '10000' or state == '11000':
+#     RIGHT_WHEEL_VELOCITY = -1
+
+# elif state == '00110' or state == '00010' or state == '00001' or state == '00011':
+#     LEFT_WHEEL_VELOCITY = -1
+# else:
+#     LEFT_WHEEL_VELOCITY = 1
+#     RIGHT_WHEEL_VELOCITY = -1
