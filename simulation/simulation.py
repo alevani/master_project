@@ -48,7 +48,7 @@ BOTTOM_LIGHT_SENSORS_POSITION = [
 PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(-0.025,  0.075, math.radians(108.5)),
                               Position(0, 0.0778, math.radians(90)),
-                              Position(0.025,  0.025, math.radians(71.5)),
+                              Position(0.025,  0.075, math.radians(71.5)),
                               Position(0.05,   0.06, math.radians(50))]
 
 FILE = open("points.json", "w")
@@ -114,10 +114,11 @@ def get_sensors_state(sensors):
     return str(leftest_value) + str(left_value) + str(top_value) + str(right_value) + str(rightest_value)
 
 
-def update_sensors_pos(sensors, x, y):
+def update_sensors_pos(sensors, x, y, a):
     for pos in sensors:
         pos.x = pos.x + x
         pos.y = pos.y + y
+        pos.a = pos.a + a
     return sensors
 
 
@@ -135,7 +136,7 @@ def rotate_all_pos(sensors, x, y, a):
 def has_collided(x, y, a):
     a = a - math.radians(90)
     box_x = 0.0525
-    box_y_top = 0.0725 + 0.03
+    box_y_top = 0.0725
     box_y_bottom = 0.0725 - 0.03
     # print((x - box_x, y - box_y_bottom), (x - box_x, y + box_y_top),
     #       (x + box_x, y + box_y_top), (x + box_x, y - box_y_bottom))
@@ -223,7 +224,7 @@ for cnt in range(10000):
         x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
     sensors = update_sensors_pos(
-        sensors, new_x - x, new_y - y)
+        sensors, new_x - x, new_y - y, new_q-q)
 
     sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
 

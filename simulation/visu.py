@@ -79,8 +79,6 @@ def draw(screen, point):
     x, y, a = point['rpos']['x'], point['rpos']['y'], point['rpos']['a']
     draw_robot(screen, scale(x, y), a)
 
-    print(DRAW_BOX)
-    print(DRAW_RAYS)
     if DRAW_BOX:
         draw_box(screen, point['bpos'])
 
