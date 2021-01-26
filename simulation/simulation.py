@@ -57,19 +57,19 @@ FILE = open("points.json", "w")
 ###############################################################################
 
 
-def update_sensors_position(sensors, x, y, a):
+def update_sensors_position(sensors, x, y, q):
     for pos in sensors:
         pos.x = pos.x + x
         pos.y = pos.y + y
-        pos.a = pos.a + a
+        pos.q = pos.q + q
     return sensors
 
 
 def create_rays(pos, robot_position):
     nx = pos.x + robot_position.x
     ny = pos.y + robot_position.y
-    na = pos.a + robot_position.a
-    return LineString([(nx, ny), (nx+cos(na)*2*W, (ny+sin(na)*2*H))])
+    nq = pos.q + robot_position.q
+    return LineString([(nx, ny), (nx+cos(nq)*2*W, (ny+sin(nq)*2*H))])
 
 
 def simulationstep(x, y, q, left_wheel_velocity, right_wheel_velocity):
@@ -91,9 +91,9 @@ def create_rays(sensors):
     for sensor in sensors:
         nx = sensor.x
         ny = sensor.y
-        na = sensor.a
-        nx_end = nx+cos(na)*2*W
-        ny_end = ny+sin(na)*2*H
+        nq = sensor.q
+        nx_end = nx+cos(nq)*2*W
+        ny_end = ny+sin(nq)*2*H
         ray = [(nx, ny), (nx_end, ny_end)]
         spos.append(ray)
         rays.append(LineString(ray))
@@ -116,17 +116,17 @@ def get_sensors_state(sensors):
     return str(leftest_value) + str(left_value) + str(top_value) + str(right_value) + str(rightest_value)
 
 
-def update_sensors_pos(sensors, x, y, a):
+def update_sensors_pos(sensors, x, y, q):
     for pos in sensors:
         pos.x = pos.x + x
         pos.y = pos.y + y
-        pos.a = pos.a + a
+        pos.q = pos.q + q
     return sensors
 
 
-def rotate_all_pos(sensors, x, y, a):
+def rotate_all_pos(sensors, x, y, q):
     for pos in sensors:
-        point = rotate(Point(pos.x, pos.y), a,
+        point = rotate(Point(pos.x, pos.y), q,
                        (x, y), use_radians=True)
         pos.x = point.x
         pos.y = point.y
@@ -161,43 +161,45 @@ q = math.radians(90)
 
 sensors = PROXIMITY_SENSORS_POSITION
 
+CNT = 10000
+DV = CNT / 20
+NBROBOT = 5
+
 world = {
-    "Name": "BaseArena",
+    "NAME": "BaseArena",
     "W": W,
     "H": H,
     "X0": x,
     "Y0": y,
-    "Q0": q
-}
-
-draw_information = {
-    'rpos': [],  # Robot position
-    'spos': [],  # Sensors position
-    'bpos': []   # Collision box position
+    "Q0": q,
+    "NBPOINTS": DV,
+    "NBROBOTS": NBROBOT
 }
 
 FILE.write(json.dumps(world))
 
-###############################################################################
 
-NBROBOT = 1
-ROBOTSENSORS = [deepcopy(sensors) for _ in range(NBROBOT)]
-
-# ? deep copy draw_information?
-ROBOTS = [Robot(n, deepcopy(sensors), Position(x, y, q), draw_information)
+ROBOTS = [Robot(n, deepcopy(sensors), Position(x, y, q))
           for n in range(NBROBOT)]
 
-for cnt in range(10000):
-    robots_draw = []
-    for n in range(NBROBOT):
+###############################################################################
 
-        sensors = ROBOTSENSORS[n]
+for cnt in range(CNT):
+    for robot in ROBOTS:
 
-        robot_position = Position(x, y, q)
-        robot_draw['rpos'] = robot_position.__dict__
+        draw_information = {
+            'cnt': cnt,
+            'rpos': [],  # Robot position
+            'spos': [],  # Sensors position
+            'bpos': []   # Collision box position
+        }
+
+        sensors = robot.sensors
+
+        draw_information['rpos'] = robot.position.__dict__
 
         rays, spos = create_rays(sensors)
-        robot_draw['spos'] = spos
+        draw_information['spos'] = spos
 
         sensors_values = [
             distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
@@ -224,16 +226,12 @@ for cnt in range(10000):
             LEFT_WHEEL_VELOCITY = 1
             RIGHT_WHEEL_VELOCITY = -1
 
-        # elif state == '01100' or state == '01000':
-        #     RIGHT_WHEEL_VELOCITY = 0
-        # elif state == '00110' or state == '00010':
-        #     LEFT_WHEEL_VELOCITY = 0
-        # elif state == '10000' or state == '11000':
-        #     LEFT_WHEEL_VELOCITY = 0.5
-        # elif state == '00001' or state == '00011':
-        #     RIGHT_WHEEL_VELOCITY = 0.5
-
         # # step simulation
+
+        x = robot.position.x
+        y = robot.position.y
+        q = robot.position.q
+
         new_x, new_y, new_q = simulationstep(
             x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
@@ -242,22 +240,32 @@ for cnt in range(10000):
 
         sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
 
-        x = new_x
-        y = new_y
-        q = new_q
-
         # # check collision with arena walls
         collided, collision_box = has_collided(x, y, q)
-        robot_draw['bpos'] = collision_box
 
-        robots_draw.append(json.dumps(robot_draw))
+        # Update robot's information
+        robot.sensors = deepcopy(sensors)
+        robot.position = Position(new_x, new_y, new_q)
+        draw_information['bpos'] = collision_box
+
+        if cnt % 20 == 0:
+            robot.draw_information.append(draw_information)
 
         if collided:
             print("collided")
             break
 
-    if cnt % 20 == 0:
-        FILE.write("\n" + json.dumps(robots_draw))
+for robot in ROBOTS:
+    FILE.write("\n" + json.dumps(robot.draw_information))
 
 
 FILE.close()
+
+# elif state == '01100' or state == '01000':
+#     RIGHT_WHEEL_VELOCITY = 0
+# elif state == '00110' or state == '00010':
+#     LEFT_WHEEL_VELOCITY = 0
+# elif state == '10000' or state == '11000':
+#     LEFT_WHEEL_VELOCITY = 0.5
+# elif state == '00001' or state == '00011':
+#     RIGHT_WHEEL_VELOCITY = 0.5
