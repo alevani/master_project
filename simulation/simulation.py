@@ -8,6 +8,8 @@ import numpy as np
 from numpy import sin, cos, pi, sqrt, zeros
 import math
 
+from roboty import Robot
+
 import sys
 import json
 from copy import deepcopy
@@ -168,79 +170,94 @@ world = {
     "Q0": q
 }
 
+draw_information = {
+    'rpos': [],  # Robot position
+    'spos': [],  # Sensors position
+    'bpos': []   # Collision box position
+}
+
 FILE.write(json.dumps(world))
 
 ###############################################################################
 
+NBROBOT = 1
+ROBOTSENSORS = [deepcopy(sensors) for _ in range(NBROBOT)]
+
+# ? deep copy draw_information?
+ROBOTS = [Robot(n, deepcopy(sensors), Position(x, y, q), draw_information)
+          for n in range(NBROBOT)]
+
 for cnt in range(10000):
-    robot_draw = {
-        'rpos': [],  # Robot position
-        'spos': [],  # Sensors position
-        'bpos': []   # Collision box position
-    }
+    robots_draw = []
+    for n in range(NBROBOT):
 
-    robot_position = Position(x, y, q)
-    robot_draw['rpos'] = robot_position.__dict__
+        sensors = ROBOTSENSORS[n]
 
-    rays, spos = create_rays(sensors)
-    robot_draw['spos'] = spos
+        robot_position = Position(x, y, q)
+        robot_draw['rpos'] = robot_position.__dict__
 
-    sensors_values = [
-        distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
+        rays, spos = create_rays(sensors)
+        robot_draw['spos'] = spos
 
-    state = get_sensors_state(sensors_values)
+        sensors_values = [
+            distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
 
-    LEFT_WHEEL_VELOCITY = 1
-    RIGHT_WHEEL_VELOCITY = 1
+        state = get_sensors_state(sensors_values)
 
-    if state == '00000':
-        LEFT_WHEEL_VELOCITY = random()
-        RIGHT_WHEEL_VELOCITY = random()
-    elif state == '00100':
-        # Vague state, choose randomly wheter to turn left or right
-        if randint(0, 1):
-            LEFT_WHEEL_VELOCITY = 0
-        else:
-            RIGHT_WHEEL_VELOCITY = 0
-    elif state == '01100' or state == '01000' or state == '10000' or state == '11000':
-        RIGHT_WHEEL_VELOCITY = -1
-    elif state == '00110' or state == '00010' or state == '00001' or state == '00011':
-        LEFT_WHEEL_VELOCITY = -1
-    else:
         LEFT_WHEEL_VELOCITY = 1
-        RIGHT_WHEEL_VELOCITY = -1
+        RIGHT_WHEEL_VELOCITY = 1
 
-    # elif state == '01100' or state == '01000':
-    #     RIGHT_WHEEL_VELOCITY = 0
-    # elif state == '00110' or state == '00010':
-    #     LEFT_WHEEL_VELOCITY = 0
-    # elif state == '10000' or state == '11000':
-    #     LEFT_WHEEL_VELOCITY = 0.5
-    # elif state == '00001' or state == '00011':
-    #     RIGHT_WHEEL_VELOCITY = 0.5
+        if state == '00000':
+            LEFT_WHEEL_VELOCITY = random()
+            RIGHT_WHEEL_VELOCITY = random()
+        elif state == '00100':
+            # Vague state, choose randomly wheter to turn left or right
+            if randint(0, 1):
+                LEFT_WHEEL_VELOCITY = 0
+            else:
+                RIGHT_WHEEL_VELOCITY = 0
+        elif state == '01100' or state == '01000' or state == '10000' or state == '11000':
+            RIGHT_WHEEL_VELOCITY = -1
+        elif state == '00110' or state == '00010' or state == '00001' or state == '00011':
+            LEFT_WHEEL_VELOCITY = -1
+        else:
+            LEFT_WHEEL_VELOCITY = 1
+            RIGHT_WHEEL_VELOCITY = -1
 
-    # # step simulation
-    new_x, new_y, new_q = simulationstep(
-        x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
+        # elif state == '01100' or state == '01000':
+        #     RIGHT_WHEEL_VELOCITY = 0
+        # elif state == '00110' or state == '00010':
+        #     LEFT_WHEEL_VELOCITY = 0
+        # elif state == '10000' or state == '11000':
+        #     LEFT_WHEEL_VELOCITY = 0.5
+        # elif state == '00001' or state == '00011':
+        #     RIGHT_WHEEL_VELOCITY = 0.5
 
-    sensors = update_sensors_pos(
-        sensors, new_x - x, new_y - y, new_q-q)
+        # # step simulation
+        new_x, new_y, new_q = simulationstep(
+            x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
-    sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
+        sensors = update_sensors_pos(
+            sensors, new_x - x, new_y - y, new_q-q)
 
-    x = new_x
-    y = new_y
-    q = new_q
+        sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
 
-    # # check collision with arena walls
-    collided, collision_box = has_collided(x, y, q)
-    robot_draw['bpos'] = collision_box
+        x = new_x
+        y = new_y
+        q = new_q
+
+        # # check collision with arena walls
+        collided, collision_box = has_collided(x, y, q)
+        robot_draw['bpos'] = collision_box
+
+        robots_draw.append(json.dumps(robot_draw))
+
+        if collided:
+            print("collided")
+            break
 
     if cnt % 20 == 0:
-        FILE.write("\n" + json.dumps(robot_draw))
+        FILE.write("\n" + json.dumps(robots_draw))
 
-    if collided:
-        print("collided")
-        break
 
 FILE.close()
