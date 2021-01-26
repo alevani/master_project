@@ -164,10 +164,13 @@ sensors = PROXIMITY_SENSORS_POSITION
 # sensors = update_sensors_pos(sensors, x, y, math.radians(90) - q)
 # sensors = rotate_all_pos(sensors, x, y, math.radians(90) - q)
 
-CNT = 15000
+CNT = 5000
 M = 20
 DV = CNT / M
-NBROBOT = 1
+NBROBOT = 5
+
+#! Since the simulation must last long, it is likely that I need to find ways
+#! to make the program faster. Maybe by removing the box and rays from the point file?
 
 world = {
     "NAME": "BaseArena",

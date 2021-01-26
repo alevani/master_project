@@ -89,12 +89,13 @@ def draw(screen, point, cr, i, path):
         draw_rays(screen, point['spos'], point['sstate'])
 
     if DRAW_PATH:
-        for n in range(i):
-            draw_path(screen, path[n])
+        for n in range(i - 50, i):  # ! Nice, it's like snake :D
+            # for n in range(i):
+            draw_path(screen, path[n], cr)
 
 
-def draw_path(screen, path):
-    pygame.draw.circle(screen, BLACK, scale(path['x'], path['y']), 1)
+def draw_path(screen, path, color):
+    pygame.draw.circle(screen, color, scale(path['x'], path['y']), 2)
 
 
 def draw_box(screen, box):
