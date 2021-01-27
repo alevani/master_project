@@ -170,13 +170,18 @@ FILE.write(json.dumps(world))
 
 ROBOTS = []
 R1 = Robot(1, deepcopy(sensors), Position(-0.2, 0, math.radians(0)))
-R4 = Robot(1, deepcopy(sensors), Position(-0.2, -.20, math.radians(0)))
+R5 = Robot(5, deepcopy(sensors), Position(-0.2, 0.2, math.radians(0)))
+R4 = Robot(4, deepcopy(sensors), Position(-0.2, -.20, math.radians(0)))
+
 R2 = Robot(2, deepcopy(sensors), Position(0.20, 0, math.radians(180)))
 R3 = Robot(3, deepcopy(sensors), Position(0.20, 0.20, math.radians(180)))
+R6 = Robot(6, deepcopy(sensors), Position(0.20, -0.20, math.radians(180)))
 ROBOTS.append(R1)
 ROBOTS.append(R2)
 ROBOTS.append(R3)
 ROBOTS.append(R4)
+ROBOTS.append(R5)
+ROBOTS.append(R6)
 ###############################################################################
 try:
     for cnt in range(CNT):
@@ -236,10 +241,10 @@ try:
 
             robot.update_position(Position(new_x, new_y, new_q))
 
-            draw_information['spos'] = spos
-            # ! (0,) is to fake ray for visu
-            draw_information['sstate'] = (0,) + state + (0,)
-            draw_information['bpos'] = collision_box
+            # draw_information['spos'] = spos
+            # # ! (0,) is to fake ray for visu
+            # draw_information['sstate'] = (0,) + state + (0,)
+            # draw_information['bpos'] = collision_box
             draw_information['rpos'] = robot.position.__dict__
 
             if cnt % M == 0:
