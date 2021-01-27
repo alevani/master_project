@@ -117,43 +117,26 @@ def get_sensors_state(sensors):
     return (leftest_value, top_value, rightest_value)
 
 
-def update_sensors_pos(sensors, x, y, q):
-    for pos in sensors:
-        pos.x = pos.x + x
-        pos.y = pos.y + y
-        pos.q = pos.q + q
-    return sensors
+def get_sensor_values(rays, robot, robots):
+    dists = []
+    for index, ray in enumerate(rays):
+        dists.append(distance(WORLD.intersection(ray),
+                              robot.sensors[index].x, robot.sensors[index].y))
 
+    for r in robots:
+        # Don't check ourselves
+        if r.number == robot.number:
+            break
+        for index, ray in enumerate(rays):
+            if r.is_sensing(ray):
+                dists[index] = distance(r.get_collision_box().intersection(
+                    ray), robot.sensors[index].x, robot.sensors[index].y)
 
-def rotate_all_pos(sensors, x, y, q):
-    for pos in sensors:
-        point = rotate(Point(pos.x, pos.y), q,
-                       (x, y), use_radians=True)
-        pos.x = point.x
-        pos.y = point.y
-
-    return sensors
-
-
-#! Keep in mind here that the box is larger at the top to prevent the Lidar module to fall in real life
-def has_collided(x, y, a):
-    a = a - math.radians(90)
-    box_x = 0.0525
-    box_y_top = 0.0725
-    box_y_bottom = 0.0725 - 0.03
-    # print((x - box_x, y - box_y_bottom), (x - box_x, y + box_y_top),
-    #       (x + box_x, y + box_y_top), (x + box_x, y - box_y_bottom))
-    collision_box = Polygon(
-        ((x - box_x, y - box_y_bottom), (x - box_x, y + box_y_top),
-         (x + box_x, y + box_y_top), (x + box_x, y - box_y_bottom)))
-
-    collision_box = rotate(collision_box, a, (x, y), use_radians=True)
-    x, y = collision_box.exterior.coords.xy
-
-    return collision_box.intersects(WORLD), tuple(zip(x, y))
-
+    return dists
+    # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
 
 ### Start's variables #########################################################
+
 
 # Robot's starting position
 x = 0
@@ -161,13 +144,10 @@ y = 0
 q = math.radians(90)
 
 sensors = PROXIMITY_SENSORS_POSITION
-# sensors = update_sensors_pos(sensors, x, y, math.radians(90) - q)
-# sensors = rotate_all_pos(sensors, x, y, math.radians(90) - q)
 
 CNT = 5000
 M = 20
 DV = CNT / M
-NBROBOT = 5
 
 #! Since the simulation must last long, it is likely that I need to find ways
 #! to make the program faster. Maybe by removing the box and rays from the point file?
@@ -180,15 +160,15 @@ world = {
     "Y0": y,
     "Q0": q,
     "NBPOINTS": DV,
-    "NBROBOTS": NBROBOT
 }
 
 FILE.write(json.dumps(world))
 
-
-ROBOTS = [Robot(n, deepcopy(sensors), Position(x, y, q))
-          for n in range(NBROBOT)]
-
+ROBOTS = []
+R1 = Robot(1, deepcopy(sensors), Position(-0.2, 0, math.radians(0)))
+R2 = Robot(2, deepcopy(sensors), Position(0.20, 0, math.radians(180)))
+ROBOTS.append(R1)
+ROBOTS.append(R2)
 ###############################################################################
 try:
     for cnt in range(CNT):
@@ -205,13 +185,9 @@ try:
                 'bpos': [],   # Collision box position
             }
 
-            sensors = robot.sensors
-
-            rays, spos = create_rays(sensors)
-
-            sensors_values = [
-                distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
-
+            #! I think these function should be also move in the robot class.
+            rays, spos = create_rays(robot.sensors)
+            sensors_values = get_sensor_values(rays, robot, ROBOTS)
             state = get_sensors_state(sensors_values)
 
             LEFT_WHEEL_VELOCITY = 1
@@ -242,17 +218,15 @@ try:
             new_x, new_y, new_q = simulationstep(
                 x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
-            sensors = update_sensors_pos(
-                sensors, new_x - x, new_y - y, new_q-q)
-
-            sensors = rotate_all_pos(sensors, new_x, new_y, new_q-q)
-
+            #! Here I specifically check the collision before a new position update, why?
             # # check collision with arena walls
-            collided, collision_box = has_collided(x, y, q)
+            collided = robot.is_colliding(WORLD)
+            collision_box = robot.get_collision_box_coordinate()
 
-            # Update robot's information
-            robot.sensors = deepcopy(sensors)
-            robot.position = Position(new_x, new_y, new_q)
+            robot.update_sensors_pos(new_x - x, new_y - y, new_q-q)
+            robot.rotate_all_pos(new_x, new_y, new_q-q)
+
+            robot.update_position(Position(new_x, new_y, new_q))
 
             draw_information['spos'] = spos
             # ! (0,) is to fake ray for visu
@@ -268,8 +242,9 @@ try:
                 print("collided")
                 robot.has_collided = True
 
-except:
+except Exception as e:
     print("ERROR")
+    print(e)
     for robot in ROBOTS:
         FILE.write("\n" + json.dumps((robot.draw_information, robot.path)))
 

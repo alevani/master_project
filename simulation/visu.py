@@ -43,6 +43,7 @@ def draw_arena(screen):
     screen.fill((0, 0, 0))
     pygame.draw.rect(screen, WHITE, (MARGIN_W, MARGIN_H,
                                      ARENA_WIDTH, ARENA_HEIGHT))
+    pygame.draw.circle(screen, BLACK, (scale(0, 0)), 2)
 
 
 def rotate_center(image, rect, angle):
