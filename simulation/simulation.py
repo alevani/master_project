@@ -125,12 +125,11 @@ def get_sensor_values(rays, robot, robots):
 
     for r in robots:
         # Don't check ourselves
-        if r.number == robot.number:
-            break
-        for index, ray in enumerate(rays):
-            if r.is_sensing(ray):
-                dists[index] = distance(r.get_collision_box().intersection(
-                    ray), robot.sensors[index].x, robot.sensors[index].y)
+        if r.number != robot.number:
+            for index, ray in enumerate(rays):
+                if r.is_sensing(ray):
+                    dists[index] = distance(r.get_collision_box().intersection(
+                        ray), robot.sensors[index].x, robot.sensors[index].y)
 
     return dists
     # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
