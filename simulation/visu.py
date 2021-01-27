@@ -90,8 +90,8 @@ def draw(screen, point, cr, i, path):
         draw_rays(screen, point['spos'], point['sstate'])
 
     if DRAW_PATH:
-        for n in range(i - 50, i):  # ! Nice, it's like snake :D
-            # for n in range(i):
+        # for n in range(i - 50, i):  # ! Nice, it's like snake :D
+        for n in range(i):
             draw_path(screen, path[n], cr)
 
 
@@ -123,7 +123,7 @@ def simulation(points):
     global DRAW_BOX, DRAW_RAYS, DRAW_PATH
     DISPLAY_HANDLER = 0
     pygame.init()
-    fps = 24
+    fps = 50
     fpsClock = pygame.time.Clock()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 

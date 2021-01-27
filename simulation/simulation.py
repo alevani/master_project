@@ -126,15 +126,15 @@ def get_sensor_values(rays, robot, robots):
         dists.append(distance(WORLD.intersection(ray),
                               robot.sensors[index].x, robot.sensors[index].y))
 
-    # # Robot detection
-    # for r in robots:
-    #     # Don't check ourselves
-    #     if r.number != robot.number:
-    #         for index, ray in enumerate(rays):
-    #             if r.is_sensing(ray):
-    #                 p1, p2 = nearest_points(r.get_collision_box(), Point(
-    #                     robot.sensors[index].x, robot.sensors[index].y))
-    #                 dists[index] = distance(p1, p2.x, p2.y)
+    # Robot detection
+    for r in robots:
+        # Don't check ourselves
+        if r.number != robot.number:
+            for index, ray in enumerate(rays):
+                if r.is_sensing(ray):
+                    p1, p2 = nearest_points(r.get_collision_box(), Point(
+                        robot.sensors[index].x, robot.sensors[index].y))
+                    dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
     # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
@@ -251,11 +251,9 @@ try:
                 robot.has_collided = True
 
 except Exception as e:
-    print("ERROR")
-    print(e)
+    print("The program has encountered an error. Points written, but incompleted.")
     for robot in ROBOTS:
         FILE.write("\n" + json.dumps((robot.draw_information, robot.path)))
-
 
 for robot in ROBOTS:
     FILE.write("\n" + json.dumps((robot.draw_information, robot.path)))
