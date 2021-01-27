@@ -35,7 +35,7 @@ class Robot:
         return self.collision_box.box.intersects(shape)
 
     def is_sensing(self, ray):
-        return self.collision_box.box.interesects(ray)
+        return ray.crosses(self.collision_box.box)
 
     def update_position(self, position):
         self.position = position

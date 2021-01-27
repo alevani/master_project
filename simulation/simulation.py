@@ -3,6 +3,7 @@ from shapely.affinity import rotate
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from shapely.geometry.point import Point
 from env import Environment
+from shapely.ops import nearest_points
 
 import numpy as np
 from numpy import sin, cos, pi, sqrt, zeros
@@ -119,17 +120,21 @@ def get_sensors_state(sensors):
 
 def get_sensor_values(rays, robot, robots):
     dists = []
+
+    # Wall detection
     for index, ray in enumerate(rays):
         dists.append(distance(WORLD.intersection(ray),
                               robot.sensors[index].x, robot.sensors[index].y))
 
-    for r in robots:
-        # Don't check ourselves
-        if r.number != robot.number:
-            for index, ray in enumerate(rays):
-                if r.is_sensing(ray):
-                    dists[index] = distance(r.get_collision_box().intersection(
-                        ray), robot.sensors[index].x, robot.sensors[index].y)
+    # # Robot detection
+    # for r in robots:
+    #     # Don't check ourselves
+    #     if r.number != robot.number:
+    #         for index, ray in enumerate(rays):
+    #             if r.is_sensing(ray):
+    #                 p1, p2 = nearest_points(r.get_collision_box(), Point(
+    #                     robot.sensors[index].x, robot.sensors[index].y))
+    #                 dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
     # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
@@ -144,7 +149,7 @@ q = math.radians(90)
 
 sensors = PROXIMITY_SENSORS_POSITION
 
-CNT = 5000
+CNT = 15000
 M = 20
 DV = CNT / M
 
@@ -165,9 +170,13 @@ FILE.write(json.dumps(world))
 
 ROBOTS = []
 R1 = Robot(1, deepcopy(sensors), Position(-0.2, 0, math.radians(0)))
+R4 = Robot(1, deepcopy(sensors), Position(-0.2, -.20, math.radians(0)))
 R2 = Robot(2, deepcopy(sensors), Position(0.20, 0, math.radians(180)))
+R3 = Robot(3, deepcopy(sensors), Position(0.20, 0.20, math.radians(180)))
 ROBOTS.append(R1)
 ROBOTS.append(R2)
+ROBOTS.append(R3)
+ROBOTS.append(R4)
 ###############################################################################
 try:
     for cnt in range(CNT):
@@ -252,58 +261,3 @@ for robot in ROBOTS:
     FILE.write("\n" + json.dumps((robot.draw_information, robot.path)))
 
 FILE.close()
-
-# elif state == '01100' or state == '01000':
-#     RIGHT_WHEEL_VELOCITY = 0
-# elif state == '00110' or state == '00010':
-#     LEFT_WHEEL_VELOCITY = 0
-# elif state == '10000' or state == '11000':
-#     LEFT_WHEEL_VELOCITY = 0.5
-# elif state == '00001' or state == '00011':
-#     RIGHT_WHEEL_VELOCITY = 0.5
-
-# if state == '00000':
-#     print("FORWARD")
-#     # LEFT_WHEEL_VELOCITY = random()
-#     # RIGHT_WHEEL_VELOCITY = random()
-#     pass
-# elif state == '00100' or state == '01110' or state == '11111' or state == '11011' or state == 'state = 10001':
-#     # Vague state, choose randomly wheter to turn left or right
-#     # if randint(0, 1):
-#     LEFT_WHEEL_VELOCITY = -1
-#     # else:
-#     #     RIGHT_WHEEL_VELOCITY = -1
-
-# elif state == '00010' or state == '00001':
-#     print("LEFT")
-#     LEFT_WHEEL_VELOCITY = -1
-#     RIGHT_WHEEL_VELOCITY = 1
-# elif state == '01000':
-#     print("RIGHT")
-#     RIGHT_WHEEL_VELOCITY = -1
-#     LEFT_WHEEL_VELOCITY = 1
-# else:
-#     print("BACKWARD")
-
-# elif state == '01100' or state == '01000' or state == '10000' or state == '11000':
-#     RIGHT_WHEEL_VELOCITY = -1
-
-# elif state == '00110' or state == '00010' or state == '00001' or state == '00011':
-#     LEFT_WHEEL_VELOCITY = -1
-# else:
-#     LEFT_WHEEL_VELOCITY = 1
-#     RIGHT_WHEEL_VELOCITY = -1
-
-# if state == (0, 0, 1, 0, 0):
-#     if randint(0, 1):
-#         RIGHT_WHEEL_VELOCITY = -1
-#     else:
-#         LEFT_WHEEL_VELOCITY = -1
-# elif state == (1, 0, 0, 0, 0) or state == (1, 1, 0, 0, 0)or state == (1, 1, 1, 0, 0):
-#     RIGHT_WHEEL_VELOCITY = -1
-# elif state == (0, 0, 0, 0, 1) or state == (0, 0, 0, 1, 1) or state == (0, 0, 1, 1, 1):
-#     LEFT_WHEEL_VELOCITY = -1
-# elif state == (0, 1, 0, 1, 0):
-#     LEFT_WHEEL_VELOCITY = -1
-# else:
-#     pass
