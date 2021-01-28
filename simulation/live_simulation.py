@@ -244,7 +244,7 @@ try:
 
             # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
             VISUALIZER.draw(robot.position, robot.color, cnt,
-                            robot.path, collision_box, (0,) + state + (0,), spos)
+                            robot.path, collision_box, (state[0], 0, state[1], 0, state[2]), spos)
 
             #! I just figured that, with the robot's path, it's going to be easy to follow it or to detect it! :)
             #! if there's too much point, one can activate it
