@@ -117,11 +117,11 @@ def get_sensors_state(sensors):
     leftest = sensors_values[0]
     rightest = sensors_values[4]
 
-    top_value = 1 if top < 0.1 else 0
-    left_value = 1 if left < 0.1 else 0
-    right_value = 1 if right < 0.1 else 0
-    leftest_value = 1 if leftest < 0.1 else 0
-    rightest_value = 1 if rightest < 0.1 else 0
+    top_value = 1 if top < 0.04 else 0
+    left_value = 1 if left < 0.04 else 0
+    right_value = 1 if right < 0.04 else 0
+    leftest_value = 1 if leftest < 0.04 else 0
+    rightest_value = 1 if rightest < 0.04 else 0
 
     # return (leftest_value, left_value, top_value, right_value, rightest_value)
     return (leftest_value, top_value, rightest_value)

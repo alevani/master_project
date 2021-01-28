@@ -5,7 +5,7 @@ from math import cos, sin
 
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
-GRAY = (100, 100, 100)
+GRAY = (200, 200, 200)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
