@@ -35,9 +35,6 @@ DRAW_PATH = False
 
 ###############################################################################
 
-# def draw_ray(screen, start, end):
-#     pygame.draw.line(screen, red, start, end)
-
 
 def draw_arena(screen):
     screen.fill((0, 0, 0))
