@@ -21,7 +21,7 @@ from copy import deepcopy
 from utils import Position
 from utils import distance
 
-
+from time import time_ns
 from time import sleep
 import math
 
@@ -32,7 +32,7 @@ from random import *
 # WORLD
 # TODO Redo measurements of the robot's sensors' position
 
-ROBOT_TIMESTEP = 0.7  # 1/ROBOT_TIMESTEP equals update frequency of robot
+ROBOT_TIMESTEP = 0.1  # 1/ROBOT_TIMESTEP equals update frequency of robot
 
 # timestep in kinematics< sim (probably don't touch..)
 SIMULATION_TIMESTEP = .01
@@ -134,15 +134,15 @@ def get_sensor_values(rays, robot, robots):
         dists.append(distance(WORLD.intersection(ray),
                               robot.sensors[index].x, robot.sensors[index].y))
 
-    # Robot detection
-    for r in robots:
-        # Don't check ourselves
-        if r.number != robot.number:
-            for index, ray in enumerate(rays):
-                if r.is_sensing(ray):
-                    p1, p2 = nearest_points(r.get_collision_box(), Point(
-                        robot.sensors[index].x, robot.sensors[index].y))
-                    dists[index] = distance(p1, p2.x, p2.y)
+    # # Robot detection
+    # for r in robots:
+    #     # Don't check ourselves
+    #     if r.number != robot.number:
+    #         for index, ray in enumerate(rays):
+    #             if r.is_sensing(ray):
+    #                 p1, p2 = nearest_points(r.get_collision_box(), Point(
+    #                     robot.sensors[index].x, robot.sensors[index].y))
+    #                 dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
     # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
@@ -197,6 +197,47 @@ ROBOTS.append(R5)
 ROBOTS.append(R6)
 ###############################################################################
 
+
+def calculate_position_robot(robot):
+    rays, spos = create_rays(robot.sensors)
+    sensors_values = get_sensor_values(rays, robot, ROBOTS)
+    state = get_sensors_state(sensors_values)
+
+    LEFT_WHEEL_VELOCITY = 1
+    RIGHT_WHEEL_VELOCITY = 1
+
+    if state == (0, 1, 0):
+        if randint(0, 1):
+            RIGHT_WHEEL_VELOCITY = -1
+        else:
+            LEFT_WHEEL_VELOCITY = -1
+        # LEFT_WHEEL_VELOCITY = -1  # ! Random seems to make them wiggle to much :D
+    elif state == (1, 0, 0) or state == (1, 1, 0):
+        RIGHT_WHEEL_VELOCITY = -1
+    elif state == (0, 0, 1) or state == (0, 1, 1):
+        LEFT_WHEEL_VELOCITY = -1
+        # TODO robot somwhow still get stuck in the corner
+    elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
+        # ! in software, escaping the corner looks difficult. but hardware should be easy.
+        LEFT_WHEEL_VELOCITY = -1
+    else:
+        LEFT_WHEEL_VELOCITY = random()
+        RIGHT_WHEEL_VELOCITY = random()
+
+    # # step simulation
+    x = robot.position.x
+    y = robot.position.y
+    q = robot.position.q
+
+    new_x, new_y, new_q = simulationstep(
+        x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
+
+    robot.update_sensors_pos(new_x - x, new_y - y, new_q-q)
+    robot.rotate_all_pos(new_x, new_y, new_q-q)
+
+    robot.update_position(Position(new_x, new_y, new_q))
+
+
 try:
     pygame.init()
     fps = 24
@@ -208,54 +249,10 @@ try:
             if robot.has_collided:
                 break
 
-            #! I think these function should be also move in the robot class.
-            rays, spos = create_rays(robot.sensors)
-            sensors_values = get_sensor_values(rays, robot, ROBOTS)
-            state = get_sensors_state(sensors_values)
-
-            LEFT_WHEEL_VELOCITY = 1
-            RIGHT_WHEEL_VELOCITY = 1
-
-            if state == (0, 1, 0):
-                if randint(0, 1):
-                    RIGHT_WHEEL_VELOCITY = -1
-                else:
-                    LEFT_WHEEL_VELOCITY = -1
-                # LEFT_WHEEL_VELOCITY = -1  # ! Random seems to make them wiggle to much :D
-            elif state == (1, 0, 0) or state == (1, 1, 0):
-                RIGHT_WHEEL_VELOCITY = -1
-            elif state == (0, 0, 1) or state == (0, 1, 1):
-                LEFT_WHEEL_VELOCITY = -1
-                # TODO robot somwhow still get stuck in the corner
-            elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
-                # ! in software, escaping the corner looks difficult. but hardware should be easy.
-                LEFT_WHEEL_VELOCITY = -1
-            else:
-                LEFT_WHEEL_VELOCITY = random()
-                RIGHT_WHEEL_VELOCITY = random()
-
-            # # step simulation
-            x = robot.position.x
-            y = robot.position.y
-            q = robot.position.q
-
-            new_x, new_y, new_q = simulationstep(
-                x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
-
-            #! Here I specifically check the collision before a new position update, why?
-            # # check collision with arena walls
-            collided = robot.is_colliding(WORLD)
-            collision_box = robot.get_collision_box_coordinate()
-
-            robot.update_sensors_pos(new_x - x, new_y - y, new_q-q)
-            robot.rotate_all_pos(new_x, new_y, new_q-q)
-
-            robot.update_position(Position(new_x, new_y, new_q))
-
             VISUALIZER.draw(robot.position, robot.color, 0,
-                            robot.path, collision_box, (0,) + state + (0,), spos)
+                            robot.path, robot.get_collision_box_coordinate(), (0,) + robot.proximity_sensors_state + (0,), robot.spos)
 
-            if collided:
+            if robot.is_colliding(WORLD):
                 print("collided")
                 robot.has_collided = True
 

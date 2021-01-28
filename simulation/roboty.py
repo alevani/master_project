@@ -14,9 +14,9 @@ class CollisionBox:
 
 
 class Robot:
-    def __init__(self, number, sensors, position):
+    def __init__(self, number, sensors, position, color=None):
         self.number = number
-
+        self.color = color
         self.sensors = sensors
 
         self.update_sensors_pos(position.x, position.y,
