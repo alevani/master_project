@@ -2,7 +2,6 @@ import shapely
 from shapely.affinity import rotate
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from shapely.geometry.point import Point
-from env import Environment
 from shapely.ops import nearest_points
 
 import numpy as np
