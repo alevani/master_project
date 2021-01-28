@@ -66,13 +66,6 @@ def update_sensors_position(sensors, x, y, q):
     return sensors
 
 
-def create_rays(pos, robot_position):
-    nx = pos.x + robot_position.x
-    ny = pos.y + robot_position.y
-    nq = pos.q + robot_position.q
-    return LineString([(nx, ny), (nx+cos(nq)*2*W, (ny+sin(nq)*2*H))])
-
-
 def simulationstep(x, y, q, left_wheel_velocity, right_wheel_velocity):
     # step model time/timestep times
     for step in range(int(ROBOT_TIMESTEP/SIMULATION_TIMESTEP)):
@@ -218,6 +211,7 @@ try:
                 LEFT_WHEEL_VELOCITY = -1
                 # TODO robot somwhow still get stuck in the corner
             elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
+                # ! in software, escaping the corner looks difficult. but hardware should be easy.
                 LEFT_WHEEL_VELOCITY = -1
             else:
                 LEFT_WHEEL_VELOCITY = random()
