@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import math
+from math import cos, sin
 
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
@@ -72,26 +73,30 @@ class Visualizator:
             self.draw_box(box)
 
         if self.DRAW_RAYS:
-            self.draw_rays(spos, sstate)
+            self.draw_rays(spos, sstate, robot.q)
 
         if self.DRAW_PATH:
-            # for n in range(i - 50, i):  # ! Nice, it's like snake :D
-            for n in range(i):
-                self.draw_path(path[n], color)
+            #! take the last 1000 points, simulate evaporation
+            path = path[-200:]
+            for point in path:
+                self.draw_path(point, color)
 
     def draw_path(self, path, color):
         pygame.draw.circle(self.screen, color,
-                           self.scale(path['x'], path['y']), 2)
+                           self.scale(path['x'], path['y']), 1.5)
 
     def draw_box(self, box):
         for point in box:
             pygame.draw.circle(
                 self.screen, RED, self.scale(point[0], point[1]), 5)
 
-    def draw_rays(self, rays, states):
+    def draw_rays(self, rays, states, q):
         for i, ray in enumerate(rays):
-            x_start, y_start = self.scale(ray[0][0], ray[0][1])
-            x_end, y_end = self.scale(ray[1][0], ray[1][1])
+            x, y, q = ray
+            x_start, y_start = self.scale(x, y)
+            nx_end = x+cos(q)*0.05
+            ny_end = y+sin(q)*0.05
+            x_end, y_end = self.scale(nx_end, ny_end)
 
             if states[i] == 0:
                 color = GRAY

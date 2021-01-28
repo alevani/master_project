@@ -32,7 +32,8 @@ from random import *
 # WORLD
 # TODO Redo measurements of the robot's sensors' position
 
-ROBOT_TIMESTEP = 0.7  # 1/ROBOT_TIMESTEP equals update frequency of robot
+#! Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
+ROBOT_TIMESTEP = 0.4  # 1/ROBOT_TIMESTEP equals update frequency of robot
 
 # timestep in kinematics< sim (probably don't touch..)
 SIMULATION_TIMESTEP = .01
@@ -104,7 +105,7 @@ def create_rays(sensors):
         nx_end = nx+cos(nq)*2*W
         ny_end = ny+sin(nq)*2*H
         ray = [(nx, ny), (nx_end, ny_end)]
-        spos.append(ray)
+        spos.append((nx, ny, nq))
         rays.append(LineString(ray))
     return rays, spos
 
@@ -159,20 +160,6 @@ sensors = PROXIMITY_SENSORS_POSITION
 
 CNT = 15000
 M = 20
-DV = CNT / M
-
-#! Since the simulation must last long, it is likely that I need to find ways
-#! to make the program faster. Maybe by removing the box and rays from the point file?
-
-world = {
-    "NAME": "BaseArena",
-    "W": W,
-    "H": H,
-    "X0": x,
-    "Y0": y,
-    "Q0": q,
-    "NBPOINTS": DV,
-}
 
 ROBOTS = []
 R1 = Robot(1, deepcopy(sensors), Position(-0.2, 0, math.radians(0)),
@@ -199,9 +186,11 @@ ROBOTS.append(R6)
 
 try:
     pygame.init()
-    fps = 30
+    fps = 60
     fpsClock = pygame.time.Clock()
+    cnt = 0
     while True:
+        cnt += 1
         VISUALIZER.draw_arena()
         for robot in ROBOTS:
 
@@ -230,6 +219,7 @@ try:
             elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
                 # ! in software, escaping the corner looks difficult. but hardware should be easy.
                 LEFT_WHEEL_VELOCITY = -1
+                RIGH_WHEEL_VELOCITY = -1
             else:
                 LEFT_WHEEL_VELOCITY = random()
                 RIGHT_WHEEL_VELOCITY = random()
@@ -252,8 +242,14 @@ try:
 
             robot.update_position(Position(new_x, new_y, new_q))
 
-            VISUALIZER.draw(robot.position, robot.color, 0,
+            # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
+            VISUALIZER.draw(robot.position, robot.color, cnt,
                             robot.path, collision_box, (0,) + state + (0,), spos)
+
+            #! I just figured that, with the robot's path, it's going to be easy to follow it or to detect it! :)
+            #! if there's too much point, one can activate it
+            if cnt % 2 == 0:
+                robot.path.append(robot.position.__dict__)
 
             if collided:
                 print("collided")
@@ -265,7 +261,7 @@ try:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
-                        sleep(5)
+                        sleep(0.2)
                     if event.key == pygame.K_q:
                         pygame.quit()
                         sys.exit()
