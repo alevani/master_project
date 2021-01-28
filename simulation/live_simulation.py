@@ -199,7 +199,7 @@ ROBOTS.append(R6)
 
 try:
     pygame.init()
-    fps = 24
+    fps = 30
     fpsClock = pygame.time.Clock()
     while True:
         VISUALIZER.draw_arena()
