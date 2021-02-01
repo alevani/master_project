@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import math
 from math import cos, sin
+from shapely.geometry.point import Point
 
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
@@ -9,6 +10,13 @@ GRAY = (200, 200, 200)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+
+
+class PheromonePoint:
+    def __init__(self, position, decay_time):
+        self.position = position
+        self.point = Point(position.x, position.y).buffer(0.05)
+        self.decay_time = decay_time
 
 
 class Visualizator:
@@ -28,6 +36,7 @@ class Visualizator:
         self.DRAW_BOX = False
         self.DRAW_RAYS = False
         self.DRAW_PATH = False
+        self.DRAW_BOTTOM_SENSORS = False
 
     def draw_arena(self):
         self.screen.fill((0, 0, 0))
@@ -37,7 +46,7 @@ class Visualizator:
 
     def draw_bottom_sensors(self, positions):
         for position in positions:
-            pygame.draw.circle(self.screen, BLUE, self.scale(
+            pygame.draw.circle(self.screen, GRAY, self.scale(
                 position[0], position[1]), 5)
 
     def rotate_center(self, image, rect, angle):
@@ -75,7 +84,8 @@ class Visualizator:
     def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position):
         self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
 
-        self.draw_bottom_sensors(bottom_sensor_position)
+        if self.DRAW_BOTTOM_SENSORS:
+            self.draw_bottom_sensors(bottom_sensor_position)
 
         if self.DRAW_BOX:
             self.draw_box(box)

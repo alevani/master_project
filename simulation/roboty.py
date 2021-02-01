@@ -2,6 +2,7 @@ import shapely
 from shapely.affinity import rotate
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from shapely.geometry.point import Point
+from numpy import sin, cos, pi, sqrt, zeros
 import math
 from utils import Position
 from copy import deepcopy
@@ -14,11 +15,17 @@ class CollisionBox:
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L):
         self.number = number
         self.color = color
         self.proximity_sensors = proximity_sensors
         self.bottom_sensors = bottom_sensors
+        self.LEFT_WHEEL_VELOCITY = LEFT_WHEEL_VELOCITY
+        self.RIGHT_WHEEL_VELOCITY = RIGHT_WHEEL_VELOCITY
+        self.ROBOT_TIMESTEP = ROBOT_TIMESTEP
+        self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
+        self.R = R
+        self.L = L
 
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
@@ -94,3 +101,60 @@ class Robot:
         for pos in self.bottom_sensors:
             pos.x = pos.x + x
             pos.y = pos.y + y
+
+    def get_proximity_sensor_state(self, sensors_values):
+        top = sensors_values[2]
+        left = sensors_values[1]
+        right = sensors_values[3]
+        leftest = sensors_values[0]
+        rightest = sensors_values[4]
+
+        top_value = 1 if top < 0.04 else 0
+        left_value = 1 if left < 0.04 else 0
+        right_value = 1 if right < 0.04 else 0
+        leftest_value = 1 if leftest < 0.04 else 0
+        rightest_value = 1 if rightest < 0.04 else 0
+
+        # return (leftest_value, left_value, top_value, right_value, rightest_value)
+        return (leftest_value, top_value, rightest_value)
+
+    def create_rays(self, W, H):
+        rays = []
+        spos = []
+        for sensor in self.proximity_sensors:
+            nx = sensor.x
+            ny = sensor.y
+            nq = sensor.q
+            nx_end = nx+cos(nq)*2*W
+            ny_end = ny+sin(nq)*2*H
+            ray = [(nx, ny), (nx_end, ny_end)]
+            spos.append((nx, ny, nq))
+            rays.append(LineString(ray))
+        return rays, spos
+
+    def simulationstep(self):
+        # step model time/timestep times
+        x = self.position.x
+        y = self.position.y
+        q = self.position.q
+        for step in range(int(self.ROBOT_TIMESTEP/self.SIMULATION_TIMESTEP)):
+            v_x = cos(q)*(self.R*self.LEFT_WHEEL_VELOCITY /
+                          2 + self.R*self.RIGHT_WHEEL_VELOCITY/2)
+            v_y = sin(q)*(self.R*self.LEFT_WHEEL_VELOCITY /
+                          2 + self.R*self.RIGHT_WHEEL_VELOCITY/2)
+            omega = (self.R*self.RIGHT_WHEEL_VELOCITY -
+                     self.R*self.LEFT_WHEEL_VELOCITY)/(2*self.L)
+
+            x += v_x * self.SIMULATION_TIMESTEP
+            y += v_y * self.SIMULATION_TIMESTEP
+            q += omega * self.SIMULATION_TIMESTEP
+
+        self.update_proximity_sensor_position(
+            x - self.position.x, y - self.position.y, q-self.position.q)
+        self.rotate_proximity_sensors(x, y, q-self.position.q)
+
+        self.update_bottom_sensor_position(
+            x - self.position.x, y - self.position.y)
+        self.rotate_bottom_sensor(x, y, q-self.position.q)
+
+        self.update_position(Position(x, y, q))

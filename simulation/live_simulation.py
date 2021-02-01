@@ -10,6 +10,7 @@ import math
 
 from roboty import Robot
 from utils_simu import Visualizator
+from utils_simu import PheromonePoint
 
 from pygame.locals import *
 import pygame
@@ -20,7 +21,6 @@ from copy import deepcopy
 
 from utils import Position
 from utils import distance
-
 
 from time import sleep
 import math
@@ -48,6 +48,7 @@ RIGHT_WHEEL_VELOCITY = 1
 # H = 1.18  # height of arena
 W = 4
 H = 3
+
 TOP_BORDER = H/2  # 0.59
 BOTTOM_BORDER = -H/2
 RIGHT_BORDER = W/2  # 0.97
@@ -75,12 +76,8 @@ DISPLAY_HANDLER = 0
 ###############################################################################
 
 
-def update_sensors_position(sensors, x, y, q):
-    for pos in sensors:
-        pos.x = pos.x + x
-        pos.y = pos.y + y
-        pos.q = pos.q + q
-    return sensors
+def decay_check():
+    pass
 
 
 def simulationstep(x, y, q, left_wheel_velocity, right_wheel_velocity):
@@ -96,27 +93,12 @@ def simulationstep(x, y, q, left_wheel_velocity, right_wheel_velocity):
     return x, y, q
 
 
-def create_rays(sensors):
-    rays = []
-    spos = []
-    for sensor in sensors:
-        nx = sensor.x
-        ny = sensor.y
-        nq = sensor.q
-        nx_end = nx+cos(nq)*2*W
-        ny_end = ny+sin(nq)*2*H
-        ray = [(nx, ny), (nx_end, ny_end)]
-        spos.append((nx, ny, nq))
-        rays.append(LineString(ray))
-    return rays, spos
-
-
 def get_proximity_sensor_state(sensors):
-    top = sensors_values[2]
-    left = sensors_values[1]
-    right = sensors_values[3]
-    leftest = sensors_values[0]
-    rightest = sensors_values[4]
+    top = sensors[2]
+    left = sensors[1]
+    right = sensors[3]
+    leftest = sensors[0]
+    rightest = sensors[4]
 
     top_value = 1 if top < 0.04 else 0
     left_value = 1 if left < 0.04 else 0
@@ -129,6 +111,7 @@ def get_proximity_sensor_state(sensors):
 
 
 def get_sensors_values(sensors):
+    # what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
     box_left = Point(sensors[0].x, sensors[0].y).buffer(0.05)
     box_right = Point(sensors[1].x, sensors[1].y).buffer(0.05)
 
@@ -176,25 +159,27 @@ M = 20
 
 ROBOTS = []
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(0)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
-    180)), (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+    180)), (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
-# ROBOTS.append(R1)
-# ROBOTS.append(R2)
-# ROBOTS.append(R3)
-# ROBOTS.append(R4)
+ROBOTS.append(R1)
+ROBOTS.append(R2)
+ROBOTS.append(R3)
+ROBOTS.append(R4)
 ROBOTS.append(R5)
 ROBOTS.append(R6)
+
+PHEROMON_PATH = []
 ###############################################################################
 
 try:
@@ -210,59 +195,40 @@ try:
             if robot.has_collided:
                 break
 
-            #! I think these function should be also move in the robot class.
-            rays, DRAW_proximity_sensor_position = create_rays(
-                robot.proximity_sensors)
+            rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
             sensors_values = get_proximity_sensor_values(rays, robot, ROBOTS)
-            # ? Maybe when I call this function, it call all of the others
-            state = get_proximity_sensor_state(sensors_values)
-
-            LEFT_WHEEL_VELOCITY = 1
-            RIGHT_WHEEL_VELOCITY = 1
+            state = robot.get_proximity_sensor_state(sensors_values)
 
             # Robot's brain
             if state == (0, 1, 0):
                 if randint(0, 1):
-                    RIGHT_WHEEL_VELOCITY = -1
+                    robot.RIGHT_WHEEL_VELOCITY = -1
+                    robot.LEFT_WHEEL_VELOCITY = 1
                 else:
-                    LEFT_WHEEL_VELOCITY = -1
-                # LEFT_WHEEL_VELOCITY = -1  # ! Random seems to make them wiggle to much :D
+                    robot.RIGHT_WHEEL_VELOCITY = 1
+                    robot.LEFT_WHEEL_VELOCITY = -1
             elif state == (1, 0, 0) or state == (1, 1, 0):
-                RIGHT_WHEEL_VELOCITY = -1
+                robot.RIGHT_WHEEL_VELOCITY = -1
+                robot.LEFT_WHEEL_VELOCITY = 1
             elif state == (0, 0, 1) or state == (0, 1, 1):
-                LEFT_WHEEL_VELOCITY = -1
-                # TODO robot somwhow still get stuck in the corner
+                robot.RIGHT_WHEEL_VELOCITY = 1
+                robot.LEFT_WHEEL_VELOCITY = -1
             elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
-                # ! in software, escaping the corner looks difficult. but hardware should be easy.
-                LEFT_WHEEL_VELOCITY = -1
-                RIGH_WHEEL_VELOCITY = -1
+                # TODO robot somwhow still get stuck in the corner
+                robot.RIGHT_WHEEL_VELOCITY = -1
+                robot.LEFT_WHEEL_VELOCITY = -1
             else:
-                LEFT_WHEEL_VELOCITY = random()
-                RIGHT_WHEEL_VELOCITY = random()
+                robot.LEFT_WHEEL_VELOCITY = random()
+                robot.RIGHT_WHEEL_VELOCITY = random()
             ###################################
 
-            # # step simulation
-            x = robot.position.x
-            y = robot.position.y
-            q = robot.position.q
+            robot.simulationstep()
 
-            nx, ny, nq = simulationstep(
-                x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
-
-            #! Here I specifically check the collision before a new position update, why?
-            # # check collision with arena walls
+            # check collision with arena walls
             collided = robot.is_colliding(WORLD)
             collision_box = robot.get_collision_box_coordinate()
 
-            robot.update_proximity_sensor_position(
-                nx - x, ny - y, nq-q)
-            robot.rotate_proximity_sensors(nx, ny, nq-q)
-
-            robot.update_bottom_sensor_position(
-                nx - x, ny - y)
-            robot.rotate_bottom_sensor(nx, ny, nq-q)
-
-            robot.update_position(Position(nx, ny, nq))
+            PHEROMON_PATH.append(PheromonePoint(robot.position, 100))
 
             DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
                 robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
@@ -273,8 +239,8 @@ try:
 
             #! I just figured that, with the robot's path, it's going to be easy to follow it or to detect it! :)
             #! if there's too much point, one can activate it
-            if cnt % 2 == 0:
-                robot.path.append(robot.position.__dict__)
+            # if cnt % 2 == 0:
+            robot.path.append(robot.position.__dict__)
 
             if collided:
                 #! Right now, if robot collides, it will disapear form the simulation (since no more point)
@@ -300,16 +266,18 @@ try:
                         if DISPLAY_HANDLER == 3:
                             VISUALIZER.DRAW_RAYS = False
                             VISUALIZER.DRAW_BOX = False
+                            VISUALIZER.DRAW_BOTTOM_SENSORS = False
                             DISPLAY_HANDLER = 0
                             print(
-                                "[Display] Rays and Box visualization desactivated")
+                                "[Display] Sensors and Box visualization desactivated")
                         elif DISPLAY_HANDLER == 1:
                             VISUALIZER.DRAW_RAYS = True
-                            print("[Display] Rays visualization activated")
+                            VISUALIZER.DRAW_BOTTOM_SENSORS = True
+                            print("[Display] Sensors visualization activated")
                         elif DISPLAY_HANDLER == 2:
                             VISUALIZER.DRAW_BOX = True
                             print(
-                                "[Display] Rays and Box visualization activated")
+                                "[Display] Sensors and Box visualization activated")
 
         pygame.display.flip()  # render drawing
         fpsClock.tick(fps)
