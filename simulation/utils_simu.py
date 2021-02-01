@@ -7,6 +7,7 @@ WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
 GRAY = (200, 200, 200)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 
 
@@ -33,6 +34,11 @@ class Visualizator:
         pygame.draw.rect(self.screen, WHITE, (self.MARGIN_W, self.MARGIN_H,
                                               self.arena_width, self.arena_height))
         pygame.draw.circle(self.screen, BLACK, (self.scale(0, 0)), 2)
+
+    def draw_bottom_sensors(self, positions):
+        for position in positions:
+            pygame.draw.circle(self.screen, BLUE, self.scale(
+                position[0], position[1]), 5)
 
     def rotate_center(self, image, rect, angle):
         rot_img = pygame.transform.rotate(image, angle)
@@ -66,8 +72,10 @@ class Visualizator:
             self.MARGIN_H - self.robot_size/2+tresh
         return nx, ny
 
-    def draw(self, robot, color, i, path, box, sstate, spos):
+    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position):
         self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
+
+        self.draw_bottom_sensors(bottom_sensor_position)
 
         if self.DRAW_BOX:
             self.draw_box(box)

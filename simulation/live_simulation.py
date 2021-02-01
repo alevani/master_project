@@ -56,7 +56,7 @@ LEFT_BORDER = -W/2
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
 BOTTOM_LIGHT_SENSORS_POSITION = [
-    Position(-0.0097, 0.074), Position(0.0097, 0.074)]
+    Position(-0.0097, 0.03), Position(0.0097, 0.03)]  # ! false measurments
 
 # Assuming the robot is looking north
 PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
@@ -111,7 +111,7 @@ def create_rays(sensors):
     return rays, spos
 
 
-def get_sensors_state(sensors):
+def get_proximity_sensor_state(sensors):
     top = sensors_values[2]
     left = sensors_values[1]
     right = sensors_values[3]
@@ -128,13 +128,27 @@ def get_sensors_state(sensors):
     return (leftest_value, top_value, rightest_value)
 
 
-def get_sensor_values(rays, robot, robots):
+def get_sensors_values(sensors):
+    box_left = Point(sensors[0].x, sensors[0].y).buffer(0.05)
+    box_right = Point(sensors[1].x, sensors[1].y).buffer(0.05)
+
+    # TODO here, it will have to compare a list of all floor object present in the map
+    # TODO, then each object is a python object with a position and a gray color value
+    # TODO that way, in real life I can "easily" reproduce it
+    # TODO even though it is likely that I will have to implement camera anyway
+    # ? each object, even the path left by the robot, could be in the list (then supress path from robot.path). the object path in
+    # ? specific could have a decay (evaporation) counter and leave the list at some point.
+    #! or here we just check if we are on a path left by one of the n robot
+    # return (0 if Polygon(BLACK_TAPE).contains(box_left) else 1, 0 if Polygon(BLACK_TAPE).contains(box_right) else 1)
+
+
+def get_proximity_sensor_values(rays, robot, robots):
     dists = []
 
     # Wall detection
     for index, ray in enumerate(rays):
         dists.append(distance(WORLD.intersection(ray),
-                              robot.sensors[index].x, robot.sensors[index].y))
+                              robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
 
     # Robot detection
     for r in robots:
@@ -143,7 +157,7 @@ def get_sensor_values(rays, robot, robots):
             for index, ray in enumerate(rays):
                 if r.is_sensing(ray):
                     p1, p2 = nearest_points(r.get_collision_box(), Point(
-                        robot.sensors[index].x, robot.sensors[index].y))
+                        robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
                     dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
@@ -157,25 +171,23 @@ x = 0
 y = 0
 q = math.radians(90)
 
-sensors = PROXIMITY_SENSORS_POSITION
-
 CNT = 15000
 M = 20
 
 ROBOTS = []
-R1 = Robot(1, deepcopy(sensors), Position(-0.2, 0, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)))
-R5 = Robot(5, deepcopy(sensors), Position(-0.2, 0.2, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)))
-R4 = Robot(4, deepcopy(sensors), Position(-0.2, -.20, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)))
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0, math.radians(0)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
 
-R2 = Robot(2, deepcopy(sensors), Position(0.20, 0, math.radians(180)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)))
-R3 = Robot(3, deepcopy(sensors), Position(0.20, 0.20, math.radians(
-    180)), (randint(0, 255), randint(0, 255), randint(0, 255)))
-R6 = Robot(6, deepcopy(sensors), Position(0.20, -0.20, math.radians(180)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)))
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
+    180)), (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
+R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION))
 
 # ROBOTS.append(R1)
 # ROBOTS.append(R2)
@@ -199,13 +211,16 @@ try:
                 break
 
             #! I think these function should be also move in the robot class.
-            rays, spos = create_rays(robot.sensors)
-            sensors_values = get_sensor_values(rays, robot, ROBOTS)
-            state = get_sensors_state(sensors_values)
+            rays, DRAW_proximity_sensor_position = create_rays(
+                robot.proximity_sensors)
+            sensors_values = get_proximity_sensor_values(rays, robot, ROBOTS)
+            # ? Maybe when I call this function, it call all of the others
+            state = get_proximity_sensor_state(sensors_values)
 
             LEFT_WHEEL_VELOCITY = 1
             RIGHT_WHEEL_VELOCITY = 1
 
+            # Robot's brain
             if state == (0, 1, 0):
                 if randint(0, 1):
                     RIGHT_WHEEL_VELOCITY = -1
@@ -224,13 +239,14 @@ try:
             else:
                 LEFT_WHEEL_VELOCITY = random()
                 RIGHT_WHEEL_VELOCITY = random()
+            ###################################
 
             # # step simulation
             x = robot.position.x
             y = robot.position.y
             q = robot.position.q
 
-            new_x, new_y, new_q = simulationstep(
+            nx, ny, nq = simulationstep(
                 x, y, q, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY)
 
             #! Here I specifically check the collision before a new position update, why?
@@ -238,14 +254,22 @@ try:
             collided = robot.is_colliding(WORLD)
             collision_box = robot.get_collision_box_coordinate()
 
-            robot.update_sensors_pos(new_x - x, new_y - y, new_q-q)
-            robot.rotate_all_pos(new_x, new_y, new_q-q)
+            robot.update_proximity_sensor_position(
+                nx - x, ny - y, nq-q)
+            robot.rotate_proximity_sensors(nx, ny, nq-q)
 
-            robot.update_position(Position(new_x, new_y, new_q))
+            robot.update_bottom_sensor_position(
+                nx - x, ny - y)
+            robot.rotate_bottom_sensor(nx, ny, nq-q)
+
+            robot.update_position(Position(nx, ny, nq))
+
+            DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
+                robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
             # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
             VISUALIZER.draw(robot.position, robot.color, cnt,
-                            robot.path, collision_box, (state[0], 0, state[1], 0, state[2]), spos)
+                            robot.path, collision_box, (state[0], 0, state[1], 0, state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position)
 
             #! I just figured that, with the robot's path, it's going to be easy to follow it or to detect it! :)
             #! if there's too much point, one can activate it

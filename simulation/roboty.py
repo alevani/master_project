@@ -14,15 +14,20 @@ class CollisionBox:
 
 
 class Robot:
-    def __init__(self, number, sensors, position, color=None):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors):
         self.number = number
         self.color = color
-        self.sensors = sensors
+        self.proximity_sensors = proximity_sensors
+        self.bottom_sensors = bottom_sensors
 
-        self.update_sensors_pos(position.x, position.y,
-                                position.q-math.radians(90))
-        self.rotate_all_pos(position.x, position.y,
-                            position.q-math.radians(90))
+        self.update_bottom_sensor_position(position.x, position.y)
+        self.rotate_bottom_sensor(
+            position.x, position.y, position.q - math.radians(90))
+
+        self.update_proximity_sensor_position(position.x, position.y,
+                                              position.q-math.radians(90))
+        self.rotate_proximity_sensors(position.x, position.y,
+                                      position.q-math.radians(90))
 
         self.position = position
         self.draw_information = []
@@ -65,15 +70,27 @@ class Robot:
     def get_collision_box(self):
         return self.collision_box.box
 
-    def rotate_all_pos(self, x, y, q):
-        for pos in self.sensors:
+    def rotate_proximity_sensors(self, x, y, q):
+        for pos in self.proximity_sensors:
             point = rotate(Point(pos.x, pos.y), q,
                            (x, y), use_radians=True)
             pos.x = point.x
             pos.y = point.y
 
-    def update_sensors_pos(self, x, y, q):
-        for pos in self.sensors:
+    def rotate_bottom_sensor(self, x, y, a):
+        for pos in self.bottom_sensors:
+            point = rotate(Point(pos.x, pos.y), a,
+                           (x, y), use_radians=True)
+            pos.x = point.x
+            pos.y = point.y
+
+    def update_proximity_sensor_position(self, x, y, q):
+        for pos in self.proximity_sensors:
             pos.x = pos.x + x
             pos.y = pos.y + y
             pos.q = pos.q + q
+
+    def update_bottom_sensor_position(self, x, y):
+        for pos in self.bottom_sensors:
+            pos.x = pos.x + x
+            pos.y = pos.y + y
