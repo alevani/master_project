@@ -77,7 +77,7 @@ class Visualizator:
 
         if self.DRAW_PATH:
             #! take the last 1000 points, simulate evaporation
-            path = path[-200:]
+            # path = path[-200:]
             for point in path:
                 self.draw_path(point, color)
 

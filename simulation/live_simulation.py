@@ -33,7 +33,7 @@ from random import *
 # TODO Redo measurements of the robot's sensors' position
 
 #! Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
-ROBOT_TIMESTEP = 0.4  # 1/ROBOT_TIMESTEP equals update frequency of robot
+ROBOT_TIMESTEP = 1  # 1/ROBOT_TIMESTEP equals update frequency of robot
 
 # timestep in kinematics< sim (probably don't touch..)
 SIMULATION_TIMESTEP = .01
@@ -44,9 +44,10 @@ L = 0.095  # distance between wheels in meters
 LEFT_WHEEL_VELOCITY = 1
 RIGHT_WHEEL_VELOCITY = 1
 
-W = 1.94  # width of arena
-H = 1.18  # height of arena
-
+# W = 1.94  # width of arena
+# H = 1.18  # height of arena
+W = 4
+H = 3
 TOP_BORDER = H/2  # 0.59
 BOTTOM_BORDER = -H/2
 RIGHT_BORDER = W/2  # 0.97
@@ -176,10 +177,10 @@ R3 = Robot(3, deepcopy(sensors), Position(0.20, 0.20, math.radians(
 R6 = Robot(6, deepcopy(sensors), Position(0.20, -0.20, math.radians(180)),
            (randint(0, 255), randint(0, 255), randint(0, 255)))
 
-ROBOTS.append(R1)
-ROBOTS.append(R2)
-ROBOTS.append(R3)
-ROBOTS.append(R4)
+# ROBOTS.append(R1)
+# ROBOTS.append(R2)
+# ROBOTS.append(R3)
+# ROBOTS.append(R4)
 ROBOTS.append(R5)
 ROBOTS.append(R6)
 ###############################################################################
@@ -252,6 +253,7 @@ try:
                 robot.path.append(robot.position.__dict__)
 
             if collided:
+                #! Right now, if robot collides, it will disapear form the simulation (since no more point)
                 print("collided")
                 robot.has_collided = True
 
