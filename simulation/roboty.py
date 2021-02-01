@@ -115,12 +115,12 @@ class Robot:
             pos.x = pos.x + x
             pos.y = pos.y + y
 
-    def get_proximity_sensor_state(self, sensors_values):
-        top = sensors_values[2]
-        left = sensors_values[1]
-        right = sensors_values[3]
-        leftest = sensors_values[0]
-        rightest = sensors_values[4]
+    def get_proximity_sensor_state(self):
+        top = self.proximity_sensor_values[2]
+        left = self.proximity_sensor_values[1]
+        right = self.proximity_sensor_values[3]
+        leftest = self.proximity_sensor_values[0]
+        rightest = self.proximity_sensor_values[4]
 
         top_value = 1 if top < 0.04 else 0
         left_value = 1 if left < 0.04 else 0

@@ -163,7 +163,7 @@ while True:
 
         # Robot's brain
         bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMON_PATH)
-        proximity_sensors_state = robot.proximity_sensor_values
+        proximity_sensors_state = robot.get_proximity_sensor_state()
 
         if proximity_sensors_state == (0, 1, 0):
             if randint(0, 1):
