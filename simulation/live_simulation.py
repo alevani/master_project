@@ -77,7 +77,10 @@ DISPLAY_HANDLER = 0
 
 
 def decay_check():
-    pass
+    for i, point in enumerate(PHEROMON_PATH):
+        point.decay_time -= 1
+        if point.decay_time == 0:
+            PHEROMON_PATH.pop(i)
 
 
 def get_bottom_sensor_states(robot, POINTS):
@@ -163,14 +166,16 @@ R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.r
 
 ROBOTS.append(R1)
 ROBOTS.append(R2)
-# ROBOTS.append(R3)
-# ROBOTS.append(R4)
-# ROBOTS.append(R5)
-# ROBOTS.append(R6)
+ROBOTS.append(R3)
+ROBOTS.append(R4)
+ROBOTS.append(R5)
+ROBOTS.append(R6)
 
 PHEROMON_PATH = []
 ###############################################################################
 
+#! Il y a beaucoup de points qui sont enregistré, peut-être que je devrais faire en sorte d'avoir une option
+#! pour choisir quels set de points vont être activement enregistré ou non.
 pygame.init()
 fps = 60
 fpsClock = pygame.time.Clock()
@@ -190,21 +195,12 @@ while True:
 
         bottom_sensor_states = get_bottom_sensor_states(
             robot, PHEROMON_PATH)
-        print(bottom_sensor_states)
 
         state = robot.get_proximity_sensor_state(proximity_sensor_values)
 
         # Robot's brain
-        if bottom_sensor_states == (1, 0):
-            robot.RIGHT_WHEEL_VELOCITY = 1
-            robot.LEFT_WHEEL_VELOCITY = 0
-        elif bottom_sensor_states == (1, 1):
-            robot.RIGHT_WHEEL_VELOCITY = 1
-            robot.LEFT_WHEEL_VELOCITY = 1
-        elif bottom_sensor_states == (0, 1):
-            robot.RIGHT_WHEEL_VELOCITY = 0
-            robot.LEFT_WHEEL_VELOCITY = 1
-        elif state == (0, 1, 0):
+
+        if state == (0, 1, 0):
             if randint(0, 1):
                 robot.RIGHT_WHEEL_VELOCITY = -1
                 robot.LEFT_WHEEL_VELOCITY = 1
@@ -222,8 +218,20 @@ while True:
             robot.RIGHT_WHEEL_VELOCITY = -1
             robot.LEFT_WHEEL_VELOCITY = -1
         else:
-            robot.LEFT_WHEEL_VELOCITY = random()
-            robot.RIGHT_WHEEL_VELOCITY = random()
+            #! right now it cannot take 90 degree angle
+            #! could be because: wheel speed, or how many points are added (maybe it misses the path as it goes through it)
+            if bottom_sensor_states == (1, 0):
+                robot.RIGHT_WHEEL_VELOCITY = 1
+                robot.LEFT_WHEEL_VELOCITY = 0
+            elif bottom_sensor_states == (1, 1):
+                robot.RIGHT_WHEEL_VELOCITY = 1
+                robot.LEFT_WHEEL_VELOCITY = 1
+            elif bottom_sensor_states == (0, 1):
+                robot.RIGHT_WHEEL_VELOCITY = 0
+                robot.LEFT_WHEEL_VELOCITY = 1
+            else:
+                robot.LEFT_WHEEL_VELOCITY = random()
+                robot.RIGHT_WHEEL_VELOCITY = random()
         ###################################
 
         robot.simulationstep()
@@ -237,12 +245,13 @@ while True:
 
         # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
         VISUALIZER.draw(robot.position, robot.color, cnt,
-                        robot.path, collision_box, (state[0], 0, state[1], 0, state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states)
+                        robot.path, collision_box, (state[0], 0, state[1], 0, state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
 
-        #! I just figured that, with the robot's path, it's going to be easy to follow it or to detect it! :)
-        #! if there's too much point, one can activate it
+        decay_check()
+
         if cnt % 2 == 0:
-            PHEROMON_PATH.append(PheromonePoint(robot.position, 100))
+            PHEROMON_PATH.append(PheromonePoint(robot.position, 1000))
+            #! I imagine appening the point will only be activated under certain circumst.
             robot.path.append(robot.position.__dict__)
 
         if collided:
@@ -260,6 +269,9 @@ while True:
                 if event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
+                if event.key == pygame.K_d:
+                    VISUALIZER.DRAW_DECAY = not VISUALIZER.DRAW_DECAY
+                    print("[Display] Toggle pheromone decay visualization")
                 if event.key == pygame.K_x:
                     VISUALIZER.DRAW_PATH = not VISUALIZER.DRAW_PATH
                     print("[Display] Toggle path visualization")

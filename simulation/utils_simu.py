@@ -35,8 +35,9 @@ class Visualizator:
 
         self.DRAW_BOX = False
         self.DRAW_RAYS = False
-        self.DRAW_PATH = True
-        self.DRAW_BOTTOM_SENSORS = True
+        self.DRAW_PATH = False
+        self.DRAW_BOTTOM_SENSORS = False
+        self.DRAW_DECAY = False
 
     def draw_arena(self):
         self.screen.fill((0, 0, 0))
@@ -47,9 +48,9 @@ class Visualizator:
     def draw_bottom_sensors(self, positions, states):
 
         for i, position in enumerate(positions):
-            if states[i] == 0:
-                color = GRAY
-            elif states[i] == 1:
+
+            color = GRAY
+            if states[i] == 1:
                 color = RED
             pygame.draw.circle(self.screen, color, self.scale(
                 position[0], position[1]), 5)
@@ -86,12 +87,24 @@ class Visualizator:
             self.MARGIN_H - self.robot_size/2+tresh
         return nx, ny
 
-    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state):
+    def draw_decay(self, paths):
+        for point in paths:
+
+            color = BLACK
+            if point.decay_time < 500:
+                color = GRAY
+
+            pygame.draw.circle(self.screen, color,
+                               self.scale(point.position.x, point.position.y), 1.5)
+
+    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, pheromone_paths):
         self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
 
         if self.DRAW_BOTTOM_SENSORS:
             self.draw_bottom_sensors(
                 bottom_sensor_position, bottom_sensor_state)
+        if self.DRAW_DECAY:
+            self.draw_decay(pheromone_paths)
 
         if self.DRAW_BOX:
             self.draw_box(box)
