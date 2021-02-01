@@ -91,7 +91,7 @@ class Visualizator:
         for point in paths:
 
             color = BLACK
-            if point.decay_time < 500:
+            if point.decay_time < 2500:
                 color = GRAY
 
             pygame.draw.circle(self.screen, color,
@@ -125,7 +125,7 @@ class Visualizator:
     def draw_box(self, box):
         for point in box:
             pygame.draw.circle(
-                self.screen, RED, self.scale(point[0], point[1]), 5)
+                self.screen, BLUE, self.scale(point[0], point[1]), 5)
 
     def draw_rays(self, rays, states, q):
         for i, ray in enumerate(rays):

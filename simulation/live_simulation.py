@@ -92,13 +92,16 @@ def get_bottom_sensor_states(robot, POINTS):
 
     left_state = 0
     right_state = 0
+
+    # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
     for p in POINTS:
         if p.box.intersects(box_left):
             left_state = 1
-            # break
+            break
         elif p.box.intersects(box_right):
             right_state = 1
-            # break
+            break
+
     return (left_state, right_state)
 
     # right_state = 0
@@ -157,7 +160,7 @@ R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.rad
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.01, math.radians(0)),
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
     180)), (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
@@ -224,8 +227,7 @@ while True:
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = 0
             elif bottom_sensor_states == (1, 1):
-                robot.RIGHT_WHEEL_VELOCITY = 1
-                robot.LEFT_WHEEL_VELOCITY = 1
+                pass
             elif bottom_sensor_states == (0, 1):
                 robot.RIGHT_WHEEL_VELOCITY = 0
                 robot.LEFT_WHEEL_VELOCITY = 1
@@ -250,7 +252,7 @@ while True:
         decay_check()
 
         if cnt % 2 == 0:
-            PHEROMON_PATH.append(PheromonePoint(robot.position, 1000))
+            # PHEROMON_PATH.append(PheromonePoint(robot.position, 5000))
             #! I imagine appening the point will only be activated under certain circumst.
             robot.path.append(robot.position.__dict__)
 
