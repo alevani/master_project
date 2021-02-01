@@ -15,7 +15,7 @@ BLACK = (0, 0, 0)
 class PheromonePoint:
     def __init__(self, position, decay_time):
         self.position = position
-        self.point = Point(position.x, position.y).buffer(0.05)
+        self.box = Point(position.x, position.y).buffer(0.001)
         self.decay_time = decay_time
 
 
@@ -35,8 +35,8 @@ class Visualizator:
 
         self.DRAW_BOX = False
         self.DRAW_RAYS = False
-        self.DRAW_PATH = False
-        self.DRAW_BOTTOM_SENSORS = False
+        self.DRAW_PATH = True
+        self.DRAW_BOTTOM_SENSORS = True
 
     def draw_arena(self):
         self.screen.fill((0, 0, 0))
@@ -44,9 +44,14 @@ class Visualizator:
                                               self.arena_width, self.arena_height))
         pygame.draw.circle(self.screen, BLACK, (self.scale(0, 0)), 2)
 
-    def draw_bottom_sensors(self, positions):
-        for position in positions:
-            pygame.draw.circle(self.screen, GRAY, self.scale(
+    def draw_bottom_sensors(self, positions, states):
+
+        for i, position in enumerate(positions):
+            if states[i] == 0:
+                color = GRAY
+            elif states[i] == 1:
+                color = RED
+            pygame.draw.circle(self.screen, color, self.scale(
                 position[0], position[1]), 5)
 
     def rotate_center(self, image, rect, angle):
@@ -81,11 +86,12 @@ class Visualizator:
             self.MARGIN_H - self.robot_size/2+tresh
         return nx, ny
 
-    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position):
+    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state):
         self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
 
         if self.DRAW_BOTTOM_SENSORS:
-            self.draw_bottom_sensors(bottom_sensor_position)
+            self.draw_bottom_sensors(
+                bottom_sensor_position, bottom_sensor_state)
 
         if self.DRAW_BOX:
             self.draw_box(box)
