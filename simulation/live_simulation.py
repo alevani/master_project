@@ -4,6 +4,8 @@ from shapely.geometry import LinearRing, LineString, Point, Polygon
 from shapely.geometry.point import Point
 from shapely.ops import nearest_points
 
+import threading
+
 import numpy as np
 from numpy import sin, cos, pi, sqrt, zeros
 import math
@@ -70,9 +72,9 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
 # PYGAME
 ZOOM = 4
 ROBOT_SIZE = 40
-VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE)
+DECAY = 2500
+VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY)
 DISPLAY_HANDLER = 0
-
 ###############################################################################
 
 
@@ -82,42 +84,7 @@ def decay_check():
         if point.decay_time == 0:
             PHEROMON_PATH.pop(i)
 
-
-def get_bottom_sensor_states(robot, POINTS):
-    #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
-    box_left = Point(
-        robot.bottom_sensors[0].x, robot.bottom_sensors[0].y).buffer(0.01)
-    box_right = Point(
-        robot.bottom_sensors[1].x, robot.bottom_sensors[1].y).buffer(0.01)
-
-    left_state = 0
-    right_state = 0
-
-    # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
-    for p in POINTS:
-        if p.box.intersects(box_left):
-            left_state = 1
-            break
-        elif p.box.intersects(box_right):
-            right_state = 1
-            break
-
-    return (left_state, right_state)
-
-    # right_state = 0
-    # for p in POINTS:
-    #     if p.contains(box_left):
-    #         right_state = 1
-    # break
-
-    # TODO here, it will have to compare a list of all floor object present in the map
-    # TODO, then each object is a python object with a position and a gray color value
-    # TODO that way, in real life I can "easily" reproduce it
-    # TODO even though it is likely that I will have to implement camera anyway
-    # ? each object, even the path left by the robot, could be in the list (then supress path from robot.path). the object path in
-    # ? specific could have a decay (evaporation) counter and leave the list at some point.
-    #! or here we just check if we are on a path left by one of the n robot
-    # return (0 if Polygon(BLACK_TAPE).contains(box_left) else 1, 0 if Polygon(BLACK_TAPE).contains(box_right) else 1)
+    # threading.Timer(.1, decay_check).start()
 
 
 def get_proximity_sensor_values(rays, robot, robots):
@@ -175,6 +142,7 @@ ROBOTS.append(R5)
 ROBOTS.append(R6)
 
 PHEROMON_PATH = []
+
 ###############################################################################
 
 #! Il y a beaucoup de points qui sont enregistré, peut-être que je devrais faire en sorte d'avoir une option
@@ -196,27 +164,27 @@ while True:
         proximity_sensor_values = get_proximity_sensor_values(
             rays, robot, ROBOTS)
 
-        bottom_sensor_states = get_bottom_sensor_states(
-            robot, PHEROMON_PATH)
-
-        state = robot.get_proximity_sensor_state(proximity_sensor_values)
-
         # Robot's brain
+        bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMON_PATH)
 
-        if state == (0, 1, 0):
+        proximity_sensors_state = robot.get_proximity_sensor_state(
+            proximity_sensor_values)
+
+        if proximity_sensors_state == (0, 1, 0):
             if randint(0, 1):
                 robot.RIGHT_WHEEL_VELOCITY = -1
                 robot.LEFT_WHEEL_VELOCITY = 1
             else:
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = -1
-        elif state == (1, 0, 0) or state == (1, 1, 0):
+        elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
             robot.RIGHT_WHEEL_VELOCITY = -1
             robot.LEFT_WHEEL_VELOCITY = 1
-        elif state == (0, 0, 1) or state == (0, 1, 1):
+        elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
             robot.RIGHT_WHEEL_VELOCITY = 1
             robot.LEFT_WHEEL_VELOCITY = -1
-        elif state == (1, 0, 1) or state == (1, 1, 1):  #  I am stuck state
+        #  I am stuck state
+        elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
             # TODO robot somwhow still get stuck in the corner
             robot.RIGHT_WHEEL_VELOCITY = -1
             robot.LEFT_WHEEL_VELOCITY = -1
@@ -247,14 +215,12 @@ while True:
 
         # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
         VISUALIZER.draw(robot.position, robot.color, cnt,
-                        robot.path, collision_box, (state[0], 0, state[1], 0, state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
-
+                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         decay_check()
-
         if cnt % 2 == 0:
-            # PHEROMON_PATH.append(PheromonePoint(robot.position, 5000))
+            PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
             #! I imagine appening the point will only be activated under certain circumst.
-            robot.path.append(robot.position.__dict__)
+            # robot.path.append(robot.position.__dict__)
 
         if collided:
             #! Right now, if robot collides, it will disapear form the simulation (since no more point)

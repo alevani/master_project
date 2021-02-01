@@ -11,6 +11,12 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 
+DECAY100 = (0, 0, 0)
+DECAY75 = (50, 50, 50)
+DECAY50 = (100, 100, 100)
+DECAY25 = (150, 150, 150)
+DECAY10 = (200, 200, 200)
+
 
 class PheromonePoint:
     def __init__(self, position, decay_time):
@@ -20,7 +26,7 @@ class PheromonePoint:
 
 
 class Visualizator:
-    def __init__(self, zoom_factor, W, H, robot_size):
+    def __init__(self, zoom_factor, W, H, robot_size, decay):
         self.zoom = zoom_factor
         self.arena_width, self.arena_height = int(
             W * 100 * self.zoom), int(H * 100 * self.zoom)
@@ -32,6 +38,8 @@ class Visualizator:
 
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.robot_size = robot_size
+
+        self.DECAY = decay
 
         self.DRAW_BOX = False
         self.DRAW_RAYS = False
@@ -91,8 +99,16 @@ class Visualizator:
         for point in paths:
 
             color = BLACK
-            if point.decay_time < 2500:
-                color = GRAY
+            if point.decay_time > self.DECAY * 0.75:
+                color = DECAY100
+            elif point.decay_time > self.DECAY * 0.5:
+                color = DECAY75
+            elif point.decay_time > self.DECAY * 0.25:
+                color = DECAY50
+            elif point.decay_time > self.DECAY * 0.10:
+                color = DECAY25
+            else:
+                color = DECAY10
 
             pygame.draw.circle(self.screen, color,
                                self.scale(point.position.x, point.position.y), 1.5)

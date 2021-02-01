@@ -158,3 +158,40 @@ class Robot:
         self.rotate_bottom_sensor(x, y, q-self.position.q)
 
         self.update_position(Position(x, y, q))
+
+    def get_bottom_sensor_states(self, POINTS):
+        #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
+        box_left = Point(
+            self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.01)
+        box_right = Point(
+            self.bottom_sensors[1].x, self.bottom_sensors[1].y).buffer(0.01)
+
+        left_state = 0
+        right_state = 0
+
+        # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
+        #! but then, what if multiple path ..?
+        for p in POINTS:
+            if p.box.intersects(box_left):
+                left_state = 1
+                # break
+            elif p.box.intersects(box_right):
+                right_state = 1
+                # break
+
+        return (left_state, right_state)
+
+        # right_state = 0
+        # for p in POINTS:
+        #     if p.contains(box_left):
+        #         right_state = 1
+        # break
+
+        # TODO here, it will have to compare a list of all floor object present in the map
+        # TODO, then each object is a python object with a position and a gray color value
+        # TODO that way, in real life I can "easily" reproduce it
+        # TODO even though it is likely that I will have to implement camera anyway
+        # ? each object, even the path left by the robot, could be in the list (then supress path from robot.path). the object path in
+        # ? specific could have a decay (evaporation) counter and leave the list at some point.
+        #! or here we just check if we are on a path left by one of the n robot
+        # return (0 if Polygon(BLACK_TAPE).contains(box_left) else 1, 0 if Polygon(BLACK_TAPE).contains(box_right) else 1)
