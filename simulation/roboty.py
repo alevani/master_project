@@ -6,6 +6,10 @@ from numpy import sin, cos, pi, sqrt, zeros
 import math
 from utils import Position
 from copy import deepcopy
+from utils import distance
+import globals
+import threading
+from shapely.ops import nearest_points
 
 
 class CollisionBox:
@@ -15,7 +19,7 @@ class CollisionBox:
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H):
         self.number = number
         self.color = color
         self.proximity_sensors = proximity_sensors
@@ -26,6 +30,12 @@ class Robot:
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
+        self.WORLD = WORLD
+        self.W = W
+        self.H = H
+
+        self.DRAW_bottom_sensor_position = [(self.bottom_sensors[0].x, self.bottom_sensors[0].y), (
+            self.bottom_sensors[1].x, self.bottom_sensors[1].y)]
 
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
@@ -35,6 +45,9 @@ class Robot:
                                               position.q-math.radians(90))
         self.rotate_proximity_sensors(position.x, position.y,
                                       position.q-math.radians(90))
+
+        self.proximity_sensor_values = [0, 0, 0, 0, 0]
+        threading.Timer(.1, self.get_proximity_sensor_values).start()
 
         self.position = position
         self.draw_information = []
@@ -118,15 +131,15 @@ class Robot:
         # return (leftest_value, left_value, top_value, right_value, rightest_value)
         return (leftest_value, top_value, rightest_value)
 
-    def create_rays(self, W, H):
+    def create_rays(self):
         rays = []
         spos = []
         for sensor in self.proximity_sensors:
             nx = sensor.x
             ny = sensor.y
             nq = sensor.q
-            nx_end = nx+cos(nq)*2*W
-            ny_end = ny+sin(nq)*2*H
+            nx_end = nx+cos(nq)*2*self.W
+            ny_end = ny+sin(nq)*2*self.H
             ray = [(nx, ny), (nx_end, ny_end)]
             spos.append((nx, ny, nq))
             rays.append(LineString(ray))
@@ -159,6 +172,11 @@ class Robot:
 
         self.update_position(Position(x, y, q))
 
+        # Maybe not the most obvious to have drawing logic in the robot's core but it is what it is.
+        self.DRAW_bottom_sensor_position = [(self.bottom_sensors[0].x, self.bottom_sensors[0].y), (
+            self.bottom_sensors[1].x, self.bottom_sensors[1].y)]
+
+    # TODO ? can be threaded as well.
     def get_bottom_sensor_states(self, POINTS):
         #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
         box_left = Point(
@@ -195,3 +213,26 @@ class Robot:
         # ? specific could have a decay (evaporation) counter and leave the list at some point.
         #! or here we just check if we are on a path left by one of the n robot
         # return (0 if Polygon(BLACK_TAPE).contains(box_left) else 1, 0 if Polygon(BLACK_TAPE).contains(box_right) else 1)
+
+    def get_proximity_sensor_values(self):
+        rays, self.DRAW_proximity_sensor_position = self.create_rays()
+        dists = []
+        #! maybe the code will crash here, because dists might be invoked before assignement.
+
+        # Wall detection
+        for index, ray in enumerate(rays):
+            dists.append(distance(self.WORLD.intersection(ray),
+                                  self.proximity_sensors[index].x, self.proximity_sensors[index].y))
+
+        # Robot detection
+        for r in globals.ROBOTS:
+            # Don't check ourselves
+            if r.number != self.number:
+                for index, ray in enumerate(rays):
+                    if r.is_sensing(ray):
+                        p1, p2 = nearest_points(r.get_collision_box(), Point(
+                            self.proximity_sensors[index].x, self.proximity_sensors[index].y))
+                        dists[index] = distance(p1, p2.x, p2.y)
+
+        self.proximity_sensor_values = dists
+        threading.Timer(.1, self.get_proximity_sensor_values).start()

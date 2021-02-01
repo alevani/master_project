@@ -10,6 +10,7 @@ import numpy as np
 from numpy import sin, cos, pi, sqrt, zeros
 import math
 
+import globals
 from roboty import Robot
 from utils_simu import Visualizator
 from utils_simu import PheromonePoint
@@ -106,7 +107,6 @@ def get_proximity_sensor_values(rays, robot, robots):
                     dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
-    # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
 
 ### Start's variables #########################################################
 
@@ -119,27 +119,26 @@ q = math.radians(90)
 CNT = 15000
 M = 20
 
-ROBOTS = []
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H)
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H)
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
-    180)), (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+    180)), (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H)
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
-           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, WORLD, W, H)
 
-ROBOTS.append(R1)
-ROBOTS.append(R2)
-ROBOTS.append(R3)
-ROBOTS.append(R4)
-ROBOTS.append(R5)
-ROBOTS.append(R6)
+globals.ROBOTS.append(R1)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
 
 PHEROMON_PATH = []
 
@@ -154,21 +153,17 @@ cnt = 0
 while True:
     cnt += 1
     VISUALIZER.draw_arena()
-    for robot in ROBOTS:
+    for robot in globals.ROBOTS:
 
         if robot.has_collided:
             break
 
-        rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
-
-        proximity_sensor_values = get_proximity_sensor_values(
-            rays, robot, ROBOTS)
+        # proximity_sensor_values = get_proximity_sensor_values(
+        #     rays, robot, ROBOTS)
 
         # Robot's brain
         bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMON_PATH)
-
-        proximity_sensors_state = robot.get_proximity_sensor_state(
-            proximity_sensor_values)
+        proximity_sensors_state = robot.proximity_sensor_values
 
         if proximity_sensors_state == (0, 1, 0):
             if randint(0, 1):
@@ -210,12 +205,9 @@ while True:
         collided = robot.is_colliding(WORLD)
         collision_box = robot.get_collision_box_coordinate()
 
-        DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
-            robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
-
         # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
         VISUALIZER.draw(robot.position, robot.color, cnt,
-                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
+                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), robot.DRAW_proximity_sensor_position, robot.DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         decay_check()
         if cnt % 2 == 0:
             PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
