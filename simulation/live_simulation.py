@@ -29,6 +29,15 @@ import math
 
 from random import *
 
+# IDEAS
+# One can play with the buffers of the pheromone sensing to simulate crappy hardware of ant
+#   -> as in, right now the detection pretty wide, maybe induce some noise with a randmoness in the buffer?
+
+# Checking every point for decay is super slow, if I wasn't working with kinetic movement I could have a map
+# of pixel and a absolute position for pheromones, and they finding if the sensor is on a point would only take O(1)
+# but storage would be affected.
+########
+
 ### GLOBALS ###################################################################
 
 # WORLD
@@ -81,7 +90,7 @@ DISPLAY_HANDLER = 0
 def decay_check():
     for i, point in enumerate(PHEROMON_PATH):
         point.decay_time -= 1
-        if point.decay_time == 0:
+        if point.decay_time <= 0:
             PHEROMON_PATH.pop(i)
 
     # threading.Timer(.1, decay_check).start()
@@ -134,12 +143,20 @@ R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.ra
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
+R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.40, -0.40, math.radians(180)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+
+R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.radians(0)),
+           (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+
 ROBOTS.append(R1)
 ROBOTS.append(R2)
 ROBOTS.append(R3)
 ROBOTS.append(R4)
 ROBOTS.append(R5)
 ROBOTS.append(R6)
+ROBOTS.append(R7)
+ROBOTS.append(R8)
 
 PHEROMON_PATH = []
 

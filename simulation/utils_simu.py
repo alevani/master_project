@@ -21,7 +21,7 @@ DECAY10 = (200, 200, 200)
 class PheromonePoint:
     def __init__(self, position, decay_time):
         self.position = position
-        self.box = Point(position.x, position.y).buffer(0.001)
+        self.box = Point(position.x, position.y).buffer(0.01)
         self.decay_time = decay_time
 
 

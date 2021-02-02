@@ -162,22 +162,22 @@ class Robot:
     def get_bottom_sensor_states(self, POINTS):
         #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
         box_left = Point(
-            self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.01)
+            self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.02)
         box_right = Point(
-            self.bottom_sensors[1].x, self.bottom_sensors[1].y).buffer(0.01)
+            self.bottom_sensors[1].x, self.bottom_sensors[1].y).buffer(0.02)
 
         left_state = 0
         right_state = 0
 
         # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
-        #! but then, what if multiple path ..?
+        # #! but then, what if multiple path ..?
         for p in POINTS:
             if p.box.intersects(box_left):
                 left_state = 1
-                # break
+                break
             elif p.box.intersects(box_right):
                 right_state = 1
-                # break
+                break
 
         return (left_state, right_state)
 
