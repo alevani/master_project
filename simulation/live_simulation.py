@@ -32,6 +32,7 @@ from random import *
 # IDEAS
 # One can play with the buffers of the pheromone sensing to simulate crappy hardware of ant
 #   -> as in, right now the detection pretty wide, maybe induce some noise with a randmoness in the buffer?
+#   -> which is also why sometimes it misses rough angles.
 
 # Checking every point for decay is super slow, if I wasn't working with kinetic movement I could have a map
 # of pixel and a absolute position for pheromones, and they finding if the sensor is on a point would only take O(1)
@@ -43,7 +44,7 @@ from random import *
 # WORLD
 # TODO Redo measurements of the robot's sensors' position
 
-#! Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
+# Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
 ROBOT_TIMESTEP = 1  # 1/ROBOT_TIMESTEP equals update frequency of robot
 
 # timestep in kinematics< sim (probably don't touch..)
@@ -153,17 +154,15 @@ ROBOTS.append(R1)
 ROBOTS.append(R2)
 ROBOTS.append(R3)
 ROBOTS.append(R4)
-ROBOTS.append(R5)
-ROBOTS.append(R6)
-ROBOTS.append(R7)
-ROBOTS.append(R8)
+# ROBOTS.append(R5)
+# ROBOTS.append(R6)
+# ROBOTS.append(R7)
+# ROBOTS.append(R8)
 
 PHEROMON_PATH = []
 
 ###############################################################################
 
-#! Il y a beaucoup de points qui sont enregistré, peut-être que je devrais faire en sorte d'avoir une option
-#! pour choisir quels set de points vont être activement enregistré ou non.
 pygame.init()
 fps = 60
 fpsClock = pygame.time.Clock()
@@ -202,12 +201,12 @@ while True:
             robot.LEFT_WHEEL_VELOCITY = -1
         #  I am stuck state
         elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
-            # TODO robot somwhow still get stuck in the corner
-            robot.RIGHT_WHEEL_VELOCITY = -1
-            robot.LEFT_WHEEL_VELOCITY = -1
+            # Workaround for corner avoidance.
+            for _ in range(200):
+                robot.RIGHT_WHEEL_VELOCITY = -1
+                robot.LEFT_WHEEL_VELOCITY = 1
+                robot.simulationstep()
         else:
-            #! right now it cannot take 90 degree angle
-            #! could be because: wheel speed, or how many points are added (maybe it misses the path as it goes through it)
             if bottom_sensor_states == (1, 0):
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = 0
