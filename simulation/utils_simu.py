@@ -175,12 +175,8 @@ class Visualizator:
             self.draw_rays(spos, sstate, robot.q)
 
         if self.DRAW_PATH:
-            for n in range(i - 5000, i):
-                # Welcome to an ugly world
-                try:
-                    self.draw_path(path[n], color)
-                except:
-                    pass
+            for p in path:
+                self.draw_path(p, color)
 
     def draw_path(self, path, color):
         pygame.draw.circle(self.screen, color,

@@ -44,6 +44,8 @@ from random import *
 # it from the begining again
 
 # It is likely that adding pheromones at every step is wrong. like ant will activate their pheromones only under specific circumstances
+
+# Do ants have a specific go home or go to food pheromone? if so I can easily add this behaviour by adding a pheromone type in the pheromone object and filtering when matching
 ########
 
 ### GLOBALS ###################################################################
