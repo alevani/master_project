@@ -159,13 +159,13 @@ R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.r
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
 globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R2)
+# globals.ROBOTS.append(R3)
+# globals.ROBOTS.append(R4)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
 
 PHEROMON_PATH = []
 ###############################################################################
@@ -173,6 +173,7 @@ PHEROMON_PATH = []
 while True:
     globals.cnt += 1
     VISUALIZER.draw_arena()
+    VISUALIZER.draw_poi()
     for robot in globals.ROBOTS:
 
         if robot.has_collided:

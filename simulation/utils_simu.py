@@ -3,7 +3,9 @@ from pygame.locals import *
 import math
 from math import cos, sin
 from shapely.geometry.point import Point
+from utils import Position
 import sys
+from roboty import PointOfInterest
 from time import sleep
 import json
 import globals
@@ -14,6 +16,7 @@ GRAY = (200, 200, 200)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+GREEN = (0, 125, 0)
 
 DECAY100 = (0, 0, 0)
 DECAY75 = (50, 50, 50)
@@ -55,10 +58,13 @@ class Visualizator:
 
     def pygame_event_manager(self, events):
         for event in events:
-            if event.type == QUIT:
+            if event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                globals.POIs.append(PointOfInterest(Position(pos[0], pos[1])))
+            elif event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     sleep(0.2)
                 if event.key == pygame.K_q:
@@ -98,6 +104,11 @@ class Visualizator:
         pygame.draw.rect(self.screen, WHITE, (self.MARGIN_W, self.MARGIN_H,
                                               self.arena_width, self.arena_height))
         pygame.draw.circle(self.screen, BLACK, (self.scale(0, 0)), 2)
+
+    def draw_poi(self):
+        for poi in globals.POIs:
+            pygame.draw.circle(self.screen, GREEN,
+                               (poi.position.x, poi.position.y), 10)
 
     def draw_bottom_sensors(self, positions, states):
 

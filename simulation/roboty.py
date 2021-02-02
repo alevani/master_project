@@ -8,6 +8,12 @@ from utils import Position
 from copy import deepcopy
 
 
+class PointOfInterest:
+    def __init__(self, position, type=None):
+        self.position = position
+        self.box = Point(position.x, position.y).buffer(0.02)
+
+
 class CollisionBox:
     def __init__(self, shape, position):
         self.box = shape
@@ -171,6 +177,7 @@ class Robot:
 
         # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
         # #! but then, what if multiple path ..?
+        #! because I check left first, the randmoness is impacted.
         for p in POINTS:
             if p.box.intersects(box_left):
                 left_state = 1
