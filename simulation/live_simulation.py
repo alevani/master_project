@@ -63,6 +63,7 @@ from random import *
 # TODO because it's cheaper to have two list than one list and O(n + 1) each iteration
 # TODO like .. if it searches for home no need to check in the resource list :)
 
+#! next step is to think of a "setup" for an experiment. or maybe task allocation? more useful I guess (see personal notes).
 ### GLOBALS ###################################################################
 
 # WORLD
