@@ -3,6 +3,10 @@ from pygame.locals import *
 import math
 from math import cos, sin
 from shapely.geometry.point import Point
+import sys
+from time import sleep
+import json
+import globals
 
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
@@ -26,8 +30,9 @@ class PheromonePoint:
 
 
 class Visualizator:
-    def __init__(self, zoom_factor, W, H, robot_size, decay):
+    def __init__(self, zoom_factor, W, H, robot_size, decay, FILE):
         self.zoom = zoom_factor
+        self.FILE = FILE
         self.arena_width, self.arena_height = int(
             W * 100 * self.zoom), int(H * 100 * self.zoom)
 
@@ -41,11 +46,52 @@ class Visualizator:
 
         self.DECAY = decay
 
+        self.DISPLAY_HANDLER = 0
         self.DRAW_BOX = False
         self.DRAW_RAYS = False
         self.DRAW_PATH = False
         self.DRAW_BOTTOM_SENSORS = False
         self.DRAW_DECAY = False
+
+    def pygame_event_manager(self, events):
+        for event in events:
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    sleep(0.2)
+                if event.key == pygame.K_q:
+                    self.FILE.write(json.dumps([globals.cnt, globals.M]))
+                    for robot in globals.ROBOTS:
+                        self.FILE.write(
+                            "\n" + json.dumps((robot.draw_information, robot.path)))
+                    self.FILE.close()
+                    pygame.quit()
+                    sys.exit()
+                if event.key == pygame.K_d:
+                    self.DRAW_DECAY = not self.DRAW_DECAY
+                    print("[Display] Toggle pheromone decay visualization")
+                if event.key == pygame.K_x:
+                    print("[Display] Path visualization is disable.")
+                if event.key == pygame.K_y:
+                    self.DISPLAY_HANDLER += 1
+
+                    if self.DISPLAY_HANDLER == 3:
+                        self.DRAW_RAYS = False
+                        self.DRAW_BOX = False
+                        self.DRAW_BOTTOM_SENSORS = False
+                        self.DISPLAY_HANDLER = 0
+                        print(
+                            "[Display] Sensors and Box visualization desactivated")
+                    elif self.DISPLAY_HANDLER == 1:
+                        self.DRAW_RAYS = True
+                        self.DRAW_BOTTOM_SENSORS = True
+                        print("[Display] Sensors visualization activated")
+                    elif self.DISPLAY_HANDLER == 2:
+                        self.DRAW_BOX = True
+                        print(
+                            "[Display] Sensors and Box visualization activated")
 
     def draw_arena(self):
         self.screen.fill((0, 0, 0))
@@ -129,10 +175,12 @@ class Visualizator:
             self.draw_rays(spos, sstate, robot.q)
 
         if self.DRAW_PATH:
-            #! take the last 1000 points, simulate evaporation
-            # path = path[-200:]
-            for point in path:
-                self.draw_path(point, color)
+            for n in range(i - 5000, i):
+                # Welcome to an ugly world
+                try:
+                    self.draw_path(path[n], color)
+                except:
+                    pass
 
     def draw_path(self, path, color):
         pygame.draw.circle(self.screen, color,

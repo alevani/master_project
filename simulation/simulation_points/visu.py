@@ -87,8 +87,8 @@ def draw(screen, point, cr, i, path):
         draw_rays(screen, point['spos'], point['sstate'])
 
     if DRAW_PATH:
-        # for n in range(i - 50, i):  # ! Nice, it's like snake :D
-        for n in range(i):
+        for n in range(i - 50, i):  # ! Nice, it's like snake :D
+        # for n in range(i):
             draw_path(screen, path[n], cr)
 
 

@@ -23,6 +23,7 @@ from copy import deepcopy
 
 from utils import Position
 from utils import distance
+import globals
 
 from time import sleep
 import math
@@ -41,6 +42,8 @@ from random import *
 # It does not seem impossible to have a record button that would save the point. This record button would record idk like
 # 5000 begin and from there on, giving the user a chance to record something he just missed, also without to have to watch
 # it from the begining again
+
+# It is likely that adding pheromones at every step is wrong. like ant will activate their pheromones only under specific circumstances
 ########
 
 ### GLOBALS ###################################################################
@@ -62,8 +65,8 @@ RIGHT_WHEEL_VELOCITY = 1
 
 # W = 1.94  # width of arena
 # H = 1.18  # height of arena
-W = 4
-H = 3
+W = globals.W
+H = globals.H
 
 TOP_BORDER = H/2  # 0.59
 BOTTOM_BORDER = -H/2
@@ -84,11 +87,14 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
 
 
 # PYGAME
+FILE = open("points.json", "w")
 ZOOM = 4
 ROBOT_SIZE = 40
 DECAY = 2500
-VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY)
-DISPLAY_HANDLER = 0
+VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY, FILE)
+pygame.init()
+fps = 60
+fpsClock = pygame.time.Clock()
 ###############################################################################
 
 
@@ -101,7 +107,7 @@ def decay_check():
     # threading.Timer(.1, decay_check).start()
 
 
-def get_proximity_sensor_values(rays, robot, robots):
+def get_proximity_sensor_values(rays, robot):
     dists = []
 
     # Wall detection
@@ -110,7 +116,7 @@ def get_proximity_sensor_values(rays, robot, robots):
                               robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
 
     # Robot detection
-    for r in robots:
+    for r in globals.ROBOTS:
         # Don't check ourselves
         if r.number != robot.number:
             for index, ray in enumerate(rays):
@@ -130,10 +136,6 @@ x = 0
 y = 0
 q = math.radians(90)
 
-CNT = 15000
-M = 20
-
-ROBOTS = []
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0, math.radians(0)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
@@ -154,35 +156,34 @@ R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.40, -0.40, math.r
 R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.radians(0)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
-ROBOTS.append(R1)
-ROBOTS.append(R2)
-ROBOTS.append(R3)
-ROBOTS.append(R4)
-# ROBOTS.append(R5)
-# ROBOTS.append(R6)
-# ROBOTS.append(R7)
-# ROBOTS.append(R8)
+globals.ROBOTS.append(R1)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
 
 PHEROMON_PATH = []
-
 ###############################################################################
 
-pygame.init()
-fps = 60
-fpsClock = pygame.time.Clock()
-cnt = 0
 while True:
-    cnt += 1
+    globals.cnt += 1
     VISUALIZER.draw_arena()
-    for robot in ROBOTS:
+    for robot in globals.ROBOTS:
 
         if robot.has_collided:
             break
 
+        draw_information = {
+            'rpos': [],  # Robot position
+        }
+
         rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
 
         proximity_sensor_values = get_proximity_sensor_values(
-            rays, robot, ROBOTS)
+            rays, robot)
 
         # Robot's brain
         bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMON_PATH)
@@ -232,52 +233,23 @@ while True:
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
-        VISUALIZER.draw(robot.position, robot.color, cnt,
-                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
+        # VISUALIZER.draw(robot.position, robot.color, globals.cnt,
+        #                 robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
+        VISUALIZER.draw(robot.position, robot.color, globals.cnt,
+                        [], collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         decay_check()
-        if cnt % 2 == 0:
+
+        draw_information['rpos'] = robot.position.__dict__
+        if globals.cnt % globals.M == 0:
             PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
-            #! I imagine appening the point will only be activated under certain circumst.
-            # robot.path.append(robot.position.__dict__)
+            robot.path.append(robot.position.__dict__)
+            robot.draw_information.append(draw_information)
 
         if collided:
             print("collided")
             robot.has_collided = True
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    sleep(0.2)
-                if event.key == pygame.K_q:
-                    pygame.quit()
-                    sys.exit()
-                if event.key == pygame.K_d:
-                    VISUALIZER.DRAW_DECAY = not VISUALIZER.DRAW_DECAY
-                    print("[Display] Toggle pheromone decay visualization")
-                if event.key == pygame.K_x:
-                    VISUALIZER.DRAW_PATH = not VISUALIZER.DRAW_PATH
-                    print("[Display] Toggle path visualization")
-                if event.key == pygame.K_y:
-                    DISPLAY_HANDLER += 1
-
-                    if DISPLAY_HANDLER == 3:
-                        VISUALIZER.DRAW_RAYS = False
-                        VISUALIZER.DRAW_BOX = False
-                        VISUALIZER.DRAW_BOTTOM_SENSORS = False
-                        DISPLAY_HANDLER = 0
-                        print(
-                            "[Display] Sensors and Box visualization desactivated")
-                    elif DISPLAY_HANDLER == 1:
-                        VISUALIZER.DRAW_RAYS = True
-                        VISUALIZER.DRAW_BOTTOM_SENSORS = True
-                        print("[Display] Sensors visualization activated")
-                    elif DISPLAY_HANDLER == 2:
-                        VISUALIZER.DRAW_BOX = True
-                        print(
-                            "[Display] Sensors and Box visualization activated")
+        VISUALIZER.pygame_event_manager(pygame.event.get())
 
     pygame.display.flip()  # render drawing
     fpsClock.tick(fps)
