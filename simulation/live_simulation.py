@@ -12,7 +12,7 @@ import math
 
 from roboty import Robot
 from utils_simu import Visualizator
-from utils_simu import PheromonePoint
+from roboty import PheromonePoint
 
 from pygame.locals import *
 import pygame
@@ -46,7 +46,12 @@ from random import *
 # It is likely that adding pheromones at every step is wrong. like ant will activate their pheromones only under specific circumstances
 
 # Do ants have a specific go home or go to food pheromone? if so I can easily add this behaviour by adding a pheromone type in the pheromone object and filtering when matching
+
+# Scaling could only occure once. We scale from at the moment we register the point
+# 'cause then we don't have to re-scale every iteration of display..
 ########
+
+# TODO one should be able to see POIs in the point_simulation
 
 ### GLOBALS ###################################################################
 
@@ -54,26 +59,16 @@ from random import *
 # TODO Redo measurements of the robot's sensors' position
 
 # Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
-ROBOT_TIMESTEP = 1  # 1/ROBOT_TIMESTEP equals update frequency of robot
-
-# timestep in kinematics< sim (probably don't touch..)
+ROBOT_TIMESTEP = 1
 SIMULATION_TIMESTEP = .01
 
 R = 0.02  # radius of wheels in meters
 L = 0.095  # distance between wheels in meters
 
-LEFT_WHEEL_VELOCITY = 1
-RIGHT_WHEEL_VELOCITY = 1
-
 # W = 1.94  # width of arena
 # H = 1.18  # height of arena
 W = globals.W
 H = globals.H
-
-TOP_BORDER = H/2  # 0.59
-BOTTOM_BORDER = -H/2
-RIGHT_BORDER = W/2  # 0.97
-LEFT_BORDER = -W/2
 
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
@@ -86,7 +81,6 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(0, 0.0778, math.radians(90)),
                               Position(0.025,  0.075, math.radians(71.5)),
                               Position(0.05,   0.06, math.radians(50))]
-
 
 # PYGAME
 FILE = open("points.json", "w")
@@ -109,6 +103,7 @@ def decay_check():
     # threading.Timer(.1, decay_check).start()
 
 
+# This is not in the robot's object because it seemed to be slower if so
 def get_proximity_sensor_values(rays, robot):
     dists = []
 
@@ -128,11 +123,9 @@ def get_proximity_sensor_values(rays, robot):
                     dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
-    # return [distance(WORLD.intersection(ray), sensors[index].x, sensors[index].y) for index, ray in enumerate(rays)]
+
 
 ### Start's variables #########################################################
-
-
 # Robot's starting position
 x = 0
 y = 0
@@ -159,9 +152,9 @@ R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.r
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
 globals.ROBOTS.append(R1)
-# globals.ROBOTS.append(R2)
-# globals.ROBOTS.append(R3)
-# globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
 # globals.ROBOTS.append(R5)
 # globals.ROBOTS.append(R6)
 # globals.ROBOTS.append(R7)
@@ -194,7 +187,9 @@ while True:
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
-        if proximity_sensors_state == (0, 1, 0):
+        if robot.is_turning_to_face_home:
+            robot.face_home_behaviour()
+        elif proximity_sensors_state == (0, 1, 0):
             if randint(0, 1):
                 robot.RIGHT_WHEEL_VELOCITY = -1
                 robot.LEFT_WHEEL_VELOCITY = 1
@@ -209,12 +204,16 @@ while True:
             robot.LEFT_WHEEL_VELOCITY = -1
         elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
             # Workaround for corner avoidance.
-            for _ in range(200):
+            for _ in range(200):  # ! could be change to like I did for face home but meh
                 robot.RIGHT_WHEEL_VELOCITY = -1
                 robot.LEFT_WHEEL_VELOCITY = 1
                 robot.simulationstep()
         else:
-            if bottom_sensor_states == (1, 0):
+            if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
+                robot.is_turning_to_face_home = True
+                robot.RIGHT_WHEEL_VELOCITY = 0
+                robot.LEFT_WHEEL_VELOCITY = 0
+            elif bottom_sensor_states == (1, 0):
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = 0
             elif bottom_sensor_states == (1, 1):
@@ -243,6 +242,7 @@ while True:
         decay_check()
 
         draw_information['rpos'] = robot.position.__dict__
+
         if globals.cnt % globals.M == 0:
             PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
             robot.path.append(robot.position.__dict__)

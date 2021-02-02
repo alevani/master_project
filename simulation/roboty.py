@@ -4,8 +4,16 @@ from shapely.geometry import LinearRing, LineString, Point, Polygon
 from shapely.geometry.point import Point
 from numpy import sin, cos, pi, sqrt, zeros
 import math
+import globals
 from utils import Position
 from copy import deepcopy
+
+
+class PheromonePoint:
+    def __init__(self, position, decay_time):
+        self.position = position
+        self.box = Point(position.x, position.y).buffer(0.01)
+        self.decay_time = decay_time
 
 
 class PointOfInterest:
@@ -32,6 +40,10 @@ class Robot:
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
+
+        self.is_turning_to_face_home = False
+        self.is_turning_to_face_home_cnt = 0
+        self.NB_STEP_TO_ROTATE_180 = 15
 
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
@@ -165,6 +177,14 @@ class Robot:
 
         self.update_position(Position(x, y, q))
 
+    def face_home_behaviour(self):
+        self.is_turning_to_face_home_cnt += 1
+        self.RIGHT_WHEEL_VELOCITY = -1
+        self.LEFT_WHEEL_VELOCITY = 1
+        if self.is_turning_to_face_home_cnt >= self.NB_STEP_TO_ROTATE_180:
+            self.is_turning_to_face_home_cnt = 0
+            self.is_turning_to_face_home = False
+
     def get_bottom_sensor_states(self, POINTS):
         #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
         box_left = Point(
@@ -176,8 +196,16 @@ class Robot:
         right_state = 0
 
         # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
-        # #! but then, what if multiple path ..?
+        #! but then, what if multiple path ..?
         #! because I check left first, the randmoness is impacted.
+        for poi in globals.POIs:
+            if poi.box.intersects(box_left):
+                left_state = 2
+                break
+            elif poi.box.intersects(box_right):
+                right_state = 2
+                break
+
         for p in POINTS:
             if p.box.intersects(box_left):
                 left_state = 1
@@ -185,20 +213,4 @@ class Robot:
             elif p.box.intersects(box_right):
                 right_state = 1
                 break
-
         return (left_state, right_state)
-
-        # right_state = 0
-        # for p in POINTS:
-        #     if p.contains(box_left):
-        #         right_state = 1
-        # break
-
-        # TODO here, it will have to compare a list of all floor object present in the map
-        # TODO, then each object is a python object with a position and a gray color value
-        # TODO that way, in real life I can "easily" reproduce it
-        # TODO even though it is likely that I will have to implement camera anyway
-        # ? each object, even the path left by the robot, could be in the list (then supress path from robot.path). the object path in
-        # ? specific could have a decay (evaporation) counter and leave the list at some point.
-        #! or here we just check if we are on a path left by one of the n robot
-        # return (0 if Polygon(BLACK_TAPE).contains(box_left) else 1, 0 if Polygon(BLACK_TAPE).contains(box_right) else 1)

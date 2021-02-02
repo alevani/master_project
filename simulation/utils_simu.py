@@ -25,13 +25,6 @@ DECAY25 = (150, 150, 150)
 DECAY10 = (200, 200, 200)
 
 
-class PheromonePoint:
-    def __init__(self, position, decay_time):
-        self.position = position
-        self.box = Point(position.x, position.y).buffer(0.01)
-        self.decay_time = decay_time
-
-
 class Visualizator:
     def __init__(self, zoom_factor, W, H, robot_size, decay, FILE):
         self.zoom = zoom_factor
@@ -60,7 +53,8 @@ class Visualizator:
         for event in events:
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
-                globals.POIs.append(PointOfInterest(Position(pos[0], pos[1])))
+                x, y = self.unscale(pos[0], pos[1])
+                globals.POIs.append(PointOfInterest(Position(x, y)))
             elif event.type == QUIT:
                 pygame.quit()
                 sys.exit()
@@ -107,8 +101,9 @@ class Visualizator:
 
     def draw_poi(self):
         for poi in globals.POIs:
+            x, y = self.scale(poi.position.x, poi.position.y)
             pygame.draw.circle(self.screen, GREEN,
-                               (poi.position.x, poi.position.y), 10)
+                               (x, y), 10)
 
     def draw_bottom_sensors(self, positions, states):
 
@@ -145,12 +140,16 @@ class Visualizator:
         transpose from particule filter coordinate system
         to pygame coordinate system
         '''
-        tresh = 20
-        nx = self.arena_width/2 + x*100*self.zoom + \
-            self.MARGIN_W - self.robot_size/2 + tresh
-        ny = self.arena_height/2 + y*100*self.zoom * -1 + \
-            self.MARGIN_H - self.robot_size/2+tresh
+
+        nx = self.arena_width/2 + x*100*self.zoom + self.MARGIN_W
+        ny = self.arena_height/2 + y*100*self.zoom * -1 + self.MARGIN_H
         return nx, ny
+
+    def unscale(self, nx, ny):
+
+        x = (nx - self.MARGIN_W - self.arena_width/2)/100/self.zoom
+        y = (ny - self.MARGIN_H - self.arena_height/2)/100/self.zoom * -1
+        return x, y
 
     def draw_decay(self, paths):
         for point in paths:
