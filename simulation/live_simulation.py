@@ -53,6 +53,14 @@ from random import *
 
 # TODO one should be able to see POIs in the point_simulation
 
+# TODO Right now it's funny that I can right and left click put
+# TODO ultimately one will have to decide wheter POIs should all be in the same list or
+# TODO if they should be in dedicated list (home_pois, task_pois, and so on)
+# TODO IF in separated lists, then I can have multiple function for sensing (bottom)
+# TODO as if, if robot sense a resource, then he shift to an other sensing function
+# TODO that handles to only sense a "home" pois type (maybe there's going to be one home but anyway)
+# TODO 'cause if so, then he would avoid resources on its way which is nice I imagine (even though technically new resources shouldn't pop in the middle of a path sinc the path already has been covered by the ant...)
+
 ### GLOBALS ###################################################################
 
 # WORLD
