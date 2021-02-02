@@ -59,7 +59,9 @@ from random import *
 # TODO IF in separated lists, then I can have multiple function for sensing (bottom)
 # TODO as if, if robot sense a resource, then he shift to an other sensing function
 # TODO that handles to only sense a "home" pois type (maybe there's going to be one home but anyway)
-# TODO 'cause if so, then he would avoid resources on its way which is nice I imagine (even though technically new resources shouldn't pop in the middle of a path sinc the path already has been covered by the ant...)
+# TODO 'cause if so, then he would avoid resources on its way which is nice I imagine (even though technically new resources shouldn't pop in the middle of a path sinc the path already has been covered by the ant...)
+# TODO because it's cheaper to have two list than one list and O(n + 1) each iteration
+# TODO like .. if it searches for home no need to check in the resource list :)
 
 ### GLOBALS ###################################################################
 
