@@ -37,6 +37,10 @@ from random import *
 # Checking every point for decay is super slow, if I wasn't working with kinetic movement I could have a map
 # of pixel and a absolute position for pheromones, and they finding if the sensor is on a point would only take O(1)
 # but storage would be affected.
+
+# It does not seem impossible to have a record button that would save the point. This record button would record idk like
+# 5000 begin and from there on, giving the user a chance to record something he just missed, also without to have to watch
+# it from the begining again
 ########
 
 ### GLOBALS ###################################################################
@@ -199,7 +203,6 @@ while True:
         elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
             robot.RIGHT_WHEEL_VELOCITY = 1
             robot.LEFT_WHEEL_VELOCITY = -1
-        #  I am stuck state
         elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
             # Workaround for corner avoidance.
             for _ in range(200):
@@ -229,7 +232,6 @@ while True:
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
-        # if there's too much point, one can put spos to [] (and collision box and state, but it's nonsense)
         VISUALIZER.draw(robot.position, robot.color, cnt,
                         robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         decay_check()
@@ -239,7 +241,6 @@ while True:
             # robot.path.append(robot.position.__dict__)
 
         if collided:
-            #! Right now, if robot collides, it will disapear form the simulation (since no more point)
             print("collided")
             robot.has_collided = True
 
