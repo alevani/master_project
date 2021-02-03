@@ -74,7 +74,7 @@ class Visualizator:
                         self.FILE.write("\n"+json.dumps(globals.DRAW_POIS))
                         for robot in globals.ROBOTS:
                             self.FILE.write(
-                                "\n" + json.dumps((robot.draw_information, robot.path)))
+                                "\n" + json.dumps(robot.path))
                         self.FILE.close()
                     pygame.quit()
                     sys.exit()

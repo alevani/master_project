@@ -49,19 +49,30 @@ def simulation(points):
                     for _ in range(len(points))]
 
     # Loads path
-    paths = [json.loads(p)[1] for p in points]
+    paths = [json.loads(p) for p in points]
     #! this is not well written, you are missing a level of sub array
-    pois = [PointOfInterest(
-        Position(p[0]['position']['x'], p[0]['position']['y']), p[0]['type']) if p != [] else [] for p in POIS]
+    # pois = [PointOfInterest(
+    #     Position(p[0]['position']['x'], p[0]['position']['y']), p[0]['type']) if p != [] else [] for p in POIS]
+    pois = []
 
-    for i in range(int(NBPOINTS)):
+    for poi in POIS:
+        if poi == []:
+            pois.append([])
+        else:
+            sub = []
+            for p in poi:
+                sub.append(PointOfInterest(
+                    Position(p['position']['x'], p['position']['y']), p['type']))
+            pois.append(sub)
+
+    for i in range(int(NBPOINTS) - 1):
         VISUALIZER.draw_arena()
         VISUALIZER.draw_poi(pois[i])
         for p, point in enumerate(points):
 
-            point = json.loads(point)[0][i]
+            point = json.loads(point)[i]
             VISUALIZER.draw(
-                Position(point['x'], point['y'], point['q']), robots_color[p], i, paths[p], [],  [], [], [], [], [])
+                Position(point['x'], point['y'], point['q']), robots_color[p], i, paths[p][:i], [],  [], [], [], [], [])
 
             for event in pygame.event.get():
                 if event.type == QUIT:

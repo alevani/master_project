@@ -70,6 +70,8 @@ from random import *
 #! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
 
 # TODO Optimize it (the program)
+
+#! do not spend to much time on the point visu, it's like the thing that I will the less use, and only what's in the handin counts.
 ### GLOBALS ###################################################################
 
 # WORLD
@@ -262,7 +264,6 @@ while True:
             PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
             if globals.DO_RECORD:
                 robot.path.append(robot.position.__dict__)
-                robot.draw_information.append(robot.position.__dict__)
 
         if collided:
             print("collided")
