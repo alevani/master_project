@@ -23,6 +23,8 @@ DECAY75 = (50, 50, 50)
 DECAY50 = (100, 100, 100)
 DECAY25 = (150, 150, 150)
 DECAY10 = (200, 200, 200)
+LEFT_CLICK = 1
+RIGHT_CLICK = 3
 
 
 class Visualizator:
@@ -52,9 +54,14 @@ class Visualizator:
     def pygame_event_manager(self, events):
         for event in events:
             if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == LEFT_CLICK:
+                    poi_type = 0
+                else:
+                    poi_type = 1
+
                 pos = pygame.mouse.get_pos()
                 x, y = self.unscale(pos[0], pos[1])
-                globals.POIs.append(PointOfInterest(Position(x, y)))
+                globals.POIs.append(PointOfInterest(Position(x, y), poi_type))
             elif event.type == QUIT:
                 pygame.quit()
                 sys.exit()
@@ -62,11 +69,13 @@ class Visualizator:
                 if event.key == pygame.K_p:
                     sleep(0.2)
                 if event.key == pygame.K_q:
-                    self.FILE.write(json.dumps([globals.cnt, globals.M]))
-                    for robot in globals.ROBOTS:
-                        self.FILE.write(
-                            "\n" + json.dumps((robot.draw_information, robot.path)))
-                    self.FILE.close()
+                    if globals.DO_RECORD:
+                        self.FILE.write(json.dumps([globals.cnt, globals.M]))
+                        self.FILE.write("\n"+json.dumps(globals.DRAW_POIS))
+                        for robot in globals.ROBOTS:
+                            self.FILE.write(
+                                "\n" + json.dumps((robot.draw_information, robot.path)))
+                        self.FILE.close()
                     pygame.quit()
                     sys.exit()
                 if event.key == pygame.K_d:
@@ -99,10 +108,14 @@ class Visualizator:
                                               self.arena_width, self.arena_height))
         pygame.draw.circle(self.screen, BLACK, (self.scale(0, 0)), 2)
 
-    def draw_poi(self):
-        for poi in globals.POIs:
+    def draw_poi(self, pois):
+        for poi in pois:
             x, y = self.scale(poi.position.x, poi.position.y)
-            pygame.draw.circle(self.screen, GREEN,
+            if poi.type == 0:
+                color = GREEN
+            else:
+                color = BLUE
+            pygame.draw.circle(self.screen, color,
                                (x, y), 10)
 
     def draw_bottom_sensors(self, positions, states):

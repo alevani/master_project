@@ -5,6 +5,7 @@ import math
 from random import randint
 from utils_simu import Visualizator
 from utils import Position
+from roboty import PointOfInterest
 import json
 from pygame.locals import *
 import globals
@@ -13,6 +14,7 @@ with open('points.json', 'r') as f:
     points = f.readlines()
 
 CNT, M = json.loads(points.pop(0))
+POIS = json.loads(points.pop(0))
 ### GLOBALS ###################################################################
 
 ZOOM = 4
@@ -48,9 +50,13 @@ def simulation(points):
 
     # Loads path
     paths = [json.loads(p)[1] for p in points]
+    #! this is not well written, you are missing a level of sub array
+    pois = [PointOfInterest(
+        Position(p[0]['position']['x'], p[0]['position']['y']), p[0]['type']) if p != [] else [] for p in POIS]
 
     for i in range(int(NBPOINTS)):
         VISUALIZER.draw_arena()
+        VISUALIZER.draw_poi(pois[i])
         for p, point in enumerate(points):
 
             point = json.loads(point)[0][i]

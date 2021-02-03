@@ -6,3 +6,5 @@ M = 2
 
 # point of interest
 POIs = []
+DRAW_POIS = []
+DO_RECORD = True

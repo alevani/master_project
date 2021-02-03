@@ -66,6 +66,10 @@ from random import *
 #! next step is to think of a "setup" for an experiment. or maybe task allocation? more useful I guess (see personal notes).
 
 # ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same.
+
+#! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
+
+# TODO Optimize it (the program)
 ### GLOBALS ###################################################################
 
 # WORLD
@@ -185,7 +189,7 @@ PHEROMON_PATH = []
 while True:
     globals.cnt += 1
     VISUALIZER.draw_arena()
-    VISUALIZER.draw_poi()
+    VISUALIZER.draw_poi(globals.POIs)
     for robot in globals.ROBOTS:
 
         if robot.has_collided:
