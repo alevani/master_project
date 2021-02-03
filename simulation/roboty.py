@@ -17,9 +17,16 @@ class PheromonePoint:
 
 
 class PointOfInterest:
-    def __init__(self, position, type=None):
+    def __init__(self, position, t=None):
         self.position = position
         self.box = Point(position.x, position.y).buffer(0.02)
+        self.type = t  # 0 = resource, 1 = home
+
+    def encode(self):
+        return {
+            'position': self.position.__dict__,
+            'type': self.type
+        }
 
 
 class CollisionBox:
@@ -41,9 +48,9 @@ class Robot:
         self.R = R
         self.L = L
 
-        self.is_turning_to_face_home = False
-        self.is_turning_to_face_home_cnt = 0
-        self.NB_STEP_TO_ROTATE_180 = 15
+        self.is_avoiding = False
+        self.is_avoiding_cnt = 0
+        self.NB_STEP_TO_AVOID = 15
 
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
@@ -177,13 +184,13 @@ class Robot:
 
         self.update_position(Position(x, y, q))
 
-    def face_home_behaviour(self):
-        self.is_turning_to_face_home_cnt += 1
+    def avoid(self):
+        self.is_avoiding_cnt += 1
         self.RIGHT_WHEEL_VELOCITY = -1
         self.LEFT_WHEEL_VELOCITY = 1
-        if self.is_turning_to_face_home_cnt >= self.NB_STEP_TO_ROTATE_180:
-            self.is_turning_to_face_home_cnt = 0
-            self.is_turning_to_face_home = False
+        if self.is_avoiding_cnt >= self.NB_STEP_TO_AVOID:
+            self.is_avoiding_cnt = 0
+            self.is_avoiding = False
 
     def get_bottom_sensor_states(self, POINTS):
         #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)

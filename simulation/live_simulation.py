@@ -96,8 +96,14 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(0.05,   0.06, math.radians(50))]
 
 # PYGAME
-FILE = open("points.json", "w")
 ZOOM = 4
+
+globals.DO_RECORD = True
+if globals.DO_RECORD:
+    FILE = open("points.json", "w")
+else:
+    FILE = None
+
 ROBOT_SIZE = 40
 DECAY = 2500
 VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY, FILE)
@@ -168,10 +174,10 @@ globals.ROBOTS.append(R1)
 globals.ROBOTS.append(R2)
 globals.ROBOTS.append(R3)
 globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
 
 PHEROMON_PATH = []
 ###############################################################################
@@ -185,10 +191,6 @@ while True:
         if robot.has_collided:
             break
 
-        draw_information = {
-            'rpos': [],  # Robot position
-        }
-
         rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
 
         proximity_sensor_values = get_proximity_sensor_values(
@@ -200,8 +202,11 @@ while True:
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
-        if robot.is_turning_to_face_home:
-            robot.face_home_behaviour()
+        robot.RIGHT_WHEEL_VELOCITY = 0
+        robot.LEFT_WHEEL_VELOCITY = 0
+
+        if robot.is_avoiding:
+            robot.avoid()
         elif proximity_sensors_state == (0, 1, 0):
             if randint(0, 1):
                 robot.RIGHT_WHEEL_VELOCITY = -1
@@ -216,16 +221,12 @@ while True:
             robot.RIGHT_WHEEL_VELOCITY = 1
             robot.LEFT_WHEEL_VELOCITY = -1
         elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
-            # Workaround for corner avoidance.
-            for _ in range(200):  # ! could be change to like I did for face home but meh
-                robot.RIGHT_WHEEL_VELOCITY = -1
-                robot.LEFT_WHEEL_VELOCITY = 1
-                robot.simulationstep()
+            robot.is_avoiding = True
+            robot.NB_STEP_TO_AVOID = 7
         else:
             if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
-                robot.is_turning_to_face_home = True
-                robot.RIGHT_WHEEL_VELOCITY = 0
-                robot.LEFT_WHEEL_VELOCITY = 0
+                robot.is_avoiding = True
+                robot.NB_STEP_TO_AVOID = 15
             elif bottom_sensor_states == (1, 0):
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = 0
@@ -248,8 +249,6 @@ while True:
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
-        # VISUALIZER.draw(robot.position, robot.color, globals.cnt,
-        #                 robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         VISUALIZER.draw(robot.position, robot.color, globals.cnt,
                         [], collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         decay_check()
@@ -257,17 +256,21 @@ while True:
         # Robot wise
         if globals.cnt % globals.M == 0:
             PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
-            robot.path.append(robot.position.__dict__)
-            robot.draw_information.append(robot.position.__dict__)
+            if globals.DO_RECORD:
+                robot.path.append(robot.position.__dict__)
+                robot.draw_information.append(robot.position.__dict__)
 
         if collided:
             print("collided")
             robot.has_collided = True
 
         VISUALIZER.pygame_event_manager(pygame.event.get())
-    # # World wise
-    # if globals.cnt % globals.M == 0:
-    #     draw_information['poispos'] = [o.encode()
-    #                                    for o in deepcopy(globals.POIs)]
+
+    # World wise
+    if globals.DO_RECORD:
+        if globals.cnt % globals.M == 0:
+            globals.DRAW_POIS.append([o.encode()
+                                      for o in deepcopy(globals.POIs)])
+
     pygame.display.flip()  # render drawing
     fpsClock.tick(fps)
