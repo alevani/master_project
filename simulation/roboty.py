@@ -22,19 +22,6 @@ class PheromonePoint:
         }
 
 
-class PointOfInterest:
-    def __init__(self, position, t=None):
-        self.position = position
-        self.box = Point(position.x, position.y).buffer(0.02)
-        self.type = t  # 0 = resource, 1 = home
-
-    def encode(self):
-        return {
-            'position': self.position.__dict__,
-            'type': self.type
-        }
-
-
 class CollisionBox:
     def __init__(self, shape, position):
         self.box = shape
@@ -199,9 +186,6 @@ class Robot:
             self.is_avoiding = False
 
     def get_bottom_sensor_states(self, pheromones_map):
-        # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
-        #! but then, what if multiple path ..?
-        #! because I check left first, the randmoness is impacted.
         # ? here, I can induce randmoness as to simulate that sometimes an ant might decide to take a different path
         left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
         left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
@@ -210,7 +194,7 @@ class Robot:
             for y in range(left_y - 2, left_y + 2):
                 if pheromones_map[x][y] != 0:
                     return (pheromones_map[x][y].type, 0)
-
+        #! the way the code is written just assumes than return such as (?,2) can never occur.
         # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issue
         right_x = int(self.bottom_sensors[1].x *
                       100) + int(globals.W * 100/2)

@@ -35,9 +35,6 @@ from random import *
 #   -> as in, right now the detection pretty wide, maybe induce some noise with a randmoness in the buffer?
 #   -> which is also why sometimes it misses rough angles.
 
-# Checking every point for decay is super slow, if I wasn't working with kinetic movement I could have a map
-# of pixel and a absolute position for pheromones, and they finding if the sensor is on a point would only take O(1)
-# but storage would be affected.
 
 # It does not seem impossible to have a record button that would save the point. This record button would record idk like
 # 5000 begin and from there on, giving the user a chance to record something he just missed, also without to have to watch
@@ -46,12 +43,6 @@ from random import *
 # It is likely that adding pheromones at every step is wrong. like ant will activate their pheromones only under specific circumstances
 
 # Do ants have a specific go home or go to food pheromone? if so I can easily add this behaviour by adding a pheromone type in the pheromone object and filtering when matching
-
-# Scaling could only occure once. We scale from at the moment we register the point
-# 'cause then we don't have to re-scale every iteration of display..
-########
-
-# TODO one should be able to see POIs in the point_simulation
 
 # TODO Right now it's funny that I can right and left click put
 # TODO ultimately one will have to decide wheter POIs should all be in the same list or
@@ -69,11 +60,11 @@ from random import *
 
 #! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
 
-# TODO Optimize it (the program)
-
 #! do not spend to much time on the point visu, it's like the thing that I will the less use, and only what's in the handin counts.
 
-#! decay is super slow, but weirdly enough the visual simulation does not strugle displaying even more point
+#! it's not beautiful, but I think it's very convenient to keep path and maps. maybe there's some possible cleanup?
+########
+
 ### GLOBALS ###################################################################
 
 # WORLD
@@ -232,13 +223,13 @@ while True:
         proximity_sensor_values = get_proximity_sensor_values(
             rays, robot)
 
-        # Robot's brain
         bottom_sensor_states = robot.get_bottom_sensor_states(
             globals.PHEROMONES_MAP)
 
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
+        # Robot's brain
         robot.RIGHT_WHEEL_VELOCITY = 0
         robot.LEFT_WHEEL_VELOCITY = 0
 
@@ -286,16 +277,18 @@ while True:
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
+        #! if robot's decay is slow, it's because here I send absolutely EVERYPOINT, so he reprint each point n times. n being the number of robot.
+        #! compared to paths, where I just have the path of the given robot.
         VISUALIZER.draw(robot.position, robot.color, globals.cnt,
                         robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMONES_PATH)
-
-        # Robot wise
 
         globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
                                                                                          100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
         PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
-        if globals.cnt % globals.M == 0:
-            if globals.DO_RECORD:
+
+        # Robot wise
+        if globals.DO_RECORD:
+            if globals.cnt % globals.M == 0:
                 robot.path.append(robot.position.__dict__)
 
         if collided:
@@ -305,6 +298,7 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
 
     decay_check()
+
     # World wise
     if globals.DO_RECORD:
         if globals.cnt % globals.M == 0:
