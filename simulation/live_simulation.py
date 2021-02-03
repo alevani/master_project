@@ -72,13 +72,15 @@ from random import *
 # TODO Optimize it (the program)
 
 #! do not spend to much time on the point visu, it's like the thing that I will the less use, and only what's in the handin counts.
+
+#! decay is super slow, but weirdly enough the visual simulation does not strugle displaying even more point
 ### GLOBALS ###################################################################
 
 # WORLD
 # TODO Redo measurements of the robot's sensors' position
 
 # Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
-ROBOT_TIMESTEP = 1
+ROBOT_TIMESTEP = 0.6
 SIMULATION_TIMESTEP = .01
 
 R = 0.02  # radius of wheels in meters
@@ -120,10 +122,10 @@ fpsClock = pygame.time.Clock()
 
 
 def decay_check():
-    for i, point in enumerate(PHEROMON_PATH):
+    for i, point in enumerate(PHEROMONES_PATH):
         point.decay_time -= 1
         if point.decay_time <= 0:
-            PHEROMON_PATH.pop(i)
+            PHEROMONES_PATH.pop(i)
 
     # threading.Timer(.1, decay_check).start()
 
@@ -188,29 +190,30 @@ R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.70, -0.70, mat
             (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
 globals.ROBOTS.append(R1)
-# globals.ROBOTS.append(R2)
-# globals.ROBOTS.append(R3)
-# globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
 
 # Slow at creation, and heavy, but should considerabely increase visualisation speed.
+#! nothing in (0,0) why?
 PHEROMONES_MAP = [[]]
-for x in range(int(globals.W * 1000)):
+for x in range(int(globals.W * 100)):
     inner = []
-    for y in range(int(globals.H * 1000)):
-        inner.append(None)
+    for y in range(int(globals.H * 100)):
+        inner.append(0)
     PHEROMONES_MAP.append(inner)
 
 
-PHEROMON_PATH = []
+PHEROMONES_PATH = []
 ###############################################################################
 
 while True:
@@ -228,7 +231,9 @@ while True:
             rays, robot)
 
         # Robot's brain
-        bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMON_PATH)
+        # bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMONES_PATH)
+        bottom_sensor_states = robot.get_bottom_sensor_states_test(
+            PHEROMONES_MAP)
 
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
@@ -281,13 +286,17 @@ while True:
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
         VISUALIZER.draw(robot.position, robot.color, globals.cnt,
-                        [], collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
+                        [], collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMONES_PATH)
 
         # Robot wise
+        PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
+                                                                                 100) + int(globals.H * 100/2)] = 1
         if globals.cnt % globals.M == 0:
-            print(int(robot.position.x * 1000), int(robot.position.y * 1000))
-
-            PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
+            # PHEROMONES_MAP[int(robot.position.x * 100)][int(robot.position.y *
+            #                                                  100)] = PheromonePoint(robot.position, DECAY)
+            #! For the moment, 1 and 0 are fine, also I can keep the pheromone path for display. but then maybe 1 should be replace by a pheromone point?
+            #! include the pheromone map in the decay
+            PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY))
             if globals.DO_RECORD:
                 robot.path.append(robot.position.__dict__)
 

@@ -214,11 +214,52 @@ class Robot:
                 right_state = 2
                 break
 
-        # for p in POINTS:
-        #     if p.box.intersects(box_left):
-        #         left_state = 1
-        #         break
-        #     elif p.box.intersects(box_right):
-        #         right_state = 1
-        #         break
+        for p in POINTS:
+            if p.box.intersects(box_left):
+                left_state = 1
+                break
+            elif p.box.intersects(box_right):
+                right_state = 1
+                break
         return (left_state, right_state)
+
+    def get_bottom_sensor_states_test(self, pheromones_map):
+        left_state = 0
+        right_state = 0
+
+        left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
+        left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
+
+        # for x in range(left_x - 10 , left_x + 10):
+        #     for y in range(left_y - 10 , left_y + 10):
+        #         if pheromones_map[x][y]:
+        #             left_state = 1
+        #             break
+        #     else:
+        #         continue
+        #     break
+
+        for x in range(left_x - 2, left_x + 2):
+            for y in range(left_y - 2, left_y + 2):
+                if pheromones_map[x][y]:
+                    return (1, 0)
+
+        right_x = int(self.bottom_sensors[1].x *
+                      100) + int(globals.W * 100/2)
+        right_y = int(self.bottom_sensors[1].y *
+                      100) + int(globals.H * 100/2)
+
+        # for x in range(right_x - 10, right_x + 10):
+        #     for y in range(right_y - 10, right_y + 10):
+        #         if pheromones_map[x][y]:
+        #             right_state = 1
+        #             break
+        #     else:
+        #         continue
+        #     break
+
+        for x in range(right_x - 2, right_x + 2):
+            for y in range(right_y - 2, right_y + 2):
+                if pheromones_map[x][y]:
+                    return (0, 1)
+        return(left_state, right_state)
