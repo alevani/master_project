@@ -174,6 +174,8 @@ class Visualizator:
         return x, y
 
     def draw_decay(self, paths):
+        if not self.DRAW_DECAY:
+            return
         for point in paths:
 
             color = BLACK
@@ -191,14 +193,12 @@ class Visualizator:
             pygame.draw.circle(self.screen, color,
                                self.scale(point.position.x, point.position.y), 1.5)
 
-    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, pheromone_paths):
+    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state):
         self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
 
         if self.DRAW_BOTTOM_SENSORS:
             self.draw_bottom_sensors(
                 bottom_sensor_position, bottom_sensor_state)
-        if self.DRAW_DECAY:
-            self.draw_decay(pheromone_paths)
 
         if self.DRAW_BOX:
             self.draw_box(box)

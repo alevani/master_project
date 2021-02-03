@@ -41,6 +41,8 @@ class Robot:
         self.R = R
         self.L = L
 
+        self.trail = True
+
         self.is_avoiding = False
         self.is_avoiding_cnt = 0
         self.NB_STEP_TO_AVOID = 15

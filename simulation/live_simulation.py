@@ -105,7 +105,6 @@ else:
 
 ROBOT_SIZE = 40
 DECAY = 500
-DECAY = 2500
 VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY, FILE)
 pygame.init()
 fps = 60
@@ -252,9 +251,11 @@ while True:
             robot.is_avoiding = True
             robot.NB_STEP_TO_AVOID = 7
         else:
+            # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
             if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
                 robot.is_avoiding = True
                 robot.NB_STEP_TO_AVOID = 15
+                robot.trail = True
             elif bottom_sensor_states == (1, 0):
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = 0
@@ -277,14 +278,13 @@ while True:
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
-        #! if robot's decay is slow, it's because here I send absolutely EVERYPOINT, so he reprint each point n times. n being the number of robot.
-        #! compared to paths, where I just have the path of the given robot.
         VISUALIZER.draw(robot.position, robot.color, globals.cnt,
-                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMONES_PATH)
+                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states)
 
-        globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
-                                                                                         100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
-        PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
+        if robot.trail:
+            globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
+                                                                                             100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
+            PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
 
         # Robot wise
         if globals.DO_RECORD:
@@ -292,12 +292,16 @@ while True:
                 robot.path.append(robot.position.__dict__)
 
         if collided:
+            #! sometimes a lot of robot that are not even in the same area collide in the same time
+            #! I need to figure out why.
             print("collided")
             robot.has_collided = True
 
         VISUALIZER.pygame_event_manager(pygame.event.get())
 
     decay_check()
+
+    VISUALIZER.draw_decay(PHEROMONES_PATH)
 
     # World wise
     if globals.DO_RECORD:
