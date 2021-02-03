@@ -55,7 +55,7 @@ def simulation(points):
 
             point = json.loads(point)[0][i]
             VISUALIZER.draw(
-                Position(point['rpos']['x'], point['rpos']['y'], point['rpos']['q']), robots_color[p], i, paths[p], [],  [], [], [], [], [])
+                Position(point['x'], point['y'], point['q']), robots_color[p], i, paths[p], [],  [], [], [], [], [])
 
             for event in pygame.event.get():
                 if event.type == QUIT:

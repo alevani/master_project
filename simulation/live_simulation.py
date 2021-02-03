@@ -64,6 +64,8 @@ from random import *
 # TODO like .. if it searches for home no need to check in the resource list :)
 
 #! next step is to think of a "setup" for an experiment. or maybe task allocation? more useful I guess (see personal notes).
+
+# ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same.
 ### GLOBALS ###################################################################
 
 # WORLD
@@ -252,18 +254,20 @@ while True:
                         [], collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMON_PATH)
         decay_check()
 
-        draw_information['rpos'] = robot.position.__dict__
-
+        # Robot wise
         if globals.cnt % globals.M == 0:
             PHEROMON_PATH.append(PheromonePoint(robot.position, DECAY))
             robot.path.append(robot.position.__dict__)
-            robot.draw_information.append(draw_information)
+            robot.draw_information.append(robot.position.__dict__)
 
         if collided:
             print("collided")
             robot.has_collided = True
 
         VISUALIZER.pygame_event_manager(pygame.event.get())
-
+    # # World wise
+    # if globals.cnt % globals.M == 0:
+    #     draw_information['poispos'] = [o.encode()
+    #                                    for o in deepcopy(globals.POIs)]
     pygame.display.flip()  # render drawing
     fpsClock.tick(fps)
