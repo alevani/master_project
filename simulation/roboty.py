@@ -205,6 +205,7 @@ class Robot:
         # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
         #! but then, what if multiple path ..?
         #! because I check left first, the randmoness is impacted.
+        # ? here, I can induce randmoness as to simulate that sometimes an ant might decide to take a different path
         for poi in globals.POIs:
             if poi.box.intersects(box_left):
                 left_state = 2
@@ -213,11 +214,11 @@ class Robot:
                 right_state = 2
                 break
 
-        for p in POINTS:
-            if p.box.intersects(box_left):
-                left_state = 1
-                break
-            elif p.box.intersects(box_right):
-                right_state = 1
-                break
+        # for p in POINTS:
+        #     if p.box.intersects(box_left):
+        #         left_state = 1
+        #         break
+        #     elif p.box.intersects(box_right):
+        #         right_state = 1
+        #         break
         return (left_state, right_state)
