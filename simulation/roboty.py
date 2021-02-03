@@ -10,10 +10,16 @@ from copy import deepcopy
 
 
 class PheromonePoint:
-    def __init__(self, position, decay_time):
+    def __init__(self, position, decay_time, t):
         self.position = position
-        self.box = Point(position.x, position.y).buffer(0.01)
         self.decay_time = decay_time
+        self.type = t
+
+    def encode(self):
+        return {
+            'position': self.position.__dict__,
+            'type': self.type
+        }
 
 
 class PointOfInterest:
@@ -192,74 +198,28 @@ class Robot:
             self.is_avoiding_cnt = 0
             self.is_avoiding = False
 
-    def get_bottom_sensor_states(self, POINTS):
-        #! what can be nice here is to say "is there anything between the line formed by this two points" (let's make it a rectangle maybe?)
-        box_left = Point(
-            self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.02)
-        box_right = Point(
-            self.bottom_sensors[1].x, self.bottom_sensors[1].y).buffer(0.02)
-
-        left_state = 0
-        right_state = 0
-
+    def get_bottom_sensor_states(self, pheromones_map):
         # For the sake of optimisation, let's assume that the two sensors cannot be active at the same time
         #! but then, what if multiple path ..?
         #! because I check left first, the randmoness is impacted.
         # ? here, I can induce randmoness as to simulate that sometimes an ant might decide to take a different path
-        for poi in globals.POIs:
-            if poi.box.intersects(box_left):
-                left_state = 2
-                break
-            elif poi.box.intersects(box_right):
-                right_state = 2
-                break
-
-        for p in POINTS:
-            if p.box.intersects(box_left):
-                left_state = 1
-                break
-            elif p.box.intersects(box_right):
-                right_state = 1
-                break
-        return (left_state, right_state)
-
-    def get_bottom_sensor_states_test(self, pheromones_map):
-        left_state = 0
-        right_state = 0
-
         left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
         left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
 
-        # for x in range(left_x - 10 , left_x + 10):
-        #     for y in range(left_y - 10 , left_y + 10):
-        #         if pheromones_map[x][y]:
-        #             left_state = 1
-        #             break
-        #     else:
-        #         continue
-        #     break
-
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
-                if pheromones_map[x][y]:
-                    return (1, 0)
+                if pheromones_map[x][y] != 0:
+                    return (pheromones_map[x][y].type, 0)
 
+        # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issue
         right_x = int(self.bottom_sensors[1].x *
                       100) + int(globals.W * 100/2)
         right_y = int(self.bottom_sensors[1].y *
                       100) + int(globals.H * 100/2)
 
-        # for x in range(right_x - 10, right_x + 10):
-        #     for y in range(right_y - 10, right_y + 10):
-        #         if pheromones_map[x][y]:
-        #             right_state = 1
-        #             break
-        #     else:
-        #         continue
-        #     break
-
         for x in range(right_x - 2, right_x + 2):
             for y in range(right_y - 2, right_y + 2):
-                if pheromones_map[x][y]:
-                    return (0, 1)
-        return(left_state, right_state)
+                if pheromones_map[x][y] != 0:
+                    return (0, pheromones_map[x][y].type)
+
+        return(0, 0)

@@ -8,3 +8,4 @@ M = 2
 POIs = []
 DRAW_POIS = []
 DO_RECORD = True
+PHEROMONES_MAP = [[]]

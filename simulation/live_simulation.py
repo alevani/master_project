@@ -80,7 +80,7 @@ from random import *
 # TODO Redo measurements of the robot's sensors' position
 
 # Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
-ROBOT_TIMESTEP = 0.6
+ROBOT_TIMESTEP = 1
 SIMULATION_TIMESTEP = .01
 
 R = 0.02  # radius of wheels in meters
@@ -113,6 +113,7 @@ else:
     FILE = None
 
 ROBOT_SIZE = 40
+DECAY = 500
 DECAY = 2500
 VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY, FILE)
 pygame.init()
@@ -125,6 +126,8 @@ def decay_check():
     for i, point in enumerate(PHEROMONES_PATH):
         point.decay_time -= 1
         if point.decay_time <= 0:
+            globals.PHEROMONES_MAP[int(point.position.x * 100) + int(globals.W * 100/2)][int(point.position.y *
+                                                                                             100) + int(globals.H * 100/2)] = 0
             PHEROMONES_PATH.pop(i)
 
     # threading.Timer(.1, decay_check).start()
@@ -203,14 +206,13 @@ globals.ROBOTS.append(R11)
 globals.ROBOTS.append(R12)
 globals.ROBOTS.append(R13)
 
-# Slow at creation, and heavy, but should considerabely increase visualisation speed.
+# Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
-PHEROMONES_MAP = [[]]
 for x in range(int(globals.W * 100)):
     inner = []
     for y in range(int(globals.H * 100)):
         inner.append(0)
-    PHEROMONES_MAP.append(inner)
+    globals.PHEROMONES_MAP.append(inner)
 
 
 PHEROMONES_PATH = []
@@ -231,9 +233,8 @@ while True:
             rays, robot)
 
         # Robot's brain
-        # bottom_sensor_states = robot.get_bottom_sensor_states(PHEROMONES_PATH)
-        bottom_sensor_states = robot.get_bottom_sensor_states_test(
-            PHEROMONES_MAP)
+        bottom_sensor_states = robot.get_bottom_sensor_states(
+            globals.PHEROMONES_MAP)
 
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
@@ -286,17 +287,14 @@ while True:
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
         VISUALIZER.draw(robot.position, robot.color, globals.cnt,
-                        [], collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMONES_PATH)
+                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, PHEROMONES_PATH)
 
         # Robot wise
-        PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
-                                                                                 100) + int(globals.H * 100/2)] = 1
+
+        globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
+                                                                                         100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
+        PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
         if globals.cnt % globals.M == 0:
-            # PHEROMONES_MAP[int(robot.position.x * 100)][int(robot.position.y *
-            #                                                  100)] = PheromonePoint(robot.position, DECAY)
-            #! For the moment, 1 and 0 are fine, also I can keep the pheromone path for display. but then maybe 1 should be replace by a pheromone point?
-            #! include the pheromone map in the decay
-            PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY))
             if globals.DO_RECORD:
                 robot.path.append(robot.position.__dict__)
 

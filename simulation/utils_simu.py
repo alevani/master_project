@@ -5,7 +5,7 @@ from math import cos, sin
 from shapely.geometry.point import Point
 from utils import Position
 import sys
-from roboty import PointOfInterest
+from roboty import PheromonePoint
 from time import sleep
 import json
 import globals
@@ -55,13 +55,21 @@ class Visualizator:
         for event in events:
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == LEFT_CLICK:
-                    poi_type = 0
+                    poi_type = 2
                 else:
-                    poi_type = 1
+                    poi_type = 3
 
                 pos = pygame.mouse.get_pos()
                 x, y = self.unscale(pos[0], pos[1])
-                globals.POIs.append(PointOfInterest(Position(x, y), poi_type))
+                globals.POIs.append(PheromonePoint(
+                    Position(x, y), 10000, poi_type))
+
+                x = int(x * 100) + int(globals.W * 100/2)
+                y = int(y * 100) + int(globals.H * 100/2)
+
+                globals.PHEROMONES_MAP[x][y] = PheromonePoint(
+                    Position(x, y), 10000, poi_type)
+
             elif event.type == QUIT:
                 pygame.quit()
                 sys.exit()
@@ -82,6 +90,7 @@ class Visualizator:
                     self.DRAW_DECAY = not self.DRAW_DECAY
                     print("[Display] Toggle pheromone decay visualization")
                 if event.key == pygame.K_x:
+                    self.DRAW_PATH = not self.DRAW_PATH
                     print("[Display] Path visualization is disable.")
                 if event.key == pygame.K_y:
                     self.DISPLAY_HANDLER += 1
@@ -111,7 +120,7 @@ class Visualizator:
     def draw_poi(self, pois):
         for poi in pois:
             x, y = self.scale(poi.position.x, poi.position.y)
-            if poi.type == 0:
+            if poi.type == 2:
                 color = GREEN
             else:
                 color = BLUE
