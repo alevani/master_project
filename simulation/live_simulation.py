@@ -40,7 +40,7 @@ from random import *
 
 # Do ants have a specific go home or go to food pheromone? if so I can easily add this behaviour by adding a pheromone type in the pheromone object and filtering when matching
 
-# TODO Right now it's funny that I can right and left click put
+# TODO Right now it's funny that I can right and left click but
 # TODO ultimately one will have to decide wheter POIs should all be in the same list or
 # TODO if they should be in dedicated list (home_pois, task_pois, and so on)
 # TODO IF in separated lists, then I can have multiple function for sensing (bottom)

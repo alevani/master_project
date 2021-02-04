@@ -18,6 +18,8 @@ class Task:
 
 # Return the energy demand for task "task" at time "step"
 def demand(task, step):
+    # maybe by local sensing (like how many ants are performing the same task ,what pheromone do I find)
+    # the ant can then return an estimate of the demands
     pass
 
 
