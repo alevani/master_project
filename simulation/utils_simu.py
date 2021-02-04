@@ -28,12 +28,12 @@ RIGHT_CLICK = 3
 
 
 class Visualizator:
-    def __init__(self, zoom_factor, W, H, robot_size, decay, FILE):
+    def __init__(self, W, H, decay, FILE):
         pygame.display.set_caption(
             'Simulation of task allocation in ant colonies')
         pygame.font.init()
         self.font = pygame.font.Font(pygame.font.get_default_font(), 32)
-        self.zoom = zoom_factor
+        self.zoom = globals.ZOOM
         self.FILE = FILE
         self.arena_width, self.arena_height = int(
             W * 100 * self.zoom), int(H * 100 * self.zoom)
@@ -44,7 +44,7 @@ class Visualizator:
             2 * self.MARGIN_W, self.arena_height + 2 * self.MARGIN_H,
 
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.robot_size = robot_size
+        self.robot_size = globals.ROBOT_SIZE
 
         self.DECAY = decay
 

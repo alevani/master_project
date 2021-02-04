@@ -16,23 +16,13 @@ with open('points.json', 'r') as f:
 CNT, M = json.loads(points.pop(0))
 POIS = json.loads(points.pop(0))
 ### GLOBALS ###################################################################
-
-ZOOM = 4
-ARENA_WIDTH, ARENA_HEIGHT = int(
-    globals.W * 100 * ZOOM), int(globals.H * 100 * ZOOM)
-MARGIN_W, MARGIN_H = 50, 50
-SCREEN_WIDTH, SCREEN_HEIGHT = ARENA_WIDTH + \
-    2 * MARGIN_W, ARENA_HEIGHT + 2 * MARGIN_H,
-
-ROBOT_SIZE = 40
-
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
 GRAY = (100, 100, 100)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
-VISUALIZER = Visualizator(ZOOM, globals.W, globals.H, ROBOT_SIZE, 0, None)
+VISUALIZER = Visualizator(globals.W, globals.H, 0, None)
 NBPOINTS = int(CNT) / int(M)
 
 ###############################################################################
@@ -43,8 +33,6 @@ def simulation(points):
     pygame.init()
     fps = 24
     fpsClock = pygame.time.Clock()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
     robots_color = [(randint(0, 255), randint(0, 255), randint(0, 255))
                     for _ in range(len(points))]
 

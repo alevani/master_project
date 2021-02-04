@@ -54,6 +54,9 @@ from random import *
 
 # ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same.
 
+# ? Thesis: Maybe it's going to be important to retrace the step of the simulation development?
+# ? i don't think so. But maybe about the speed and the improvement?
+
 #! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
 
 #! do not spend to much time on the point visu, it's like the thing that I will the less use, and only what's in the handin counts.
@@ -66,6 +69,7 @@ from random import *
 #! Simulation time between live and point is not the same... important? I don't think so.
 
 #! not sure but, there seems to be a problem with the randering size.
+# TODO try to make that the zoom influence everything else. ultimately it would be nice to be able to live zoom.
 ########
 
 ### GLOBALS ###################################################################
@@ -88,7 +92,7 @@ H = globals.H
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
 BOTTOM_LIGHT_SENSORS_POSITION = [
-    Position(-0.0097, 0.07), Position(0.0097, 0.07)]  # ! false measurments
+    Position(-0.012, 0.05), Position(0.012, 0.05)]  # ! false measurments
 
 # Assuming the robot is looking north
 PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
@@ -97,17 +101,17 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(0.025,  0.075, math.radians(71.5)),
                               Position(0.05,   0.06, math.radians(50))]
 
+TYPE_HOME = 1
+
 # PYGAME
-ZOOM = 4
 globals.DO_RECORD = True
 if globals.DO_RECORD:
     FILE = open("points.json", "w")
 else:
     FILE = None
 
-ROBOT_SIZE = 40
 DECAY = 500
-VISUALIZER = Visualizator(ZOOM, W, H, ROBOT_SIZE, DECAY, FILE)
+VISUALIZER = Visualizator(W, H, DECAY, FILE)
 pygame.init()
 fps = 60
 fpsClock = pygame.time.Clock()
@@ -153,7 +157,7 @@ x = 0
 y = 0
 q = math.radians(90)
 
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0, math.radians(0)),
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2 + 0.2, -H/2 + 0.2, math.radians(0)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
@@ -216,9 +220,9 @@ for x in range(int(globals.W * 100)):
 PHEROMONES_PATH = []
 AREAS = []
 
-Home = Area(Position(0.0, 0.0), 0.5, 0.5, 1, (0, 0, 125))
+# Nest = Area(Position(-W/2, -H/2), 0.5, 1, TYPE_HOME, (133, 147, 255))
 
-AREAS.append(Home)
+# AREAS.append(Nest)
 ###############################################################################
 
 while True:
@@ -226,6 +230,7 @@ while True:
     VISUALIZER.draw_arena()
     VISUALIZER.draw_poi(globals.POIs)
     VISUALIZER.draw_areas(AREAS)
+    VISUALIZER.draw_decay(PHEROMONES_PATH)
     for robot in globals.ROBOTS:
 
         if robot.has_collided:
@@ -265,28 +270,30 @@ while True:
             robot.is_avoiding = True
             robot.NB_STEP_TO_AVOID = 7
         else:
-            area_type = robot.area_type(AREAS)
-            if area_type != 0:
-                robot.RIGHT_WHEEL_VELOCITY = 0
+            # area_type = robot.area_type(AREAS)
+            # if area_type != 0:
+            #     if area_type == TYPE_HOME:
+            #         robot.RIGHT_WHEEL_VELOCITY = 0
+            #         robot.LEFT_WHEEL_VELOCITY = 0
+            # else:
+
+            # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
+            if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
+                robot.is_avoiding = True
+                robot.NB_STEP_TO_AVOID = 15
+                robot.trail = True
+            elif bottom_sensor_states == (1, 0):
+                robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = 0
+            elif bottom_sensor_states == (1, 1):
+                pass
+            elif bottom_sensor_states == (0, 1):
+                robot.RIGHT_WHEEL_VELOCITY = 0
+                robot.LEFT_WHEEL_VELOCITY = 1
             else:
-                # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-                if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
-                    robot.is_avoiding = True
-                    robot.NB_STEP_TO_AVOID = 15
-                    robot.trail = True
-                elif bottom_sensor_states == (1, 0):
-                    robot.RIGHT_WHEEL_VELOCITY = 1
-                    robot.LEFT_WHEEL_VELOCITY = 0
-                elif bottom_sensor_states == (1, 1):
-                    pass
-                elif bottom_sensor_states == (0, 1):
-                    robot.RIGHT_WHEEL_VELOCITY = 0
-                    robot.LEFT_WHEEL_VELOCITY = 1
-                else:
-                    robot.LEFT_WHEEL_VELOCITY = random()
-                    robot.RIGHT_WHEEL_VELOCITY = random()
-        ###################################
+                robot.LEFT_WHEEL_VELOCITY = random()
+                robot.RIGHT_WHEEL_VELOCITY = random()
+            ###################################
 
         robot.simulationstep()
 
@@ -319,8 +326,6 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
 
     decay_check()
-    VISUALIZER.draw_decay(PHEROMONES_PATH)
-
     # World wise
     if globals.DO_RECORD:
         if globals.cnt % globals.M == 0:
