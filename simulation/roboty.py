@@ -9,6 +9,23 @@ from utils import Position
 from copy import deepcopy
 
 
+class Area:
+    def __init__(self, position, width, height, t, color):
+        self.position = position
+
+        self.left_top = (self.position.x, self.position.y)
+        self.right_top = (self.position.x + width, self.position.y)
+        self.left_bottom = (self.position.x, self.position.y+height)
+        self.right_bottom = (self.position.x+width, self.position.y+height)
+
+        self.box = Polygon((self.left_top, self.right_top,
+                            self.right_bottom, self.left_bottom))
+        self.width = width
+        self.height = height
+        self.type = t
+        self.color = color
+
+
 class PheromonePoint:
     def __init__(self, position, decay_time, t):
         self.position = position
@@ -121,6 +138,18 @@ class Robot:
         for pos in self.bottom_sensors:
             pos.x = pos.x + x
             pos.y = pos.y + y
+
+    def is_sensing_area(self, areas):
+        box_left = Point(
+            self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.01)
+        box_right = Point(
+            self.bottom_sensors[1].x, self.bottom_sensors[1].y).buffer(0.01)
+
+        for area in areas:
+
+            if area.box.intersects(box_left) or area.box.intersects(box_right):
+                return area.type
+        return -1
 
     def get_proximity_sensor_state(self, sensors_values):
         top = sensors_values[2]

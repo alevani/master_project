@@ -121,6 +121,13 @@ class Visualizator:
                                               self.arena_width, self.arena_height))
         pygame.draw.circle(self.screen, BLACK, (self.scale(0, 0)), 2)
 
+    def draw_areas(self, areas):
+        for area in areas:
+            x, y = self.scale(area.position.x, area.position.y)
+
+            pygame.draw.polygon(self.screen, area.color, (self.scale(area.left_top[0], area.left_top[1]), self.scale(area.right_top[0], area.right_top[1]),
+                                                          self.scale(area.right_bottom[0], area.right_bottom[1]), self.scale(area.left_bottom[0], area.left_bottom[1])))
+
     def draw_poi(self, pois):
         for poi in pois:
             x, y = self.scale(poi.position.x, poi.position.y)

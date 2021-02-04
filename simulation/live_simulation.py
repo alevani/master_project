@@ -13,6 +13,7 @@ import math
 from roboty import Robot
 from utils_simu import Visualizator
 from roboty import PheromonePoint
+from roboty import Area
 
 from pygame.locals import *
 import pygame
@@ -61,6 +62,11 @@ from random import *
 
 #! one need to fix: the way robot behave on pheromone, they should be able to take 90 degree angle
 #! and also CIRCLE OF DEATH
+
+#! Simulation time between live and point is not the same... important? I don't think so.
+
+#! not sure but, there seems to be a problem with the randering size.
+#! also the shapely box does not reflect the position in the display
 ########
 
 ### GLOBALS ###################################################################
@@ -94,7 +100,6 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
 
 # PYGAME
 ZOOM = 4
-
 globals.DO_RECORD = True
 if globals.DO_RECORD:
     FILE = open("points.json", "w")
@@ -114,8 +119,8 @@ def decay_check():
     for i, point in enumerate(PHEROMONES_PATH):
         point.decay_time -= 1
         if point.decay_time <= 0:
-            globals.PHEROMONES_MAP[int(point.position.x * 100) + int(globals.W * 100/2)][int(point.position.y *
-                                                                                             100) + int(globals.H * 100/2)] = 0
+            globals.PHEROMONES_MAP[int(point.position.x * 100) + int(
+                globals.W * 100/2)][int(point.position.y * 100) + int(globals.H * 100/2)] = 0
             PHEROMONES_PATH.pop(i)
 
     # threading.Timer(.1, decay_check).start()
@@ -179,20 +184,26 @@ R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.60, -0.60, math
             (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.70, -0.70, math.radians(0)),
             (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, 0.70, math.radians(0)),
+            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
+R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, -0.70, math.radians(0)),
+            (randint(0, 255), randint(0, 255), randint(0, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L)
 
 globals.ROBOTS.append(R1)
 globals.ROBOTS.append(R2)
 globals.ROBOTS.append(R3)
 globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -204,12 +215,18 @@ for x in range(int(globals.W * 100)):
 
 
 PHEROMONES_PATH = []
+AREAS = []
+
+Home = Area(Position(0.0, 0.0), 0.5, 0.5, 0, (0, 0, 125))
+
+AREAS.append(Home)
 ###############################################################################
 
 while True:
     globals.cnt += 1
     VISUALIZER.draw_arena()
     VISUALIZER.draw_poi(globals.POIs)
+    VISUALIZER.draw_areas(AREAS)
     for robot in globals.ROBOTS:
 
         if robot.has_collided:
@@ -249,22 +266,26 @@ while True:
             robot.is_avoiding = True
             robot.NB_STEP_TO_AVOID = 7
         else:
-            # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-            if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
-                robot.is_avoiding = True
-                robot.NB_STEP_TO_AVOID = 15
-                robot.trail = True
-            elif bottom_sensor_states == (1, 0):
-                robot.RIGHT_WHEEL_VELOCITY = 1
-                robot.LEFT_WHEEL_VELOCITY = 0
-            elif bottom_sensor_states == (1, 1):
-                pass
-            elif bottom_sensor_states == (0, 1):
+            if robot.is_sensing_area(AREAS):
                 robot.RIGHT_WHEEL_VELOCITY = 0
-                robot.LEFT_WHEEL_VELOCITY = 1
+                robot.LEFT_WHEEL_VELOCITY = 0
             else:
-                robot.LEFT_WHEEL_VELOCITY = random()
-                robot.RIGHT_WHEEL_VELOCITY = random()
+                # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
+                if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
+                    robot.is_avoiding = True
+                    robot.NB_STEP_TO_AVOID = 15
+                    robot.trail = True
+                elif bottom_sensor_states == (1, 0):
+                    robot.RIGHT_WHEEL_VELOCITY = 1
+                    robot.LEFT_WHEEL_VELOCITY = 0
+                elif bottom_sensor_states == (1, 1):
+                    pass
+                elif bottom_sensor_states == (0, 1):
+                    robot.RIGHT_WHEEL_VELOCITY = 0
+                    robot.LEFT_WHEEL_VELOCITY = 1
+                else:
+                    robot.LEFT_WHEEL_VELOCITY = random()
+                    robot.RIGHT_WHEEL_VELOCITY = random()
         ###################################
 
         robot.simulationstep()
@@ -280,8 +301,8 @@ while True:
                         robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states)
 
         if robot.trail:
-            globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(robot.position.y *
-                                                                                             100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
+            globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(
+                robot.position.y * 100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
             PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
 
         # Robot wise
@@ -298,7 +319,6 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
 
     decay_check()
-
     VISUALIZER.draw_decay(PHEROMONES_PATH)
 
     # World wise
