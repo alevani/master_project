@@ -31,11 +31,6 @@ import math
 from random import *
 
 # IDEAS
-# One can play with the buffers of the pheromone sensing to simulate crappy hardware of ant
-#   -> as in, right now the detection pretty wide, maybe induce some noise with a randmoness in the buffer?
-#   -> which is also why sometimes it misses rough angles.
-
-
 # It does not seem impossible to have a record button that would save the point. This record button would record idk like
 # 5000 begin and from there on, giving the user a chance to record something he just missed, also without to have to watch
 # it from the begining again
@@ -63,6 +58,9 @@ from random import *
 #! do not spend to much time on the point visu, it's like the thing that I will the less use, and only what's in the handin counts.
 
 #! it's not beautiful, but I think it's very convenient to keep path and maps. maybe there's some possible cleanup?
+
+#! one need to fix: the way robot behave on pheromone, they should be able to take 90 degree angle
+#! and also CIRCLE OF DEATH
 ########
 
 ### GLOBALS ###################################################################

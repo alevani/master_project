@@ -29,6 +29,10 @@ RIGHT_CLICK = 3
 
 class Visualizator:
     def __init__(self, zoom_factor, W, H, robot_size, decay, FILE):
+        pygame.display.set_caption(
+            'Simulation of task allocation in ant colonies')
+        pygame.font.init()
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 32)
         self.zoom = zoom_factor
         self.FILE = FILE
         self.arena_width, self.arena_height = int(
@@ -91,7 +95,7 @@ class Visualizator:
                     print("[Display] Toggle pheromone decay visualization")
                 if event.key == pygame.K_x:
                     self.DRAW_PATH = not self.DRAW_PATH
-                    print("[Display] Path visualization is disable.")
+                    print("[Display] Toggle Path visualization")
                 if event.key == pygame.K_y:
                     self.DISPLAY_HANDLER += 1
 
@@ -195,6 +199,9 @@ class Visualizator:
 
     def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state):
         self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
+
+        counter = self.font.render(str(i), True, RED, WHITE)
+        self.screen.blit(counter, (self.MARGIN_W, self.MARGIN_H))
 
         if self.DRAW_BOTTOM_SENSORS:
             self.draw_bottom_sensors(
