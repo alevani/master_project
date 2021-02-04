@@ -1,13 +1,16 @@
 ROBOTS = []
-H = 4
-W = 3
+H = 5
+W = 7
 cnt = 0
 M = 2
+
 
 # point of interest
 POIs = []
 DRAW_POIS = []
-ZOOM = 4
-ROBOT_SIZE = 40
+ZOOM = 2
+V = 2
+ROBOT_SIZE = ZOOM * 11.25
+
 DO_RECORD = True
 PHEROMONES_MAP = [[]]

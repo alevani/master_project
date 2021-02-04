@@ -33,6 +33,8 @@ class Visualizator:
             'Simulation of task allocation in ant colonies')
         pygame.font.init()
         self.font = pygame.font.Font(pygame.font.get_default_font(), 32)
+        self.font_robot_number = pygame.font.Font(
+            pygame.font.get_default_font(), 12)
         self.zoom = globals.ZOOM
         self.FILE = FILE
         self.arena_width, self.arena_height = int(
@@ -146,14 +148,16 @@ class Visualizator:
             if states[i] == 1:
                 color = RED
             pygame.draw.circle(self.screen, color, self.scale(
-                position[0], position[1]), 5)
+                position[0], position[1]), self.zoom)
 
     def rotate_center(self, image, rect, angle):
         rot_img = pygame.transform.rotate(image, angle)
         rot_rect = rot_img.get_rect(center=rect.center)
         return rot_img, rot_rect
 
-    def draw_robot(self, pos, angle, color):
+    def draw_robot(self, pos, angle, color, n):
+
+        robot_n = self.font_robot_number.render(str(n), True, BLACK)
         image = pygame.Surface(
             (self.robot_size, self.robot_size), pygame.SRCALPHA, 32)
 
@@ -167,10 +171,11 @@ class Visualizator:
         a = math.degrees(angle)
         img, rect = self.rotate_center(image, rect, a)
         self.screen.blit(img, rect)
+        self.screen.blit(robot_n, (pos[0], pos[1]))
 
     def scale(self, x, y):
         '''
-        transpose from particule filter coordinate system
+        transpose from particule filter coordinate systemq
         to pygame coordinate system
         '''
 
@@ -202,10 +207,11 @@ class Visualizator:
                 color = DECAY10
 
             pygame.draw.circle(self.screen, color,
-                               self.scale(point.position.x, point.position.y), 1.5)
+                               self.scale(point.position.x, point.position.y), self.zoom//2)
 
-    def draw(self, robot, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state):
-        self.draw_robot(self.scale(robot.x, robot.y), robot.q, color)
+    def draw(self, pos, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, n):
+        self.draw_robot(self.scale(pos.x, pos.y),
+                        pos.q, color, n)
 
         counter = self.font.render(str(i), True, RED, WHITE)
         self.screen.blit(counter, (self.MARGIN_W, self.MARGIN_H))
@@ -218,7 +224,7 @@ class Visualizator:
             self.draw_box(box)
 
         if self.DRAW_RAYS:
-            self.draw_rays(spos, sstate, robot.q)
+            self.draw_rays(spos, sstate, pos.q)
 
         if self.DRAW_PATH:
             for p in path:
@@ -226,12 +232,13 @@ class Visualizator:
 
     def draw_path(self, path, color):
         pygame.draw.circle(self.screen, color,
-                           self.scale(path['x'], path['y']), 1.5)
+                           self.scale(path['x'], path['y']), self.zoom//2)
 
     def draw_box(self, box):
         for point in box:
+
             pygame.draw.circle(
-                self.screen, BLUE, self.scale(point[0], point[1]), 5)
+                self.screen, BLUE, self.scale(point[0], point[1]), self.zoom)
 
     def draw_rays(self, rays, states, q):
         for i, ray in enumerate(rays):
