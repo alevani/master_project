@@ -66,7 +66,6 @@ from random import *
 #! Simulation time between live and point is not the same... important? I don't think so.
 
 #! not sure but, there seems to be a problem with the randering size.
-#! also the shapely box does not reflect the position in the display
 ########
 
 ### GLOBALS ###################################################################
@@ -193,17 +192,17 @@ globals.ROBOTS.append(R1)
 globals.ROBOTS.append(R2)
 globals.ROBOTS.append(R3)
 globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -217,7 +216,7 @@ for x in range(int(globals.W * 100)):
 PHEROMONES_PATH = []
 AREAS = []
 
-Home = Area(Position(0.0, 0.0), 0.5, 0.5, 0, (0, 0, 125))
+Home = Area(Position(0.0, 0.0), 0.5, 0.5, 1, (0, 0, 125))
 
 AREAS.append(Home)
 ###############################################################################
@@ -266,7 +265,8 @@ while True:
             robot.is_avoiding = True
             robot.NB_STEP_TO_AVOID = 7
         else:
-            if robot.is_sensing_area(AREAS):
+            area_type = robot.area_type(AREAS)
+            if area_type != 0:
                 robot.RIGHT_WHEEL_VELOCITY = 0
                 robot.LEFT_WHEEL_VELOCITY = 0
             else:

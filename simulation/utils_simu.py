@@ -125,8 +125,8 @@ class Visualizator:
         for area in areas:
             x, y = self.scale(area.position.x, area.position.y)
 
-            pygame.draw.polygon(self.screen, area.color, (self.scale(area.left_top[0], area.left_top[1]), self.scale(area.right_top[0], area.right_top[1]),
-                                                          self.scale(area.right_bottom[0], area.right_bottom[1]), self.scale(area.left_bottom[0], area.left_bottom[1])))
+            pygame.draw.polygon(self.screen, area.color, (self.scale(area.right_bottom[0], area.right_bottom[1]), self.scale(
+                area.left_bottom[0], area.left_bottom[1]), self.scale(area.left_top[0], area.left_top[1]), self.scale(area.right_top[0], area.right_top[1])))
 
     def draw_poi(self, pois):
         for poi in pois:
