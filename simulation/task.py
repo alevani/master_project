@@ -7,10 +7,25 @@ class Task:
         self.assigned.append(robot)
 
 
-# Return the energy demand for task "task" at time "step"
-def demand(task, step):
+class TaskHandler:
+    def __init__(self):
+        super().__init__()
+
+    # maybe call every 10 step or so, or threader
+    # Depending on the task I decide to implement, this will asses the demand for each task
     # maybe by local sensing (like how many ants are performing the same task ,what pheromone do I find)
     # the ant can then return an estimate of the demands
+
+    # such as ..
+    def get_hunger(self):
+        # ? To be simple, let's assume the nest has a hunger, a not the robot?
+        # ? but if the robot has hunger, then we can say that once it reaches 0 it's dead, pretty "neat"
+        pass
+
+
+# Return the energy demand for task "task" at time "step"
+def demand(task, step):
+    # ask the task handler for task information
     pass
 
 

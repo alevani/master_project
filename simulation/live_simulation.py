@@ -112,7 +112,7 @@ if globals.DO_RECORD:
 else:
     FILE = None
 
-DECAY = 5000
+DECAY = 500
 VISUALIZER = Visualizator(W, H, DECAY, FILE)
 pygame.init()
 fps = 60
@@ -140,15 +140,15 @@ def get_proximity_sensor_values(rays, robot):
         dists.append(distance(WORLD.intersection(ray),
                               robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
 
-    # # Robot detection
-    # for r in globals.ROBOTS:
-    #     # Don't check ourselves
-    #     if r.number != robot.number:
-    #         for index, ray in enumerate(rays):
-    #             if r.is_sensing(ray):
-    #                 p1, p2 = nearest_points(r.get_collision_box(), Point(
-    #                     robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-    #                 dists[index] = distance(p1, p2.x, p2.y)
+    # Robot detection
+    for r in globals.ROBOTS:
+        # Don't check ourselves
+        if r.number != robot.number:
+            for index, ray in enumerate(rays):
+                if r.is_sensing(ray):
+                    p1, p2 = nearest_points(r.get_collision_box(), Point(
+                        robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+                    dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
 
@@ -237,9 +237,9 @@ globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
 
-for robot in globals.ROBOTS:
-    # ? what information to assign to a task? surely the full ant object is useless.. is it?
-    Task[0].assign(robot.number)
+# for robot in globals.ROBOTS:
+#     # ? what information to assign to a task? surely the full ant object is useless.. is it?
+#     Task[0].assign(robot.number)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -253,8 +253,8 @@ for x in range(int(globals.W * 100)):
 PHEROMONES_PATH = []
 AREAS = []
 
-# Nest = Area(Position(-W/2, -H/2), 0.5, 1, TYPE_HOME, (133, 147, 255))
-# AREAS.append(Nest)
+Nest = Area(Position(-W/2, -H/2), 1, 3, TYPE_HOME, (133, 147, 255))
+AREAS.append(Nest)
 ###############################################################################
 
 while True:
@@ -282,43 +282,43 @@ while True:
         # Robot's brain
 
         # Task allocation #
-        if robot.state == Resting:
-            candidate = []
-            for i, task in enumerate(TASKS):
-                if feedback(task, globals.cnt) < 0:
-                    TASKS_Q[i][0] = 0
-                else:
-                    TASKS_Q[i][0] = max(TASKS_Q[i][0] + 1, 3)
+        # if robot.state == Resting:
+        #     candidate = []
+        #     for i, task in enumerate(TASKS):
+        #         if feedback(task, globals.cnt) < 0:
+        #             TASKS_Q[i][0] = 0
+        #         else:
+        #             TASKS_Q[i][0] = max(TASKS_Q[i][0] + 1, 3)
 
-                if TASKS_Q[i][0] == 3:
-                    candidate.append(task)
+        #         if TASKS_Q[i][0] == 3:
+        #             candidate.append(task)
 
-            if candidate != []:
-                if randint(0, 1):
-                    for task in TASKS_Q:
-                        task[0] = 0
-                    robot.task = candidate[randint(0, len(candidate)-1)]
-                    robot.ant = TempWorker
-        elif robot.state == FirstReserve:
-            if feedback(robot.task, globals.cnt) < 0:
-                robot.state = Resting
-            elif randint(0, 1):
-                robot.state = TempWorker
-            else:
-                robot.state = SecondReserve
-        elif robot.state == SecondReserve:
-            if feedback(robot.task, globals.cnt) < 0:
-                robot.state = Resting
-            else:
-                robot.state = TempWorker
-        elif robot.state == TempWorker:
-            if feedback(robot.task, globals.cnt) < 0:
-                robot.state = FirstReserve
-            else:
-                robot.state = CoreWorker
-        elif robot.state == CoreWorker:
-            if feedback(robot.task, globals.cnt) < 0:
-                robot.state = TempWorker
+        #     if candidate != []:
+        #         if randint(0, 1):
+        #             for task in TASKS_Q:
+        #                 task[0] = 0
+        #             robot.task = candidate[randint(0, len(candidate)-1)]
+        #             robot.ant = TempWorker
+        # elif robot.state == FirstReserve:
+        #     if feedback(robot.task, globals.cnt) < 0:
+        #         robot.state = Resting
+        #     elif randint(0, 1):
+        #         robot.state = TempWorker
+        #     else:
+        #         robot.state = SecondReserve
+        # elif robot.state == SecondReserve:
+        #     if feedback(robot.task, globals.cnt) < 0:
+        #         robot.state = Resting
+        #     else:
+        #         robot.state = TempWorker
+        # elif robot.state == TempWorker:
+        #     if feedback(robot.task, globals.cnt) < 0:
+        #         robot.state = FirstReserve
+        #     else:
+        #         robot.state = CoreWorker
+        # elif robot.state == CoreWorker:
+        #     if feedback(robot.task, globals.cnt) < 0:
+        #         robot.state = TempWorker
         ###################
 
         robot.RIGHT_WHEEL_VELOCITY = 0

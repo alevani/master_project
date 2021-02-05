@@ -221,10 +221,18 @@ class Robot:
         left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
         left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
 
+        #! maybe here, instead of picking the first one
+        #! I could add the candidate to a list and average
+        #! so that if there's more green that pheromone then it chooses to sense the pheromone
+
+        #! or
+
+        #! I could to a random exclusion, exclude cell as long as it is empty with a random distribution .. return the first non-empty cell
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
                 if pheromones_map[x][y] != 0:
                     return (pheromones_map[x][y].type, 0)
+
         #! the way the code is written just assumes than return such as (?,2) can never occur.
         # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issue
         right_x = int(self.bottom_sensors[1].x *
