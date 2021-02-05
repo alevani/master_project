@@ -81,8 +81,15 @@ class Visualizator:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
-                    sleep(0.2)
-                if event.key == pygame.K_q:
+                    pause = True
+                    while pause:
+                        for event in pygame.event.get():
+                            if event.type == pygame.KEYDOWN:
+                                print(event.key)
+                                if event.key == pygame.K_p:
+                                    pause = False
+
+                elif event.key == pygame.K_q:
                     if globals.DO_RECORD:
                         self.FILE.write(json.dumps([globals.cnt, globals.M]))
                         self.FILE.write("\n"+json.dumps(globals.DRAW_POIS))
@@ -92,13 +99,13 @@ class Visualizator:
                         self.FILE.close()
                     pygame.quit()
                     sys.exit()
-                if event.key == pygame.K_d:
+                elif event.key == pygame.K_d:
                     self.DRAW_DECAY = not self.DRAW_DECAY
                     print("[Display] Toggle pheromone decay visualization")
-                if event.key == pygame.K_x:
+                elif event.key == pygame.K_x:
                     self.DRAW_PATH = not self.DRAW_PATH
                     print("[Display] Toggle Path visualization")
-                if event.key == pygame.K_y:
+                elif event.key == pygame.K_y:
                     self.DISPLAY_HANDLER += 1
 
                     if self.DISPLAY_HANDLER == 3:
