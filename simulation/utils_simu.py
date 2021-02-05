@@ -85,7 +85,6 @@ class Visualizator:
                     while pause:
                         for event in pygame.event.get():
                             if event.type == pygame.KEYDOWN:
-                                print(event.key)
                                 if event.key == pygame.K_p:
                                     pause = False
 

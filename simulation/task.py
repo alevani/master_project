@@ -31,6 +31,7 @@ class TaskHandler:
     def get_nest_maintenance_status(self):
         # TODO let's start with get_hunger .. one task at a time
         # Return the energy demand for task "task" at time "step
+        pass
 
 
 def demand(task, step):
@@ -45,35 +46,25 @@ def demand(task, step):
 
 # Return the energy an ant "robot" can supply to a task "task" at time "step"
 def energy(task, robot, step):
+    #! maybe an ant as one unit of energy? how it that calculated? maybe it is link to the level of hunger
+    #! but I have to relate it to a robotic setup where the energy of the robot will always be its battery life
     # ? ¯\_(ツ)_/¯
     pass
 
-
-# Assign a task "task" to a ant "robot"
-def assign(task, robot):
-    # ? robot.assign(task)
-    # ? or
-    # ? Task.assign(robot)?
-    pass
-
-
 # Return the number of ant assigned to a task "task" at time "step"
+
+
 def assigned(task, step):
-    pass
+    return sum([1 for robot in globals.ROBOTS if robot.task == task])
 
 
 # Return the number of ant unassigned to a task at time "step"
 def unassigned(step):
-    pass
+    sum([1 for robot in globals.ROBOTS if robot.task == Idle])
 
 
 # Return the energy supplied to a task "task" at time "step"
 def energy_supplied(task, step):
-    '''
-    For every ant in the set of ant that are assigned the task "task" , at time "step"
-        sum energy(task, ant, robot)
-    '''
-
     return sum([energy(task, robot, step) for robot in globals.ROBOTS if robot.task == task])
 
 

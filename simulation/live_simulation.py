@@ -259,8 +259,8 @@ for x in range(int(globals.W * 100)):
 PHEROMONES_PATH = []
 AREAS = []
 
-Nest = Area(Position(-W/2, -H/2), 1, 3, TYPE_HOME, (133, 147, 255))
-AREAS.append(Nest)
+# Nest = Area(Position(-W/2, -H/2), 1, 3, TYPE_HOME, (133, 147, 255))
+# AREAS.append(Nest)
 ###############################################################################
 
 while True:
