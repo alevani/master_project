@@ -1,19 +1,10 @@
-''' Mostly pseudo code'''
-Tasks = []
-Tasks.append(Task(0, 'Foraging'))
-
-robot = ""
-Tasks[0].assign(robot)
-
-
 class Task:
-    def __init__(self, t, name):
-        self.type = t
+    def __init__(self, name):
         self.name = name
         self.assigned = []
 
-    def assign(self, ant):
-        self.assigned.append(ant)
+    def assign(self, robot):
+        self.assigned.append(robot)
 
 
 # Return the energy demand for task "task" at time "step"
@@ -60,3 +51,8 @@ def energy_supplied(task, step):
 # R = 0 then task "task" is in equilibrium
 def energy_status(task, step):
     return demand(task, step) - energy_supplied(task, step)
+
+
+# Local Feedback function
+def feedback(task, step):
+    return 1 if energy_status(task, step) >= 0 else -1
