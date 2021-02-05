@@ -16,6 +16,7 @@ from roboty import PheromonePoint
 from roboty import Area
 from task import Task
 from task import feedback
+from task import TaskHandler
 
 from pygame.locals import *
 import pygame
@@ -105,6 +106,8 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
 
 TYPE_HOME = 1
 
+TaskHandler = TaskHandler()
+
 # PYGAME
 globals.DO_RECORD = True
 if globals.DO_RECORD:
@@ -187,39 +190,39 @@ TASKS.append((0, Patrolling))
 #############################################################################
 ### Start's variables #########################################################
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.2, 0.2, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
-    180)), (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+    180)), (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 
 R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.40, -0.40, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 
 R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 
 R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.47, 0.47, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.47, -0.47, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.60, 0.60, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.60, -0.60, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.70, -0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, 0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, -0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 
 globals.ROBOTS.append(R1)
 globals.ROBOTS.append(R2)
@@ -236,6 +239,9 @@ globals.ROBOTS.append(R12)
 globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
+
+# Arbitrary food treshold for the moment
+FOOD_TRESHOLD = len(globals.ROBOTS) * 0.75
 
 # for robot in globals.ROBOTS:
 #     # ? what information to assign to a task? surely the full ant object is useless.. is it?
@@ -384,6 +390,11 @@ while True:
             globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(
                 robot.position.y * 100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
             PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
+
+        # Decrease food every n step
+        if globals.cnt % 50 == 0:
+            #! I will need some sort of mechanisms for the ant to bring food home and "share it with all the individuals"
+            robot.food_level -= 1
 
         # Robot wise
         if globals.DO_RECORD:
