@@ -46,9 +46,10 @@ class CollisionBox:
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, state):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state):
         self.number = number
         self.color = color
+        self.task = task
         self.proximity_sensors = proximity_sensors
         self.bottom_sensors = bottom_sensors
         self.LEFT_WHEEL_VELOCITY = LEFT_WHEEL_VELOCITY
