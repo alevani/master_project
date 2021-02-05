@@ -17,20 +17,35 @@ class TaskHandler:
     # the ant can then return an estimate of the demands
 
     # such as ..
-    def get_hunger(self):
-        # ? To be simple, let's assume the nest has a hunger, a not the robot?
-        # ? but if the robot has hunger, then we can say that once it reaches 0 it's dead, pretty "neat"
-        pass
+    #! How do we induce operating cost of a task with the task allocation model? to be disscussed..
+    def get_food_level(self):
+        food_level = 0
+        for robot in globals.ROBOTS:
+            food_level += robot.food_level
+            if food_level > globals.FOOD_TRESHOLD:
+                # ? maybe return the number of ants that are below the food level treshold instead?
+                return 1
+
+        return 0
+
+    def get_nest_maintenance_status(self):
+        # TODO let's start with get_hunger .. one task at a time
+        # Return the energy demand for task "task" at time "step
 
 
-# Return the energy demand for task "task" at time "step"
 def demand(task, step):
+    #! roughly ..
+    if task == "Foraging":
+        return TaskHandler.get_food_level()
+    else:
+        pass
     # ask the task handler for task information
     pass
 
 
 # Return the energy an ant "robot" can supply to a task "task" at time "step"
 def energy(task, robot, step):
+    # ? ¯\_(ツ)_/¯
     pass
 
 
@@ -58,6 +73,8 @@ def energy_supplied(task, step):
     For every ant in the set of ant that are assigned the task "task" , at time "step"
         sum energy(task, ant, robot)
     '''
+
+    return sum([energy(task, robot, step) for robot in globals.ROBOTS if robot.task == task])
 
 
 # Return the energy status of a task "task" at time "step"
