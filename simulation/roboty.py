@@ -50,6 +50,7 @@ class Robot:
         self.number = number
         self.color = color
         self.task = task
+        self.state = state
         self.food_level = food_level
         self.proximity_sensors = proximity_sensors
         self.bottom_sensors = bottom_sensors

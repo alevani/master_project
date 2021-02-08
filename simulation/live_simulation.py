@@ -14,7 +14,6 @@ from roboty import Robot
 from utils_simu import Visualizator
 from roboty import PheromonePoint
 from roboty import Area
-from task import Task
 from task import feedback
 from task import TaskHandler
 
@@ -73,6 +72,8 @@ from random import *
 
 #! not sure but, there seems to be a problem with the randering size.
 # TODO try to make that the zoom influence everything else. ultimately it would be nice to be able to live zoom.
+
+#! How do we induce operating cost of a task with the task allocation model? to be disscussed..
 ########
 
 ### GLOBALS ###################################################################
@@ -115,7 +116,7 @@ if globals.DO_RECORD:
 else:
     FILE = None
 
-DECAY = 500
+DECAY = 5000
 VISUALIZER = Visualizator(W, H, DECAY, FILE)
 pygame.init()
 fps = 60
@@ -170,25 +171,26 @@ TASKS_Q = []
 TASKS = []
 
 # A task is a tuple of its energy and a task object
-Idle = Task('Idle')
-Foraging = Task('Foraging')
-NestMaintenance = Task('Nest Maintenance')
-BroodCare = Task('Brood Care')
-Patrolling = Task('Patrolling')
+Idle = 'Idle'
+Foraging = 'Foraging'
+NestMaintenance = 'Nest Maintenance'
+BroodCare = 'Brood Care'
+Patrolling = 'Patrolling'
 
 
-TASKS_Q.append((0, Idle))
-TASKS_Q.append((0, Foraging))
-TASKS_Q.append((0, NestMaintenance))
-TASKS_Q.append((0, BroodCare))
-TASKS_Q.append((0, Patrolling))
-TASKS.append((0, Idle))
-TASKS.append((0, Foraging))
-TASKS.append((0, NestMaintenance))
-TASKS.append((0, BroodCare))
-TASKS.append((0, Patrolling))
+TASKS_Q.append([0, Idle])
+TASKS_Q.append([0, Foraging])
+# TASKS_Q.append([0, NestMaintenance])
+# TASKS_Q.append([0, BroodCare])
+# TASKS_Q.append([0, Patrolling])
+TASKS.append(Idle)
+TASKS.append(Foraging)
+# TASKS.append(NestMaintenance)
+# TASKS.append(BroodCare)
+# TASKS.append(Patrolling)
 #############################################################################
 ### Start's variables #########################################################
+#! some robot start on top of each others..
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.2, 0.2, math.radians(0)),
            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
@@ -240,7 +242,7 @@ globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
 
-# Arbitrary food treshold for the moment
+# Arbitrary food treshold
 FOOD_TRESHOLD = len(globals.ROBOTS) * 0.75
 
 # for robot in globals.ROBOTS:
@@ -288,90 +290,95 @@ while True:
         # Robot's brain
 
         # Task allocation #
-        # if robot.state == Resting:
-        #     candidate = []
-        #     for i, task in enumerate(TASKS):
-        #         if feedback(task, globals.cnt) < 0:
-        #             TASKS_Q[i][0] = 0
-        #         else:
-        #             TASKS_Q[i][0] = max(TASKS_Q[i][0] + 1, 3)
+        if robot.state == Resting:
+            candidate = []
+            for i, task in enumerate(TASKS):
+                if feedback(task, globals.cnt) < 0:
+                    TASKS_Q[i][0] = 0
+                else:
+                    TASKS_Q[i][0] = max(TASKS_Q[i][0] + 1, 3)
 
-        #         if TASKS_Q[i][0] == 3:
-        #             candidate.append(task)
+                if TASKS_Q[i][0] == 3:
+                    candidate.append(task)
 
-        #     if candidate != []:
-        #         if randint(0, 1):
-        #             for task in TASKS_Q:
-        #                 task[0] = 0
-        #             robot.task = candidate[randint(0, len(candidate)-1)]
-        #             robot.ant = TempWorker
-        # elif robot.state == FirstReserve:
-        #     if feedback(robot.task, globals.cnt) < 0:
-        #         robot.state = Resting
-        #     elif randint(0, 1):
-        #         robot.state = TempWorker
-        #     else:
-        #         robot.state = SecondReserve
-        # elif robot.state == SecondReserve:
-        #     if feedback(robot.task, globals.cnt) < 0:
-        #         robot.state = Resting
-        #     else:
-        #         robot.state = TempWorker
-        # elif robot.state == TempWorker:
-        #     if feedback(robot.task, globals.cnt) < 0:
-        #         robot.state = FirstReserve
-        #     else:
-        #         robot.state = CoreWorker
-        # elif robot.state == CoreWorker:
-        #     if feedback(robot.task, globals.cnt) < 0:
-        #         robot.state = TempWorker
+            if candidate != []:
+                if randint(0, 1):
+                    for task in TASKS_Q:
+                        task[0] = 0
+                    robot.task = candidate[randint(0, len(candidate)-1)]
+                    robot.ant = TempWorker
+        elif robot.state == FirstReserve:
+            if feedback(robot.task, globals.cnt) < 0:
+                robot.state = Resting
+            elif randint(0, 1):
+                robot.state = TempWorker
+            else:
+                robot.state = SecondReserve
+        elif robot.state == SecondReserve:
+            if feedback(robot.task, globals.cnt) < 0:
+                robot.state = Resting
+            else:
+                robot.state = TempWorker
+        elif robot.state == TempWorker:
+            if feedback(robot.task, globals.cnt) < 0:
+                robot.state = FirstReserve
+            else:
+                robot.state = CoreWorker
+        elif robot.state == CoreWorker:
+            if feedback(robot.task, globals.cnt) < 0:
+                robot.state = TempWorker
         ###################
 
         robot.RIGHT_WHEEL_VELOCITY = 0
         robot.LEFT_WHEEL_VELOCITY = 0
 
-        if robot.is_avoiding:
-            robot.avoid()
-        elif proximity_sensors_state == (0, 1, 0):
-            if randint(0, 1):
+        if robot.state == Resting:
+            # for now, let's say the robot does not move
+            pass
+        else:
+            print("oaiwjda")
+            if robot.is_avoiding:
+                robot.avoid()
+            elif proximity_sensors_state == (0, 1, 0):
+                if randint(0, 1):
+                    robot.RIGHT_WHEEL_VELOCITY = -1
+                    robot.LEFT_WHEEL_VELOCITY = 1
+                else:
+                    robot.RIGHT_WHEEL_VELOCITY = 1
+                    robot.LEFT_WHEEL_VELOCITY = -1
+            elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
                 robot.RIGHT_WHEEL_VELOCITY = -1
                 robot.LEFT_WHEEL_VELOCITY = 1
-            else:
+            elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
                 robot.RIGHT_WHEEL_VELOCITY = 1
                 robot.LEFT_WHEEL_VELOCITY = -1
-        elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
-            robot.RIGHT_WHEEL_VELOCITY = -1
-            robot.LEFT_WHEEL_VELOCITY = 1
-        elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
-            robot.RIGHT_WHEEL_VELOCITY = 1
-            robot.LEFT_WHEEL_VELOCITY = -1
-        elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
-            robot.is_avoiding = True
-            robot.NB_STEP_TO_AVOID = 7
-        else:
-            # area_type = robot.area_type(AREAS)
-            # if area_type != 0:
-            #     if area_type == TYPE_HOME:
-            #         robot.RIGHT_WHEEL_VELOCITY = 0
-            #         robot.LEFT_WHEEL_VELOCITY = 0
-            # else:
-
-            # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-            if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
+            elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
                 robot.is_avoiding = True
-                robot.NB_STEP_TO_AVOID = 15
-                robot.trail = True
-            elif bottom_sensor_states == (1, 0):
-                robot.RIGHT_WHEEL_VELOCITY = 1
-                robot.LEFT_WHEEL_VELOCITY = 0
-            elif bottom_sensor_states == (1, 1):
-                pass
-            elif bottom_sensor_states == (0, 1):
-                robot.RIGHT_WHEEL_VELOCITY = 0
-                robot.LEFT_WHEEL_VELOCITY = 1
+                robot.NB_STEP_TO_AVOID = 7
             else:
-                robot.LEFT_WHEEL_VELOCITY = random()
-                robot.RIGHT_WHEEL_VELOCITY = random()
+                # area_type = robot.area_type(AREAS)
+                # if area_type != 0:
+                #     if area_type == TYPE_HOME:
+                #         robot.RIGHT_WHEEL_VELOCITY = 0
+                #         robot.LEFT_WHEEL_VELOCITY = 0
+                # else:
+
+                # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
+                if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
+                    robot.is_avoiding = True
+                    robot.NB_STEP_TO_AVOID = 15
+                    robot.trail = True
+                elif bottom_sensor_states == (1, 0):
+                    robot.RIGHT_WHEEL_VELOCITY = 1
+                    robot.LEFT_WHEEL_VELOCITY = 0
+                elif bottom_sensor_states == (1, 1):
+                    pass
+                elif bottom_sensor_states == (0, 1):
+                    robot.RIGHT_WHEEL_VELOCITY = 0
+                    robot.LEFT_WHEEL_VELOCITY = 1
+                else:
+                    robot.LEFT_WHEEL_VELOCITY = random()
+                    robot.RIGHT_WHEEL_VELOCITY = random()
             ###################################
 
         robot.simulationstep()
@@ -415,6 +422,12 @@ while True:
         if globals.cnt % globals.M == 0:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
+    if globals.cnt % 50 == 0:
+        print(" ******* LIVE STATS *******")
+        print("N° | Hunger | State | Task")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.food_level) +
+                  " | "+str(robot.state) + " | "+str(robot.task))
 
-    pygame.display.flip()  # render drawing
+    pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

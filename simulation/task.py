@@ -1,10 +1,4 @@
-class Task:
-    def __init__(self, name):
-        self.name = name
-        self.assigned = []
-
-    def assign(self, robot):
-        self.assigned.append(robot)
+import globals
 
 
 class TaskHandler:
@@ -17,29 +11,29 @@ class TaskHandler:
     # the ant can then return an estimate of the demands
 
     # such as ..
-    #! How do we induce operating cost of a task with the task allocation model? to be disscussed..
     def get_food_level(self):
-        food_level = 0
-        for robot in globals.ROBOTS:
-            food_level += robot.food_level
-            if food_level > globals.FOOD_TRESHOLD:
-                # ? maybe return the number of ants that are below the food level treshold instead?
-                return 1
-
-        return 0
+        return sum([1 for robot in globals.ROBOTS if robot.food_level < globals.FOOD_TRESHOLD])
 
     def get_nest_maintenance_status(self):
         # TODO let's start with get_hunger .. one task at a time
         # Return the energy demand for task "task" at time "step
         pass
 
+    # As of now, it seems obvious that the demand for the Idle task is 0
+    # as we wish that no ant choose this state over an other?
+    def get_idle_demand(self):
+        return 0
+
+
+TH = TaskHandler()
+
 
 def demand(task, step):
     #! roughly ..
     if task == "Foraging":
-        return TaskHandler.get_food_level()
-    else:
-        pass
+        return TH.get_food_level()
+    elif task == "Idle":
+        return TH.get_idle_demand()
     # ask the task handler for task information
     pass
 
@@ -49,18 +43,18 @@ def energy(task, robot, step):
     #! maybe an ant as one unit of energy? how it that calculated? maybe it is link to the level of hunger
     #! but I have to relate it to a robotic setup where the energy of the robot will always be its battery life
     # ? ¯\_(ツ)_/¯
-    pass
+    # idk yet
+    return 2
+
 
 # Return the number of ant assigned to a task "task" at time "step"
-
-
 def assigned(task, step):
     return sum([1 for robot in globals.ROBOTS if robot.task == task])
 
 
 # Return the number of ant unassigned to a task at time "step"
 def unassigned(step):
-    sum([1 for robot in globals.ROBOTS if robot.task == Idle])
+    sum([1 for robot in globals.ROBOTS if robot.task == "Idle"])
 
 
 # Return the energy supplied to a task "task" at time "step"
