@@ -12,8 +12,16 @@ class TaskHandler:
 
     # such as ..
     def get_hunger_level(self):
-        return sum([robot.hunger_level for robot in globals.ROBOTS if robot.hunger_level > globals.FOOD_TRESHOLD])
-        # ? return sum([1 for robot in globals.ROBOTS if robot.hunger_level > globals.FOOD_TRESHOLD])
+
+        # Determined by external characteristics. Since we are working with robots, the demand will be when a robot has less than
+        # FOOD_TRESHOLD energy
+
+        # Now one can do two things: Either the demand increase depending on how many robots are below the treshold
+        # or if the total "battery level" is below a treshold -> which would lead or more ants seeking for food the
+        # closer energy in the the mass of robots gets closer to 0
+
+        # as of now.. it is the first one. Which means, the more robots that are hungry, the higher the demand is (undependently of their hungerness)
+        return sum([1 for robot in globals.ROBOTS if robot.hunger_level > globals.FOOD_TRESHOLD])
 
     def get_nest_maintenance_status(self):
         # TODO let's start with get_hunger .. one task at a time
@@ -30,12 +38,11 @@ TH = TaskHandler()
 
 
 def demand(task, step):
-    #! roughly ..
     if task == "Foraging":
-        print("["+str(task)+"]: Demand is " + str(TH.get_hunger_level()))
+        # print("["+str(task)+"]: Demand is " + str(TH.get_hunger_level()))
         return TH.get_hunger_level()
     elif task == "Idle":
-        print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
+        # print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
         return TH.get_idle_demand()
     # ask the task handler for task information
     pass
@@ -43,21 +50,26 @@ def demand(task, step):
 
 # Return the energy an ant "robot" can supply to a task "task" at time "step"
 def energy(task, robot, step):
-    #! maybe an ant as one unit of energy? how it that calculated? maybe it is link to the level of hunger
-    #! but I have to relate it to a robotic setup where the energy of the robot will always be its battery life
-    # ? ¯\_(ツ)_/¯
-    # idk yet
+    # Energy is based on ant characteristic to achieve a task.
+    # Our simulation is a homogeneous system, meaning that no robots have better characteristics than others
+    # The robot cannot sense their long-range environment, but maybe, for task such as food, we could sense the short
+    # environment and say "if I sense food then the energy I can provide is higher"
+
+    # The paper says it could also be impacted by previous experience .. maybe the robot can have a short memory
+    # That would say "ho .. I was close to food 10 timestep ago.. it is likely that I still have food nearby"
+
+    # As of now.. the energy is 1. Meaning that each robot can perform anytask as good as any other
     return 1
 
 
-# Return the number of ant assigned to a task "task" at time "step"
-def assigned(task, step):
-    return sum([1 for robot in globals.ROBOTS if robot.task == task])
+# # Return the number of ant assigned to a task "task" at time "step"
+# def assigned(task, step):
+#     return sum([1 for robot in globals.ROBOTS if robot.task == task])
 
 
-# Return the number of ant unassigned to a task at time "step"
-def unassigned(step):
-    sum([1 for robot in globals.ROBOTS if robot.task == "Idle"])
+# # Return the number of ant unassigned to a task at time "step"
+# def unassigned(step):
+#     sum([1 for robot in globals.ROBOTS if robot.task == "Idle"])
 
 
 # Return the energy supplied to a task "task" at time "step"

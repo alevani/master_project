@@ -76,6 +76,20 @@ from random import *
 #! How do we induce operating cost of a task with the task allocation model? to be disscussed..
 
 #! implement noise in the sensors? maybe not.. as I want to asses the value of the task allocation
+
+#! try to have some noise in tasks such as in food hunger, so not every robot are hungry at the same time.
+
+#! I have mixed my ideas.. hunger is not the same as foraging. Since the task would be to forage resources..
+#! not about foraging battery life .. 'cause it does not make any senses
+# ? but mabye the robot can also sense its own battery life then and go back to the nest if needed
+
+# TODO I am a bit concern with the task foraging .. what's the point? how do we define the demand..?
+#!!!! we could say that the default task for a robot would be to wander outside ..
+#!!!! then he would find an hazardous pile and increase the demand (the more he can sense on the short term, the better)
+
+# ? since ant acts for their own survival .. what's the point? how could they understand any other task?
+
+#! since above .. maybe we could imagine that it is the nest who assess the need of each task ..? and not the ant.
 ########
 
 ### GLOBALS ###################################################################
@@ -235,20 +249,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, -0.70, math
             (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 
 globals.ROBOTS.append(R1)
-# globals.ROBOTS.append(R2)
-# globals.ROBOTS.append(R3)
-# globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 
 
 # for robot in globals.ROBOTS:
@@ -302,36 +316,36 @@ while True:
             candidate = []
             for i, task in enumerate(TASKS):
                 if feedback(task, globals.cnt) < 0:  # Task is in energy surplus
-                    print("Task ["+task+"] is in energy surplus")
+                    # print("Task ["+task+"] is in energy surplus")
                     #! that actually works, I am just a dumbass ..
                     #! if idle increasing, then somehow only foraging will enter this if
                     #! and it's value is yes.. reset to 0
                     TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
-                    print("Task ["+task+"] is in energy deficit")
+                    # print("Task ["+task+"] is in energy deficit")
                     # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
                     # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
                     #! Maybe it's working .. I just need an actual food increase to put it to 0?
                     TASKS_Q[i] = max(TASKS_Q[i] + 1, 3)
-                print(TASKS_Q)
+                # print(TASKS_Q)
                 # ? if TASKS_Q[i] >= 3:
                 if TASKS_Q[i] == 3:
                     candidate.append(task)
-                print("Candidate tasks are:")
-                print(candidate)
+                # print("Candidate tasks are:")
+                # print(candidate)
 
             if candidate != []:
                 if randint(0, 1):
-                    print("Robot enters candiate task selection")
+                    # print("Robot enters candiate task selection")
                     for task in TASKS_Q:
                         task = 0
                     robot.task = candidate[randint(0, len(candidate)-1)]
-                    print("New robot's task is: " + robot.task)
+                    # print("New robot's task is: " + robot.task)
                     robot.state = TempWorker
-                    print("New robot's state is: " + str(robot.state))
+                    # print("New robot's state is: " + str(robot.state))
         elif robot.state == FirstReserve:
             if feedback(robot.task, globals.cnt) < 0:
-                print("First reserve .. resting")
+                # print("First reserve .. resting")
                 robot.state = Resting
             elif randint(0, 1):
                 robot.state = TempWorker
@@ -339,7 +353,7 @@ while True:
                 robot.state = SecondReserve
         elif robot.state == SecondReserve:
             if feedback(robot.task, globals.cnt) < 0:
-                print("Second reserve .. resting")
+                # print("Second reserve .. resting")
                 robot.state = Resting
             else:
                 robot.state = TempWorker
@@ -358,15 +372,14 @@ while True:
 
         if robot.state == Resting:
             # for now, let's say the robot does not move
-            print("Resting")
+            # print("Resting")
             pass
         elif robot.state == CoreWorker and robot.task == Foraging:
             #! tmp
-            print("\n\n\n\n\nA robot is foraging\n\n\n\n\n\n\n\n\n\n")
             if globals.cnt % 50 == 0:
-                robot.hunger_level -= 1
+                robot.hunger_level -= 2
 
-            print("Not resting")
+            # print("Not resting")
             if robot.is_avoiding:
                 robot.avoid()
             elif proximity_sensors_state == (0, 1, 0):
