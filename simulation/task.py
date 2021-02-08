@@ -11,8 +11,9 @@ class TaskHandler:
     # the ant can then return an estimate of the demands
 
     # such as ..
-    def get_food_level(self):
-        return sum([1 for robot in globals.ROBOTS if robot.food_level < globals.FOOD_TRESHOLD])
+    def get_hunger_level(self):
+        return sum([robot.hunger_level for robot in globals.ROBOTS if robot.hunger_level > globals.FOOD_TRESHOLD])
+        # ? return sum([1 for robot in globals.ROBOTS if robot.hunger_level > globals.FOOD_TRESHOLD])
 
     def get_nest_maintenance_status(self):
         # TODO let's start with get_hunger .. one task at a time
@@ -31,8 +32,10 @@ TH = TaskHandler()
 def demand(task, step):
     #! roughly ..
     if task == "Foraging":
-        return TH.get_food_level()
+        print("["+str(task)+"]: Demand is " + str(TH.get_hunger_level()))
+        return TH.get_hunger_level()
     elif task == "Idle":
+        print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
         return TH.get_idle_demand()
     # ask the task handler for task information
     pass
@@ -44,7 +47,7 @@ def energy(task, robot, step):
     #! but I have to relate it to a robotic setup where the energy of the robot will always be its battery life
     # ? ¯\_(ツ)_/¯
     # idk yet
-    return 2
+    return 1
 
 
 # Return the number of ant assigned to a task "task" at time "step"

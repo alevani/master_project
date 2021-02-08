@@ -74,6 +74,8 @@ from random import *
 # TODO try to make that the zoom influence everything else. ultimately it would be nice to be able to live zoom.
 
 #! How do we induce operating cost of a task with the task allocation model? to be disscussed..
+
+#! implement noise in the sensors? maybe not.. as I want to asses the value of the task allocation
 ########
 
 ### GLOBALS ###################################################################
@@ -178,8 +180,8 @@ BroodCare = 'Brood Care'
 Patrolling = 'Patrolling'
 
 
-TASKS_Q.append([0, Idle])
-TASKS_Q.append([0, Foraging])
+TASKS_Q.append(0)  # Idle
+TASKS_Q.append(0)  # Foraging
 # TASKS_Q.append([0, NestMaintenance])
 # TASKS_Q.append([0, BroodCare])
 # TASKS_Q.append([0, Patrolling])
@@ -190,60 +192,64 @@ TASKS.append(Foraging)
 # TASKS.append(Patrolling)
 #############################################################################
 ### Start's variables #########################################################
+# Arbitrary food treshold
+BASE_FOOD_LEVEL = 0
+MAX_FOOD_HUNGER_BEFORE_STARVATION = 15  # arbitrary
+# globals.FOOD_TRESHOLD = MAX_FOOD_HUNGER_BEFORE_STARVATION * 0.75
+globals.FOOD_TRESHOLD = MAX_FOOD_HUNGER_BEFORE_STARVATION * 0.2
+
 #! some robot start on top of each others..
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.2, 0.2, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.4, 0.2, math.radians(0)),
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
-    180)), (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+    180)), (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 
 R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.40, -0.40, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 
 R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 
 R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.47, 0.47, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.47, -0.47, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.60, 0.60, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.60, -0.60, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.70, -0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, 0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, -0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, 10)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
 
 globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
+# globals.ROBOTS.append(R2)
+# globals.ROBOTS.append(R3)
+# globals.ROBOTS.append(R4)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
-# Arbitrary food treshold
-FOOD_TRESHOLD = len(globals.ROBOTS) * 0.75
 
 # for robot in globals.ROBOTS:
 #     # ? what information to assign to a task? surely the full ant object is useless.. is it?
@@ -290,25 +296,42 @@ while True:
         # Robot's brain
 
         # Task allocation #
+        #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
+        #! I don't think I must simulate because what I need is to assess the efficiency
         if robot.state == Resting:
             candidate = []
             for i, task in enumerate(TASKS):
-                if feedback(task, globals.cnt) < 0:
-                    TASKS_Q[i][0] = 0
-                else:
-                    TASKS_Q[i][0] = max(TASKS_Q[i][0] + 1, 3)
-
-                if TASKS_Q[i][0] == 3:
+                if feedback(task, globals.cnt) < 0:  # Task is in energy surplus
+                    print("Task ["+task+"] is in energy surplus")
+                    #! that actually works, I am just a dumbass ..
+                    #! if idle increasing, then somehow only foraging will enter this if
+                    #! and it's value is yes.. reset to 0
+                    TASKS_Q[i] = 0
+                else:  # Task is in energy deficit
+                    print("Task ["+task+"] is in energy deficit")
+                    # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
+                    # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
+                    #! Maybe it's working .. I just need an actual food increase to put it to 0?
+                    TASKS_Q[i] = max(TASKS_Q[i] + 1, 3)
+                print(TASKS_Q)
+                # ? if TASKS_Q[i] >= 3:
+                if TASKS_Q[i] == 3:
                     candidate.append(task)
+                print("Candidate tasks are:")
+                print(candidate)
 
             if candidate != []:
                 if randint(0, 1):
+                    print("Robot enters candiate task selection")
                     for task in TASKS_Q:
-                        task[0] = 0
+                        task = 0
                     robot.task = candidate[randint(0, len(candidate)-1)]
-                    robot.ant = TempWorker
+                    print("New robot's task is: " + robot.task)
+                    robot.state = TempWorker
+                    print("New robot's state is: " + str(robot.state))
         elif robot.state == FirstReserve:
             if feedback(robot.task, globals.cnt) < 0:
+                print("First reserve .. resting")
                 robot.state = Resting
             elif randint(0, 1):
                 robot.state = TempWorker
@@ -316,6 +339,7 @@ while True:
                 robot.state = SecondReserve
         elif robot.state == SecondReserve:
             if feedback(robot.task, globals.cnt) < 0:
+                print("Second reserve .. resting")
                 robot.state = Resting
             else:
                 robot.state = TempWorker
@@ -334,9 +358,15 @@ while True:
 
         if robot.state == Resting:
             # for now, let's say the robot does not move
+            print("Resting")
             pass
-        else:
-            print("oaiwjda")
+        elif robot.state == CoreWorker and robot.task == Foraging:
+            #! tmp
+            print("\n\n\n\n\nA robot is foraging\n\n\n\n\n\n\n\n\n\n")
+            if globals.cnt % 50 == 0:
+                robot.hunger_level -= 1
+
+            print("Not resting")
             if robot.is_avoiding:
                 robot.avoid()
             elif proximity_sensors_state == (0, 1, 0):
@@ -401,7 +431,7 @@ while True:
         # Decrease food every n step
         if globals.cnt % 50 == 0:
             #! I will need some sort of mechanisms for the ant to bring food home and "share it with all the individuals"
-            robot.food_level -= 1
+            robot.hunger_level += 1
 
         # Robot wise
         if globals.DO_RECORD:
@@ -426,7 +456,7 @@ while True:
         print(" ******* LIVE STATS *******")
         print("N° | Hunger | State | Task")
         for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.food_level) +
+            print("["+str(robot.number)+"]: "+str(robot.hunger_level) +
                   " | "+str(robot.state) + " | "+str(robot.task))
 
     pygame .display.flip()  # render drawing
