@@ -7,12 +7,26 @@ class TaskHandler:
     def __init__(self, nest):
         self.nest = nest
         self.resource_handler()
+        self.task2()
+
+    def print_stats(self):
+        print("## NEST ##")
+        print(self.nest.resources)
+        print(self.nest.task2)
 
     def resource_handler(self):
-        self.nest.resources -= 1
+        self.nest.resources -= 10  # ? this affect the way task is allocated
 
         # Decrease the resource of the nest randomly
-        thread = threading.Timer(random(), self.resource_handler)
+        thread = threading.Timer(random() + 3, self.resource_handler)
+        thread.setDaemon(True)
+        thread.start()
+
+    def task2(self):
+        self.nest.task2 -= 5  # ? this affect the way task is allocated
+
+        # Decrease the resource of the nest randomly
+        thread = threading.Timer(random() + 3, self.nest)
         thread.setDaemon(True)
         thread.start()
 
@@ -42,12 +56,14 @@ class TaskHandler:
 
 
 def demand(task):
-    if task == "Foraging":
+    if task == 1:
         # print("["+str(task)+"]: Demand is " + str(TH.get_hunger_level()))
-        return globals.NEST.resources
-    elif task == "Idle":
+        return globals.NEST.resources * -1
+    elif task == 0:
         # print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
         return 0
+    elif task == 2:
+        return globals.NEST.task2 * -1
     # ask the task handler for task information
     pass
 

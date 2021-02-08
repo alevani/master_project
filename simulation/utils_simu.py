@@ -8,6 +8,7 @@ import sys
 from roboty import PheromonePoint
 from time import sleep
 import json
+import os
 import globals
 
 WHITE = (255, 255, 255)
@@ -78,7 +79,7 @@ class Visualizator:
 
             elif event.type == QUIT:
                 pygame.quit()
-                sys.exit()
+                os._exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     pause = True
@@ -163,7 +164,7 @@ class Visualizator:
 
     def draw_robot(self, pos, angle, color, n):
 
-        robot_n = self.font_robot_number.render(str(n), True, BLACK)
+        robot_n = self.font_robot_number.render(str(n), True, GRAY)
         image = pygame.Surface(
             (self.robot_size, self.robot_size), pygame.SRCALPHA, 32)
 

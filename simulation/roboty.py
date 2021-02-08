@@ -10,8 +10,9 @@ from copy import deepcopy
 
 
 class Nest:
-    def __init__(self, resources, position=None):
+    def __init__(self, resources, task2, position=None):
         self.resources = resources
+        self.task2 = task2
 
 
 class Area:
@@ -51,12 +52,12 @@ class CollisionBox:
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, hunger_level):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level):
         self.number = number
         self.color = color
         self.task = task
         self.state = state
-        self.hunger_level = hunger_level
+        self.battery_level = battery_level
         self.proximity_sensors = proximity_sensors
         self.bottom_sensors = bottom_sensors
         self.LEFT_WHEEL_VELOCITY = LEFT_WHEEL_VELOCITY
