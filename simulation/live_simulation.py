@@ -186,8 +186,6 @@ SecondReserve = 2
 TempWorker = 3
 CoreWorker = 4
 
-
-TH = TaskHandler()
 # Energy of a task
 TASKS_Q = []
 
@@ -215,46 +213,44 @@ TASKS.append(Foraging)
 #############################################################################
 ### Start's variables #########################################################
 # Arbitrary food treshold
-BASE_FOOD_LEVEL = 0
-MAX_FOOD_HUNGER_BEFORE_STARVATION = 15  # arbitrary
-# globals.FOOD_TRESHOLD = MAX_FOOD_HUNGER_BEFORE_STARVATION * 0.75
-globals.FOOD_TRESHOLD = MAX_FOOD_HUNGER_BEFORE_STARVATION * 0.2
+BASE_BATTERY_LEVEL = 0
+
 
 #! some robot start on top of each others..
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.4, 0.2, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, 0.2, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.2, -.20, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, 0.20, math.radians(
-    180)), (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+    180)), (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.20, -0.20, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.40, -0.40, math.radians(180)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.40, 0.40, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.47, 0.47, math.radians(0)),
-           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+           (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.47, -0.47, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.60, 0.60, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.60, -0.60, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0.70, -0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, 0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0.70, -0.70, math.radians(0)),
-            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_FOOD_LEVEL)
+            (randint(125, 255), randint(125, 255), randint(125, 255)), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
 globals.ROBOTS.append(R2)
@@ -323,7 +319,7 @@ while True:
         if robot.state == Resting:
             candidate = []
             for i, task in enumerate(TASKS):
-                if feedback(task, globals.cnt) < 0:  # Task is in energy surplus
+                if feedback(task) < 0:  # Task is in energy surplus
                     # print("Task ["+task+"] is in energy surplus")
                     #! that actually works, I am just a dumbass ..
                     #! if idle increasing, then somehow only foraging will enter this if
@@ -352,7 +348,7 @@ while True:
                     robot.state = TempWorker
                     # print("New robot's state is: " + str(robot.state))
         elif robot.state == FirstReserve:
-            if feedback(robot.task, globals.cnt) < 0:
+            if feedback(robot.task) < 0:
                 # print("First reserve .. resting")
                 robot.state = Resting
             elif randint(0, 1):
@@ -360,18 +356,18 @@ while True:
             else:
                 robot.state = SecondReserve
         elif robot.state == SecondReserve:
-            if feedback(robot.task, globals.cnt) < 0:
+            if feedback(robot.task) < 0:
                 # print("Second reserve .. resting")
                 robot.state = Resting
             else:
                 robot.state = TempWorker
         elif robot.state == TempWorker:
-            if feedback(robot.task, globals.cnt) < 0:
+            if feedback(robot.task) < 0:
                 robot.state = FirstReserve
             else:
                 robot.state = CoreWorker
         elif robot.state == CoreWorker:
-            if feedback(robot.task, globals.cnt) < 0:
+            if feedback(robot.task) < 0:
                 robot.state = TempWorker
         ###################
 
@@ -449,10 +445,9 @@ while True:
                 robot.position.y * 100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
             PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
 
-        # Decrease food every n step
-        if globals.cnt % 50 == 0:
-            #! I will need some sort of mechanisms for the ant to bring food home and "share it with all the individuals"
-            robot.hunger_level += 1
+        # # Decrease robot's battery .. maybe not useful.
+        # if globals.cnt % 50 == 0:
+        #     robot.battery_level -= 1
 
         # Robot wise
         if globals.DO_RECORD:
