@@ -14,6 +14,7 @@ from roboty import Robot
 from utils_simu import Visualizator
 from roboty import PheromonePoint
 from roboty import Area
+from roboty import Nest
 from task import feedback
 from task import TaskHandler
 
@@ -34,13 +35,13 @@ import math
 from random import *
 
 # IDEAS
-# It does not seem impossible to have a record button that would save the point. This record button would record idk like
-# 5000 begin and from there on, giving the user a chance to record something he just missed, also without to have to watch
-# it from the begining again
+#! It does not seem impossible to have a record button that would save the point. This record button would record idk like
+#! 5000 begin and from there on, giving the user a chance to record something he just missed, also without to have to watch
+#! it from the begining again
 
-# It is likely that adding pheromones at every step is wrong. like ant will activate their pheromones only under specific circumstances
+#! It is likely that adding pheromones at every step is wrong. like ant will activate their pheromones only under specific circumstances
 
-# Do ants have a specific go home or go to food pheromone? if so I can easily add this behaviour by adding a pheromone type in the pheromone object and filtering when matching
+#! Do ants have a specific go home or go to food pheromone? if so I can easily add this behaviour by adding a pheromone type in the pheromone object and filtering when matching
 
 # TODO Right now it's funny that I can right and left click but
 # TODO ultimately one will have to decide wheter POIs should all be in the same list or
@@ -90,6 +91,10 @@ from random import *
 # ? since ant acts for their own survival .. what's the point? how could they understand any other task?
 
 #! since above .. maybe we could imagine that it is the nest who assess the need of each task ..? and not the ant.
+#! above is pas con DU TOUT
+
+#! as assessed in the paper, an ant is capable to know that a task is in energy deficit or surplus, but not able to quantify it. so following the model, it is not because there's more deficit to a task that more ant should be allocated to it.
+#! but I could trick that to have more ant working on the task that have the more deficit .. I need to assess if this is necessary or not.
 ########
 
 ### GLOBALS ###################################################################
@@ -123,7 +128,8 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
 
 TYPE_HOME = 1
 
-TaskHandler = TaskHandler()
+globals.NEST = Nest(0)
+TaskHandler = TaskHandler(globals.NEST)
 
 # PYGAME
 globals.DO_RECORD = True
@@ -180,6 +186,8 @@ SecondReserve = 2
 TempWorker = 3
 CoreWorker = 4
 
+
+TH = TaskHandler()
 # Energy of a task
 TASKS_Q = []
 

@@ -9,6 +9,11 @@ from utils import Position
 from copy import deepcopy
 
 
+class Nest:
+    def __init__(self, resources, position=None):
+        self.resources = resources
+
+
 class Area:
     def __init__(self, position, width, height, t, color):
         self.position = position

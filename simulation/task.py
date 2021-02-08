@@ -1,14 +1,19 @@
 import globals
+import threading
+import random
 
 
 class TaskHandler:
-    def __init__(self):
+    def __init__(self, nest):
+        self.nest = nest
+        self.resource_handler()
         super().__init__()
 
-    # maybe call every 10 step or so, or threader
-    # Depending on the task I decide to implement, this will asses the demand for each task
-    # maybe by local sensing (like how many ants are performing the same task ,what pheromone do I find)
-    # the ant can then return an estimate of the demands
+    def resource_handler(self):
+        self.nest.resources -= 1
+
+        # Decrease the resource of the nest randomly
+        threading.Timer(random(), self.resource_handler).start()
 
     # such as ..
     def get_hunger_level(self):
@@ -34,16 +39,13 @@ class TaskHandler:
         return 0
 
 
-TH = TaskHandler()
-
-
 def demand(task, step):
     if task == "Foraging":
         # print("["+str(task)+"]: Demand is " + str(TH.get_hunger_level()))
-        return TH.get_hunger_level()
+        return globals.NEST.resources
     elif task == "Idle":
         # print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
-        return TH.get_idle_demand()
+        return 0
     # ask the task handler for task information
     pass
 
