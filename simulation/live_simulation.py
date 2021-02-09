@@ -311,7 +311,6 @@ AREAS.append(home)
 while True:
     globals.cnt += 1
     VISUALIZER.draw_arena()
-    VISUALIZER.draw_poi(globals.POIs)
     VISUALIZER.draw_areas(AREAS)
     VISUALIZER.draw_decay(PHEROMONES_PATH)
     for robot in globals.ROBOTS:
@@ -400,6 +399,11 @@ while True:
             #! maybe an "if not home, ho home()"
             pass
         elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
+            # Update the visu of the point of interest so it follows the robot moving around :D
+            if robot.carry_resource:
+                globals.POIs[robot.carried_resource.index].position.x = robot.position.x
+                globals.POIs[robot.carried_resource.index].position.y = robot.position.y
+
             if robot.is_avoiding:
                 robot.avoid()
             elif proximity_sensors_state == (0, 1, 0):
@@ -419,8 +423,8 @@ while True:
                 robot.is_avoiding = True
                 robot.NB_STEP_TO_AVOID = 7
             else:
-                area_type = robot.area_type(AREAS)
 
+                area_type = robot.area_type(AREAS)
                 if area_type == TYPE_HOME and robot.carry_resource:
                     globals.NEST.resources += robot.carried_resource.value
                     robot.carry_resource = False
@@ -483,6 +487,7 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
 
     decay_check()
+    VISUALIZER.draw_poi(globals.POIs)
     # World wise
     if globals.DO_RECORD:
         if globals.cnt % globals.M == 0:

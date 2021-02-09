@@ -68,6 +68,8 @@ class Visualizator:
 
                 pos = pygame.mouse.get_pos()
                 x, y = self.unscale(pos[0], pos[1])
+
+                index = len(globals.POIs)
                 globals.POIs.append(PointOfInterest(
                     Position(x, y), 500, poi_type, 10))
 
@@ -75,7 +77,7 @@ class Visualizator:
                 y = int(y * 100) + int(globals.H * 100/2)
 
                 globals.PHEROMONES_MAP[x][y] = PointOfInterest(
-                    Position(x, y), 500, poi_type, 10)
+                    Position(x, y), 500, poi_type, 10, index)
 
             elif event.type == QUIT:
                 pygame.quit()
