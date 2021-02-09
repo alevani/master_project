@@ -76,6 +76,8 @@ class Visualizator:
                 x = int(x * 100) + int(globals.W * 100/2)
                 y = int(y * 100) + int(globals.H * 100/2)
 
+                #! this will replace the current pheromone point if there's any..
+                #! should it be added to the interest_level?
                 globals.PHEROMONES_MAP[x][y] = PointOfInterest(
                     Position(x, y), 5000, poi_type, 10, index)
 
@@ -217,7 +219,7 @@ class Visualizator:
                 color = DECAY10
 
             pygame.draw.circle(self.screen, color,
-                               self.scale(point.position.x, point.position.y), self.zoom//2)
+                               self.scale(point.position.x, point.position.y), self.zoom//2+1)
 
     def draw(self, pos, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, n):
         self.draw_robot(self.scale(pos.x, pos.y),
@@ -242,7 +244,7 @@ class Visualizator:
 
     def draw_path(self, path, color):
         pygame.draw.circle(self.screen, color,
-                           self.scale(path['x'], path['y']), self.zoom//2)
+                           self.scale(path['x'], path['y']), self.zoom//2+1)
 
     def draw_box(self, box):
         for point in box:

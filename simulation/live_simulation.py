@@ -130,7 +130,7 @@ if globals.DO_RECORD:
 else:
     FILE = None
 
-DECAY = 500
+DECAY = 750
 VISUALIZER = Visualizator(W, H, DECAY, FILE)
 pygame.init()
 fps = 60
@@ -143,13 +143,24 @@ def decay_check():
     #! one need to remove the point of interest from the board as well (at least the visu, the board is ok)
     for i, point in enumerate(PHEROMONES_PATH):
         if point == 0:
+            print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes
             break
 
         point.decay_time -= 1
-        if point.decay_time <= 0:
-            globals.PHEROMONES_MAP[int(point.position.x * 100) + int(
-                globals.W * 100/2)][int(point.position.y * 100) + int(globals.H * 100/2)] = 0
 
+        x = int(point.position.x * 100) + int(globals.W * 100/2)
+        y = int(point.position.y * 100) + int(globals.H * 100/2)
+        interest_value = globals.PHEROMONES_MAP[x][y].interest_value
+        #! Something here is not working
+        # print(globals.PHEROMONES_MAP[x][y])
+        if globals.PHEROMONES_MAP[x][y] != 0 and interest_value > 1:
+            # print(interest_value)
+            # Reduce interest level based on remaining decay
+            if point.decay_time < interest_value * DECAY:
+                globals.PHEROMONES_MAP[x][y].interest_value -= 1
+
+        elif point.decay_time <= 0:
+            globals.PHEROMONES_MAP[x][y] = 0
             PHEROMONES_PATH.pop(i)
 
     for i, poi in enumerate(globals.POIs):
@@ -301,8 +312,16 @@ PHEROMONES_PATH = []
 AREAS = []
 
 
-home = Area(Position(-W/2, -H/2), 1, 3.2, TYPE_HOME, (133, 147, 255))
+home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
+eggChamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
+                  3.2, TYPE_HOME, (224, 153, 255))
+
+# Just a wild idea.. when the robot are Idle, they could go in there and have their battery up again.
+chargingArea = Area(Position(-W/2, -H/2+3.2),
+                    1.6, 3.2, TYPE_HOME, (168, 255, 153))
 AREAS.append(home)
+AREAS.append(eggChamber)
+AREAS.append(chargingArea)
 ###############################################################################
 
 while True:
@@ -432,7 +451,8 @@ while True:
                     robot.carried_resource = None
 
                 # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-                if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
+                #! assuming only foragers will be interested into picking up food.
+                if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
                     robot.is_avoiding = True
                     robot.NB_STEP_TO_AVOID = 15
                     robot.trail = True
@@ -467,8 +487,16 @@ while True:
         if robot.trail:
             #! should I make sure here that I don't have already a point of interest? ^cause I don't want the ant to miss the food.
             #! maybe there is an interest in having a multi dimensional array for each pixel with multiple points? i dont think so....
-            globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(
-                robot.position.y * 100) + int(globals.H * 100/2)] = PointOfInterest(robot.position, DECAY, 1)
+            x = int(robot.position.x * 100) + int(globals.W * 100/2)
+            y = int(robot.position.y * 100) + int(globals.H * 100/2)
+
+            if globals.PHEROMONES_MAP[x][y] == 0:
+                globals.PHEROMONES_MAP[x][y] = PointOfInterest(
+                    robot.position, DECAY, 1)
+            else:
+                globals.PHEROMONES_MAP[x][y].decay_time += DECAY
+                globals.PHEROMONES_MAP[x][y].interest_value += 1
+
             PHEROMONES_PATH.append(
                 PointOfInterest(robot.position, DECAY, None))
 
