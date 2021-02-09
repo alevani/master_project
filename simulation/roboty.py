@@ -33,12 +33,13 @@ class Area:
 
 
 class PointOfInterest:
-    def __init__(self, position, decay_time, t, value=None, index=None):
+    def __init__(self, position, decay_time, t, value=None, index=None, is_visible=True):
         self.position = position
         self.decay_time = decay_time
         self.type = t
         self.value = value
         self.index = index
+        self.is_visible = is_visible
 
     def encode(self):
         return {

@@ -71,13 +71,13 @@ class Visualizator:
 
                 index = len(globals.POIs)
                 globals.POIs.append(PointOfInterest(
-                    Position(x, y), 500, poi_type, 10))
+                    Position(x, y), 5000, poi_type, 10))
 
                 x = int(x * 100) + int(globals.W * 100/2)
                 y = int(y * 100) + int(globals.H * 100/2)
 
                 globals.PHEROMONES_MAP[x][y] = PointOfInterest(
-                    Position(x, y), 500, poi_type, 10, index)
+                    Position(x, y), 5000, poi_type, 10, index)
 
             elif event.type == QUIT:
                 pygame.quit()
@@ -141,13 +141,14 @@ class Visualizator:
 
     def draw_poi(self, pois):
         for poi in pois:
-            x, y = self.scale(poi.position.x, poi.position.y)
-            if poi.type == 2:
-                color = GREEN
-            else:
-                color = BLUE
-            pygame.draw.circle(self.screen, color,
-                               (x, y), self.zoom//2 + 1)
+            if poi.is_visible:
+                x, y = self.scale(poi.position.x, poi.position.y)
+                if poi.type == 2:
+                    color = GREEN
+                else:
+                    color = BLUE
+                pygame.draw.circle(self.screen, color,
+                                   (x, y), self.zoom//2 + 2)
 
     def draw_bottom_sensors(self, positions, states):
 

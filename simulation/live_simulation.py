@@ -62,31 +62,15 @@ from random import *
 
 #! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
 
-#! do not spend to much time on the point visu, it's like the thing that I will the less use, and only what's in the handin counts.
-
-#! it's not beautiful, but I think it's very convenient to keep path and maps. maybe there's some possible cleanup?
-
 #! one need to fix: the way robot behave on pheromone, they should be able to take 90 degree angle
 #! and also CIRCLE OF DEATH
 
 #! Simulation time between live and point is not the same... important? I don't think so.
 
-#! not sure but, there seems to be a problem with the randering size.
-# TODO try to make that the zoom influence everything else. ultimately it would be nice to be able to live zoom.
-
 #! How do we induce operating cost of a task with the task allocation model? to be disscussed..
 
 #! implement noise in the sensors? maybe not.. as I want to asses the value of the task allocation
-
 #! try to have some noise in tasks such as in food hunger, so not every robot are hungry at the same time.
-
-#! I have mixed my ideas.. hunger is not the same as foraging. Since the task would be to forage resources..
-#! not about foraging battery life .. 'cause it does not make any senses
-# ? but mabye the robot can also sense its own battery life then and go back to the nest if needed
-
-# TODO I am a bit concern with the task foraging .. what's the point? how do we define the demand..?
-#!!!! we could say that the default task for a robot would be to wander outside ..
-#!!!! then he would find an hazardous pile and increase the demand (the more he can sense on the short term, the better)
 
 # ? since ant acts for their own survival .. what's the point? how could they understand any other task?
 
@@ -98,6 +82,11 @@ from random import *
 
 #! next step is to create a new task in the same spirit of the foraging ..
 #! so everything is the same, just a diff name
+
+# ? maybe ..... would be nice to see the resources in the nest disapearing as the resources are being consumed? tiny bit useless :D
+
+
+# !!!!!! not experiment before all the measurments and the brain completed.
 ########
 
 ### GLOBALS ###################################################################
@@ -141,7 +130,7 @@ if globals.DO_RECORD:
 else:
     FILE = None
 
-DECAY = 5000
+DECAY = 500
 VISUALIZER = Visualizator(W, H, DECAY, FILE)
 pygame.init()
 fps = 60
@@ -150,17 +139,25 @@ fpsClock = pygame.time.Clock()
 
 
 def decay_check():
+    #! I can't just remove stuff from the list as is.. is I do the whole new index thing will be fucky
+    #! one need to remove the point of interest from the board as well (at least the visu, the board is ok)
     for i, point in enumerate(PHEROMONES_PATH):
+        if point == 0:
+            break
+
         point.decay_time -= 1
         if point.decay_time <= 0:
             globals.PHEROMONES_MAP[int(point.position.x * 100) + int(
                 globals.W * 100/2)][int(point.position.y * 100) + int(globals.H * 100/2)] = 0
-            PHEROMONES_PATH.pop(i)
-            #! one need to remove the point of interest from the board as well (at least the visu, the board is ok)
-            #  if point.type > 0:
-            #     globals.POIs.remove
 
-    # threading.Timer(.1, decay_check).start()
+            PHEROMONES_PATH.pop(i)
+
+    for i, poi in enumerate(globals.POIs):
+        poi.decay_time -= 1
+        if poi.decay_time <= 0:
+            globals.PHEROMONES_MAP[int(poi.position.x * 100) + int(
+                globals.W * 100/2)][int(poi.position.y * 100) + int(globals.H * 100/2)] = 0
+            poi.is_visible = False
 
 
 # This is not in the robot's object because it seemed to be slower if so
@@ -403,6 +400,7 @@ while True:
             if robot.carry_resource:
                 globals.POIs[robot.carried_resource.index].position.x = robot.position.x
                 globals.POIs[robot.carried_resource.index].position.y = robot.position.y
+                globals.POIs[robot.carried_resource.index].decay_time = 2
 
             if robot.is_avoiding:
                 robot.avoid()
@@ -426,7 +424,10 @@ while True:
 
                 area_type = robot.area_type(AREAS)
                 if area_type == TYPE_HOME and robot.carry_resource:
+                    robot.is_avoiding = True
+                    robot.NB_STEP_TO_AVOID = 15
                     globals.NEST.resources += robot.carried_resource.value
+                    globals.POIs[robot.carried_resource.index].is_visible = False
                     robot.carry_resource = False
                     robot.carried_resource = None
 
@@ -464,6 +465,8 @@ while True:
                         robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, robot.number)
 
         if robot.trail:
+            #! should I make sure here that I don't have already a point of interest? ^cause I don't want the ant to miss the food.
+            #! maybe there is an interest in having a multi dimensional array for each pixel with multiple points? i dont think so....
             globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(
                 robot.position.y * 100) + int(globals.H * 100/2)] = PointOfInterest(robot.position, DECAY, 1)
             PHEROMONES_PATH.append(
@@ -493,16 +496,16 @@ while True:
         if globals.cnt % globals.M == 0:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
-    if globals.cnt % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS *******")
-        print("N° | % | State | Task")
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-        TaskHandler.print_stats()
-        print("Q")
-        print(TASKS_Q)
+    # if globals.cnt % 10 == 0:
+    #     print(chr(27) + "[2J")
+    #     print(" ******* LIVE STATS *******")
+    #     print("N° | % | State | Task")
+    #     for robot in globals.ROBOTS:
+    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+    #     TaskHandler.print_stats()
+    #     print("Q")
+    #     print(TASKS_Q)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)
