@@ -87,6 +87,11 @@ from random import *
 
 
 # !!!!!! not experiment before all the measurments and the brain completed.
+
+#! maybe re-implement the whole interest level thingy....
+# https://github.com/alevani/master_project/commit/d7812d9175dfd5a8090e68be942d5bbc83cb0e68
+# but focusing on task is more important.
+# Also i think it was a good idea, i just panicked
 ########
 
 ### GLOBALS ###################################################################
@@ -139,27 +144,17 @@ fpsClock = pygame.time.Clock()
 
 
 def decay_check():
-    #! I can't just remove stuff from the list as is.. is I do the whole new index thing will be fucky
-    #! one need to remove the point of interest from the board as well (at least the visu, the board is ok)
     for i, point in enumerate(PHEROMONES_PATH):
         if point == 0:
-            print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes
+            print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes .
             break
 
         point.decay_time -= 1
 
         x = int(point.position.x * 100) + int(globals.W * 100/2)
         y = int(point.position.y * 100) + int(globals.H * 100/2)
-        interest_value = globals.PHEROMONES_MAP[x][y].interest_value
-        #! Something here is not working
-        # print(globals.PHEROMONES_MAP[x][y])
-        if globals.PHEROMONES_MAP[x][y] != 0 and interest_value > 1:
-            # print(interest_value)
-            # Reduce interest level based on remaining decay
-            if point.decay_time < interest_value * DECAY:
-                globals.PHEROMONES_MAP[x][y].interest_value -= 1
 
-        elif point.decay_time <= 0:
+        if point.decay_time <= 0:
             globals.PHEROMONES_MAP[x][y] = 0
             PHEROMONES_PATH.pop(i)
 
@@ -284,20 +279,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3,
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-# globals.ROBOTS.append(R2)
-# globals.ROBOTS.append(R3)
-# globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -412,7 +407,7 @@ while True:
         robot.LEFT_WHEEL_VELOCITY = 0
 
         if robot.state == Resting:
-            #! maybe an "if not home, ho home()"
+            #! maybe an "if not home, go home()"
             pass
         elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
             # Update the visu of the point of interest so it follows the robot moving around :D
@@ -490,13 +485,8 @@ while True:
             x = int(robot.position.x * 100) + int(globals.W * 100/2)
             y = int(robot.position.y * 100) + int(globals.H * 100/2)
 
-            if globals.PHEROMONES_MAP[x][y] == 0:
-                globals.PHEROMONES_MAP[x][y] = PointOfInterest(
-                    robot.position, DECAY, 1)
-            else:
-                globals.PHEROMONES_MAP[x][y].decay_time += DECAY
-                globals.PHEROMONES_MAP[x][y].interest_value += 1
-
+            globals.PHEROMONES_MAP[x][y] = PointOfInterest(
+                robot.position, DECAY, 1)
             PHEROMONES_PATH.append(
                 PointOfInterest(robot.position, DECAY, None))
 

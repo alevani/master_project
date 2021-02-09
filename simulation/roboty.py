@@ -7,7 +7,6 @@ import math
 import globals
 from utils import Position
 from copy import deepcopy
-from random import randint
 
 
 class Nest:
@@ -41,7 +40,6 @@ class PointOfInterest:
         self.value = value
         self.index = index
         self.is_visible = is_visible
-        self.interest_value = 1
 
     def encode(self):
         return {
@@ -231,49 +229,28 @@ class Robot:
             self.is_avoiding_cnt = 0
             self.is_avoiding = False
 
-    def _get_left_values(self, pheromones_map):
+    def get_bottom_sensor_states(self, pheromones_map):
         left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
         left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
-        for x in range(left_x - 2, left_x + 2):
-            for y in range(left_y - 2, left_y + 2):
-                if pheromones_map[x][y] != 0:
-                    return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
-        return -1
-
-    def _get_right_values(self, pheromones_map):
-        right_x = int(self.bottom_sensors[1].x * 100) + int(globals.W * 100/2)
-        right_y = int(self.bottom_sensors[1].y * 100) + int(globals.H * 100/2)
-
-        for x in range(right_x - 2, right_x + 2):
-            for y in range(right_y - 2, right_y + 2):
-                if pheromones_map[x][y] != 0:
-                    return (0, pheromones_map[x][y].type), pheromones_map[x][y]
-        return -1
-
-    def get_bottom_sensor_states(self, pheromones_map):
 
         # TODO go in the direction where the concentration of pheromones is the highest.
         # TODO that could work if I have a "pheromone level" along with the object, then I just take the highest
         # TODO, here get the highest interest level and return it.
         #! the way the code is written just assumes than return such as (?,2) can never occur.
-        # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issue
+        # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issuefor x in range(left_x - 2, left_x + 2):
+        for x in range(left_x - 2, left_x + 2):
+            for y in range(left_y - 2, left_y + 2):
+                if pheromones_map[x][y] != 0:
+                    return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
 
-        #! yikes
-        if randint(0, 1):
-            r = self._get_left_values(pheromones_map)
-            if r == -1:
-                r = self._get_right_values(pheromones_map)
-                if not r == -1:
-                    return r
-            else:
-                return r
-        else:
-            r = self._get_right_values(pheromones_map)
-            if r == -1:
-                r = self._get_left_values(pheromones_map)
-                if not r == -1:
-                    return r
-            else:
-                return r
+        right_x = int(self.bottom_sensors[1].x *
+                      100) + int(globals.W * 100/2)
+        right_y = int(self.bottom_sensors[1].y *
+                      100) + int(globals.H * 100/2)
+
+        for x in range(right_x - 2, right_x + 2):
+            for y in range(right_y - 2, right_y + 2):
+                if pheromones_map[x][y] != 0:
+                    return (0, pheromones_map[x][y].type), pheromones_map[x][y]
 
         return(0, 0), 0

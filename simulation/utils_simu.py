@@ -76,8 +76,6 @@ class Visualizator:
                 x = int(x * 100) + int(globals.W * 100/2)
                 y = int(y * 100) + int(globals.H * 100/2)
 
-                #! this will replace the current pheromone point if there's any..
-                #! should it be added to the interest_level?
                 globals.PHEROMONES_MAP[x][y] = PointOfInterest(
                     Position(x, y), 5000, poi_type, 10, index)
 
