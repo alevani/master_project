@@ -6,7 +6,7 @@ from random import randint
 from utils_simu import Visualizator
 from utils import Position
 import json
-from roboty import PheromonePoint
+from roboty import PointOfInterest
 from pygame.locals import *
 import globals
 
@@ -47,7 +47,7 @@ def simulation(points):
         else:
             sub = []
             for p in poi:
-                sub.append(PheromonePoint(
+                sub.append(PointOfInterest(
                     Position(p['position']['x'], p['position']['y']), 0, p['type']))
             pois.append(sub)
 

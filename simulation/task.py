@@ -10,9 +10,9 @@ class TaskHandler:
         self.task2()
 
     def print_stats(self):
-        print("## NEST ##")
-        print(self.nest.resources)
-        print(self.nest.task2)
+        print("******* NEST *******")
+        print("Resources: ", self.nest.resources)
+        print("Task2: ", self.nest.task2)
 
     def resource_handler(self):
         self.nest.resources -= 10  # ? this affect the way task is allocated
@@ -26,7 +26,7 @@ class TaskHandler:
         self.nest.task2 -= 5  # ? this affect the way task is allocated
 
         # Decrease the resource of the nest randomly
-        thread = threading.Timer(random() + 3, self.nest)
+        thread = threading.Timer(random() + 3, self.task2)
         thread.setDaemon(True)
         thread.start()
 

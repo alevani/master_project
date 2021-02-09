@@ -12,7 +12,7 @@ import math
 
 from roboty import Robot
 from utils_simu import Visualizator
-from roboty import PheromonePoint
+from roboty import PointOfInterest
 from roboty import Area
 from roboty import Nest
 from task import feedback
@@ -156,6 +156,9 @@ def decay_check():
             globals.PHEROMONES_MAP[int(point.position.x * 100) + int(
                 globals.W * 100/2)][int(point.position.y * 100) + int(globals.H * 100/2)] = 0
             PHEROMONES_PATH.pop(i)
+            #! one need to remove the point of interest from the board as well (at least the visu, the board is ok)
+            #  if point.type > 0:
+            #     globals.POIs.remove
 
     # threading.Timer(.1, decay_check).start()
 
@@ -189,6 +192,9 @@ SecondReserve = 2
 TempWorker = 3
 CoreWorker = 4
 
+STATES_NAME = ['Resting', 'First reserve',
+               'Second reserve', 'Temporary worker', 'Core worker']
+
 # Energy of a task
 TASKS_Q = []
 
@@ -202,16 +208,18 @@ NestMaintenance = 2
 BroodCare = 3
 Patrolling = 4
 
+TASKS_NAME = ['Idle', 'Foraging',
+              'Nest maintenance', 'Brood care', 'Patrolling']
 COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (125, 125, 125)]
 
 TASKS_Q.append(0)  # Idle
 TASKS_Q.append(0)  # Foraging
-TASKS_Q.append(0)  # Nest maintenance
+# TASKS_Q.append(0)  # Nest maintenance
 # TASKS_Q.append([0, BroodCare])
 # TASKS_Q.append([0, Patrolling])
 TASKS.append(Idle)
 TASKS.append(Foraging)
-TASKS.append(NestMaintenance)
+# TASKS.append(NestMaintenance)
 # TASKS.append(BroodCare)
 # TASKS.append(Patrolling)
 #############################################################################
@@ -268,25 +276,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3,
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
-
-
-# for robot in globals.ROBOTS:
-#     # ? what information to assign to a task? surely the full ant object is useless.. is it?
-#     Task[0].assign(robot.number)
+# globals.ROBOTS.append(R2)
+# globals.ROBOTS.append(R3)
+# globals.ROBOTS.append(R4)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -321,13 +324,13 @@ while True:
         proximity_sensor_values = get_proximity_sensor_values(
             rays, robot)
 
-        bottom_sensor_states = robot.get_bottom_sensor_states(
+        bottom_sensor_states, POI = robot.get_bottom_sensor_states(
             globals.PHEROMONES_MAP)
 
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
-        # Robot's brain
+        # Robot's brain ############
 
         # Task allocation #
         #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
@@ -346,10 +349,10 @@ while True:
                     # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
                     # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
                     #! Maybe it's working .. I just need an actual food increase to put it to 0?
-                    TASKS_Q[i] = max(TASKS_Q[i] + 1, 3)
+                    TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
                 # print(TASKS_Q)
                 # ? if TASKS_Q[i] >= 3:
-                if TASKS_Q[i] >= 3:
+                if TASKS_Q[i] == 3:
                     candidate.append(task)
                 # print("Candidate tasks are:")
                 # print(candidate)
@@ -394,15 +397,9 @@ while True:
         robot.LEFT_WHEEL_VELOCITY = 0
 
         if robot.state == Resting:
-            # for now, let's say the robot does not move
-            # print("Resting")
+            #! maybe an "if not home, ho home()"
             pass
-        elif robot.state == CoreWorker and robot.task == Foraging:
-            #! tmp
-            if globals.cnt % 100 == 0:
-                globals.NEST.resources += 10
-
-            # print("Not resting")
+        elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
             if robot.is_avoiding:
                 robot.avoid()
             elif proximity_sensors_state == (0, 1, 0):
@@ -422,18 +419,21 @@ while True:
                 robot.is_avoiding = True
                 robot.NB_STEP_TO_AVOID = 7
             else:
-                # area_type = robot.area_type(AREAS)
-                # if area_type != 0:
-                #     if area_type == TYPE_HOME:
-                #         robot.RIGHT_WHEEL_VELOCITY = 0
-                #         robot.LEFT_WHEEL_VELOCITY = 0
-                # else:
+                area_type = robot.area_type(AREAS)
+
+                if area_type == TYPE_HOME and robot.carry_resource:
+                    globals.NEST.resources += robot.carried_resource.value
+                    robot.carry_resource = False
+                    robot.carried_resource = None
 
                 # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-                if bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1):
+                if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
                     robot.is_avoiding = True
                     robot.NB_STEP_TO_AVOID = 15
                     robot.trail = True
+                    robot.carry_resource = True
+                    robot.carried_resource = POI
+                    globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
                 elif bottom_sensor_states == (1, 0):
                     robot.RIGHT_WHEEL_VELOCITY = 1
                     robot.LEFT_WHEEL_VELOCITY = 0
@@ -461,8 +461,9 @@ while True:
 
         if robot.trail:
             globals.PHEROMONES_MAP[int(robot.position.x * 100) + int(globals.W * 100/2)][int(
-                robot.position.y * 100) + int(globals.H * 100/2)] = PheromonePoint(robot.position, DECAY, 1)
-            PHEROMONES_PATH.append(PheromonePoint(robot.position, DECAY, None))
+                robot.position.y * 100) + int(globals.H * 100/2)] = PointOfInterest(robot.position, DECAY, 1)
+            PHEROMONES_PATH.append(
+                PointOfInterest(robot.position, DECAY, None))
 
         # # Decrease robot's battery .. maybe not useful.
         # if globals.cnt % 50 == 0:
@@ -487,13 +488,16 @@ while True:
         if globals.cnt % globals.M == 0:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
-    if globals.cnt % 50 == 0:
+    if globals.cnt % 10 == 0:
+        print(chr(27) + "[2J")
         print(" ******* LIVE STATS *******")
         print("N° | % | State | Task")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+str(robot.state) + " | "+str(robot.task))
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
         TaskHandler.print_stats()
+        print("Q")
+        print(TASKS_Q)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

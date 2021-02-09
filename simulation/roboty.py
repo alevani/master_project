@@ -32,11 +32,12 @@ class Area:
         self.color = color
 
 
-class PheromonePoint:
-    def __init__(self, position, decay_time, t):
+class PointOfInterest:
+    def __init__(self, position, decay_time, t, value=None):
         self.position = position
         self.decay_time = decay_time
         self.type = t
+        self.value = value
 
     def encode(self):
         return {
@@ -63,9 +64,11 @@ class Robot:
         self.LEFT_WHEEL_VELOCITY = LEFT_WHEEL_VELOCITY
         self.RIGHT_WHEEL_VELOCITY = RIGHT_WHEEL_VELOCITY
         self.ROBOT_TIMESTEP = ROBOT_TIMESTEP
+        self.carry_resource = False
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
+        self.carried_resource = None
 
         self.trail = True
 
@@ -239,7 +242,7 @@ class Robot:
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
                 if pheromones_map[x][y] != 0:
-                    return (pheromones_map[x][y].type, 0)
+                    return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
 
         #! the way the code is written just assumes than return such as (?,2) can never occur.
         # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issue
@@ -251,6 +254,6 @@ class Robot:
         for x in range(right_x - 2, right_x + 2):
             for y in range(right_y - 2, right_y + 2):
                 if pheromones_map[x][y] != 0:
-                    return (0, pheromones_map[x][y].type)
+                    return (0, pheromones_map[x][y].type), pheromones_map[x][y]
 
         return(0, 0)

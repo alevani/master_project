@@ -5,7 +5,7 @@ from math import cos, sin
 from shapely.geometry.point import Point
 from utils import Position
 import sys
-from roboty import PheromonePoint
+from roboty import PointOfInterest
 from time import sleep
 import json
 import os
@@ -68,14 +68,14 @@ class Visualizator:
 
                 pos = pygame.mouse.get_pos()
                 x, y = self.unscale(pos[0], pos[1])
-                globals.POIs.append(PheromonePoint(
-                    Position(x, y), 10000, poi_type))
+                globals.POIs.append(PointOfInterest(
+                    Position(x, y), 500, poi_type, 10))
 
                 x = int(x * 100) + int(globals.W * 100/2)
                 y = int(y * 100) + int(globals.H * 100/2)
 
-                globals.PHEROMONES_MAP[x][y] = PheromonePoint(
-                    Position(x, y), 10000, poi_type)
+                globals.PHEROMONES_MAP[x][y] = PointOfInterest(
+                    Position(x, y), 500, poi_type, 10)
 
             elif event.type == QUIT:
                 pygame.quit()
@@ -145,7 +145,7 @@ class Visualizator:
             else:
                 color = BLUE
             pygame.draw.circle(self.screen, color,
-                               (x, y), 10)
+                               (x, y), self.zoom//2 + 1)
 
     def draw_bottom_sensors(self, positions, states):
 
