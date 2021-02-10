@@ -233,7 +233,9 @@ BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
 #! some robot start on top of each others..
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
+# R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
+#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0, 0, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.1, math.radians(0)),
@@ -279,20 +281,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-# globals.ROBOTS.append(R2)
-# globals.ROBOTS.append(R3)
-# globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -324,37 +326,54 @@ AREAS.append(chargingArea)
 # this means that the robot does not go blindly forward
 
 
-def find_relative_angle(start, dest):
-    pass
+def find_relative_angle(start, dest, d):
+
+    angle = math.acos((start.y - dest[1])/d) - start.q - math.radians(90)
+
+    if dest[0] < start.x and dest[1] < start.y:
+        angle += math.radians(270)
+    if dest[0] < start.x and dest[1] > start.y:
+        angle += math.radians(90)
+
+    return angle % math.radians(360)
 
 
 def goto(robot, dest):
     # First orientate the robot
+    d = distance(robot.position, dest[0], dest[1])
+    delta = find_relative_angle(robot.position, dest, d)
 
-    delta = find_relative_angle(robot.position, dest)
-    if delta > math.radians(2):
+    #! it feels like that in the bad 180 the robot re-orienting is mirrored
+    #! 5 and 10 seem to be okay as of now.
+    if delta > math.radians(5):
+
+        # Determine if the robot should rather turn left or right
+        if delta <= math.radians(180):
+            s = -1
+        else:
+            s = 1
+
         # Let's assume our robot will move alway clockwise
-        if delta > math.radians(5):
+        if delta < math.radians(10):
             # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
-            robot.rotate(0.5, -.5)
+            robot.rotate(0.01 * s, -.01 * s)
         else:
             # Othewise full throttle
-            robot.rotate(1, -.1)
+            robot.rotate(0.1 * s, -0.1*s)
 
     # Angle is good, let's move toward the point
     else:
-        distance = distance(robot, dest[0], dest[1])
-
         # As long as we are more than 1cm away
-        if distance > 0.01:
-            if distance > 0.03:
+        if d > 0.02:
+            if d < 0.03:
                 # Go full throttle
-                robot.forward(1, 1)
+                robot.forward(0.2, 0.2)
             else:
                 robot.forward(1, 1)
 
         else:
             robot.goto_objective_reached = True
+            sys.exit()
 
 
 while True:
@@ -443,7 +462,7 @@ while True:
         robot.stop()
 
         if not robot.goto_objective_reached:
-            goto(robot, (0, 0))
+            goto(robot, (-2, 2))
 
         # if robot.state == Resting:
         #     #! maybe an "if not home, go home()"

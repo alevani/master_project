@@ -72,6 +72,7 @@ class Robot:
         self.R = R
         self.L = L
         self.carried_resource = None
+        self.goto_objective_reached = False
 
         self.trail = True
 
@@ -212,6 +213,7 @@ class Robot:
             x += v_x * self.SIMULATION_TIMESTEP
             y += v_y * self.SIMULATION_TIMESTEP
             q += omega * self.SIMULATION_TIMESTEP
+            q = q % math.radians(360)
 
         self.update_proximity_sensor_position(
             x - self.position.x, y - self.position.y, q-self.position.q)
@@ -239,6 +241,7 @@ class Robot:
         # TODO, here get the highest interest level and return it.
         #! the way the code is written just assumes than return such as (?,2) can never occur.
         # TODO there's sometimes an index out of range here I must be one off, try and except to see tf is the issuefor x in range(left_x - 2, left_x + 2):
+        #!!!!!!!!! that was working nice with the pheromone .. but isn't it overkill with only the pois?
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
                 if pheromones_map[x][y] != 0:
@@ -273,17 +276,17 @@ class Robot:
         self.LEFT_WHEEL_VELOCITY = -1
 
     def wander(self):
-        robot.LEFT_WHEEL_VELOCITY = random()
-        robot.RIGHT_WHEEL_VELOCITY = random()
+        self.LEFT_WHEEL_VELOCITY = random()
+        self.RIGHT_WHEEL_VELOCITY = random()
 
     def stop(self):
-        robot.LEFT_WHEEL_VELOCITY = 0
-        robot.RIGHT_WHEEL_VELOCITY = 0
+        self.LEFT_WHEEL_VELOCITY = 0
+        self.RIGHT_WHEEL_VELOCITY = 0
 
     def forward(self, left, right):
-        robot.LEFT_WHEEL_VELOCITY = left
-        robot.RIGHT_WHEEL_VELOCITY = right
+        self.LEFT_WHEEL_VELOCITY = left
+        self.RIGHT_WHEEL_VELOCITY = right
 
     def rotate(self, left, right):
-        robot.LEFT_WHEEL_VELOCITY = left
-        robot.RIGHT_WHEEL_VELOCITY = right
+        self.LEFT_WHEEL_VELOCITY = left
+        self.RIGHT_WHEEL_VELOCITY = right

@@ -1,4 +1,5 @@
 from numpy import sqrt
+from math import atan, cos, sin, pi, radians
 
 
 def distance(s, x, y):
