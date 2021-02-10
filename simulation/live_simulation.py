@@ -461,62 +461,62 @@ while True:
 
         robot.stop()
 
-        if not robot.goto_objective_reached:
-            goto(robot, (-2, 2))
+        if robot.state == Resting:
+            #! maybe an "if not home, go home()"
+            pass
+        elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
+            # Update the visu of the point of interest so it follows the robot moving around :D
+            if robot.carry_resource:
+                globals.POIs[robot.carried_resource.index].position.x = robot.position.x
+                globals.POIs[robot.carried_resource.index].position.y = robot.position.y
+                globals.POIs[robot.carried_resource.index].decay_time = 2
 
-        # if robot.state == Resting:
-        #     #! maybe an "if not home, go home()"
-        #     pass
-        # elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
-        #     # Update the visu of the point of interest so it follows the robot moving around :D
-        #     if robot.carry_resource:
-        #         globals.POIs[robot.carried_resource.index].position.x = robot.position.x
-        #         globals.POIs[robot.carried_resource.index].position.y = robot.position.y
-        #         globals.POIs[robot.carried_resource.index].decay_time = 2
+            if robot.is_avoiding:
+                robot.avoid()
+            elif proximity_sensors_state == (0, 1, 0):
+                if randint(0, 1):
+                    robot.turn_left()
+                else:
+                    robot.turn_right()
+            elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
+                robot.turn_left()
+            elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
+                robot.turn_right()
+            elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
+                robot.is_avoiding = True
+                robot.NB_STEP_TO_AVOID = 7
+            else:
 
-        #     if robot.is_avoiding:
-        #         robot.avoid()
-        #     elif proximity_sensors_state == (0, 1, 0):
-        #         if randint(0, 1):
-        #             robot.turn_left()
-        #         else:
-        #             robot.turn_right()
-        #     elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
-        #         robot.turn_left()
-        #     elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
-        #         robot.turn_right()
-        #     elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
-        #         robot.is_avoiding = True
-        #         robot.NB_STEP_TO_AVOID = 7
-        #     else:
+                area_type = robot.area_type(AREAS)
+                if area_type == TYPE_HOME and robot.carry_resource:
+                    robot.is_avoiding = True
+                    robot.NB_STEP_TO_AVOID = 15
+                    globals.NEST.resources += robot.carried_resource.value
+                    globals.POIs[robot.carried_resource.index].is_visible = False
+                    robot.carry_resource = False
+                    robot.carried_resource = None
 
-        #         area_type = robot.area_type(AREAS)
-        #         if area_type == TYPE_HOME and robot.carry_resource:
-        #             robot.is_avoiding = True
-        #             robot.NB_STEP_TO_AVOID = 15
-        #             globals.NEST.resources += robot.carried_resource.value
-        #             globals.POIs[robot.carried_resource.index].is_visible = False
-        #             robot.carry_resource = False
-        #             robot.carried_resource = None
-
-        #         # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-        #         #! assuming only foragers will be interested into picking up food.
-        #         if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
-        #             robot.is_avoiding = True
-        #             robot.NB_STEP_TO_AVOID = 15
-        #             robot.trail = True
-        #             robot.carry_resource = True
-        #             robot.carried_resource = POI
-        #             globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
-        #         elif bottom_sensor_states == (1, 0):
-        #             robot.soft_turn_left()
-        #         elif bottom_sensor_states == (1, 1):
-        #             pass
-        #         elif bottom_sensor_states == (0, 1):
-        #             robot.soft_turn_right()
-        #         else:
-        #             robot.wander()
-        #     ###################################
+                # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
+                #! assuming only foragers will be interested into picking up food.
+                if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
+                    robot.is_avoiding = True
+                    robot.NB_STEP_TO_AVOID = 15
+                    robot.trail = True
+                    robot.carry_resource = True
+                    robot.carried_resource = POI
+                    globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+                elif bottom_sensor_states == (1, 0):
+                    robot.soft_turn_left()
+                elif bottom_sensor_states == (1, 1):
+                    pass
+                elif bottom_sensor_states == (0, 1):
+                    robot.soft_turn_right()
+                else:
+                    if not robot.goto_objective_reached:
+                        goto(robot, (-2, 2))
+                    else:
+                        robot.wander()
+            ###################################
 
         robot.simulationstep()
 
