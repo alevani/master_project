@@ -5,6 +5,7 @@ from shapely.geometry.point import Point
 from numpy import sin, cos, pi, sqrt, zeros
 import math
 import globals
+from random import random
 from utils import Position
 from copy import deepcopy
 
@@ -255,3 +256,23 @@ class Robot:
                     return (0, pheromones_map[x][y].type), pheromones_map[x][y]
 
         return(0, 0), 0
+
+    def turn_left(self):
+        self.RIGHT_WHEEL_VELOCITY = -1
+        self.LEFT_WHEEL_VELOCITY = 1
+
+    def soft_turn_left(self):
+        self.RIGHT_WHEEL_VELOCITY = 1
+        self.LEFT_WHEEL_VELOCITY = 0
+
+    def soft_turn_right(self):
+        self.RIGHT_WHEEL_VELOCITY = 0
+        self.LEFT_WHEEL_VELOCITY = 1
+
+    def turn_right(self):
+        self.RIGHT_WHEEL_VELOCITY = 1
+        self.LEFT_WHEEL_VELOCITY = -1
+
+    def wander(self):
+        robot.LEFT_WHEEL_VELOCITY = random()
+        robot.RIGHT_WHEEL_VELOCITY = random()

@@ -420,17 +420,13 @@ while True:
                 robot.avoid()
             elif proximity_sensors_state == (0, 1, 0):
                 if randint(0, 1):
-                    robot.RIGHT_WHEEL_VELOCITY = -1
-                    robot.LEFT_WHEEL_VELOCITY = 1
+                    robot.turn_left()
                 else:
-                    robot.RIGHT_WHEEL_VELOCITY = 1
-                    robot.LEFT_WHEEL_VELOCITY = -1
+                    robot.turn_right()
             elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
-                robot.RIGHT_WHEEL_VELOCITY = -1
-                robot.LEFT_WHEEL_VELOCITY = 1
+                robot.turn_left()
             elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
-                robot.RIGHT_WHEEL_VELOCITY = 1
-                robot.LEFT_WHEEL_VELOCITY = -1
+                robot.turn_right()
             elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
                 robot.is_avoiding = True
                 robot.NB_STEP_TO_AVOID = 7
