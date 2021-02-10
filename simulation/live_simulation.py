@@ -279,20 +279,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
+# globals.ROBOTS.append(R2)
+# globals.ROBOTS.append(R3)
+# globals.ROBOTS.append(R4)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -318,6 +318,44 @@ AREAS.append(home)
 AREAS.append(eggChamber)
 AREAS.append(chargingArea)
 ###############################################################################
+# Make the robot move to a given position
+#
+# This function works with the simulation step as well
+# this means that the robot does not go blindly forward
+
+
+def find_relative_angle(start, dest):
+    pass
+
+
+def goto(robot, dest):
+    # First orientate the robot
+
+    # Have somewhat of a margin error, ending precisely at a given angle is merely impossible with kinetic
+    # ? 0.5 .. radians? degree? too little? too much?
+
+    delta = find_relative_angle(robot.position, dest)
+    if delta > 0.5:
+        # Let's assume our robot will move alway clockwise
+        if delta > 1:
+            # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
+            robot.rotate(0.5, -.5)
+        else:
+            # Othewise full throttle
+            robot.rotate(1, -.1)
+    # Angle is good, let's move toward the point
+    else:
+        distance = distance(robot, dest[0], dest[1])
+
+        # As long as we are more than 1cm away
+        if distance > 0.01:
+            if distance > 0.03:
+                # Go full throttle
+                robot.forward(1, 1)
+            else:
+                robot.forward(1, 1)
+    # If we are close enough to our goal, nothing happens, I imagine I will need sort of a flag telling that to the controller
+
 
 while True:
     globals.cnt += 1
@@ -341,127 +379,123 @@ while True:
             proximity_sensor_values)
 
         # Robot's brain ############
+        # # Task allocation #
+        # #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
+        # #! I don't think I must simulate because what I need is to assess the efficiency
+        # if robot.state == Resting:
+        #     candidate = []
+        #     for i, task in enumerate(TASKS):
+        #         if feedback(task) < 0:  # Task is in energy surplus
+        #             # print("Task ["+task+"] is in energy surplus")
+        #             #! that actually works, I am just a dumbass ..
+        #             #! if idle increasing, then somehow only foraging will enter this if
+        #             #! and it's value is yes.. reset to 0
+        #             TASKS_Q[i] = 0
+        #         else:  # Task is in energy deficit
+        #             # print("Task ["+task+"] is in energy deficit")
+        #             # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
+        #             # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
+        #             #! Maybe it's working .. I just need an actual food increase to put it to 0?
+        #             TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
+        #         # print(TASKS_Q)
+        #         # ? if TASKS_Q[i] >= 3:
+        #         if TASKS_Q[i] == 3:
+        #             candidate.append(task)
+        #         # print("Candidate tasks are:")
+        #         # print(candidate)
 
-        # Task allocation #
-        #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
-        #! I don't think I must simulate because what I need is to assess the efficiency
-        if robot.state == Resting:
-            candidate = []
-            for i, task in enumerate(TASKS):
-                if feedback(task) < 0:  # Task is in energy surplus
-                    # print("Task ["+task+"] is in energy surplus")
-                    #! that actually works, I am just a dumbass ..
-                    #! if idle increasing, then somehow only foraging will enter this if
-                    #! and it's value is yes.. reset to 0
-                    TASKS_Q[i] = 0
-                else:  # Task is in energy deficit
-                    # print("Task ["+task+"] is in energy deficit")
-                    # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
-                    # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
-                    #! Maybe it's working .. I just need an actual food increase to put it to 0?
-                    TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
-                # print(TASKS_Q)
-                # ? if TASKS_Q[i] >= 3:
-                if TASKS_Q[i] == 3:
-                    candidate.append(task)
-                # print("Candidate tasks are:")
-                # print(candidate)
+        #     if candidate != []:
+        #         if randint(0, 1):
+        #             # print("Robot enters candiate task selection")
+        #             for task in TASKS_Q:
+        #                 task = 0
+        #             robot.task = candidate[randint(0, len(candidate)-1)]
+        #             # print("New robot's task is: " + robot.task)
+        #             robot.state = TempWorker
+        #             # print("New robot's state is: " + str(robot.state))
+        # # ? somehow, it waits for all the robot to be in foraging task to start to move????
+        # elif robot.state == FirstReserve:
+        #     if feedback(robot.task) < 0:
+        #         # print("First reserve .. resting")
+        #         robot.state = Resting
+        #     elif randint(0, 1):
+        #         robot.state = TempWorker
+        #     else:
+        #         robot.state = SecondReserve
+        # elif robot.state == SecondReserve:
+        #     if feedback(robot.task) < 0:
+        #         # print("Second reserve .. resting")
+        #         robot.state = Resting
+        #     else:
+        #         robot.state = TempWorker
+        # elif robot.state == TempWorker:
+        #     if feedback(robot.task) < 0:
+        #         robot.state = FirstReserve
+        #     else:
+        #         robot.state = CoreWorker
+        # elif robot.state == CoreWorker:
+        #     if feedback(robot.task) < 0:
+        #         robot.state = TempWorker
 
-            if candidate != []:
-                if randint(0, 1):
-                    # print("Robot enters candiate task selection")
-                    for task in TASKS_Q:
-                        task = 0
-                    robot.task = candidate[randint(0, len(candidate)-1)]
-                    # print("New robot's task is: " + robot.task)
-                    robot.state = TempWorker
-                    # print("New robot's state is: " + str(robot.state))
-        # ? somehow, it waits for all the robot to be in foraging task to start to move????
-        elif robot.state == FirstReserve:
-            if feedback(robot.task) < 0:
-                # print("First reserve .. resting")
-                robot.state = Resting
-            elif randint(0, 1):
-                robot.state = TempWorker
-            else:
-                robot.state = SecondReserve
-        elif robot.state == SecondReserve:
-            if feedback(robot.task) < 0:
-                # print("Second reserve .. resting")
-                robot.state = Resting
-            else:
-                robot.state = TempWorker
-        elif robot.state == TempWorker:
-            if feedback(robot.task) < 0:
-                robot.state = FirstReserve
-            else:
-                robot.state = CoreWorker
-        elif robot.state == CoreWorker:
-            if feedback(robot.task) < 0:
-                robot.state = TempWorker
+        # robot.color = COLORS[robot.task]
+        # ###################
 
-        robot.color = COLORS[robot.task]
-        ###################
+        robot.stop()
+        goto(robot, (0, 0))
 
-        robot.RIGHT_WHEEL_VELOCITY = 0
-        robot.LEFT_WHEEL_VELOCITY = 0
+        # if robot.state == Resting:
+        #     #! maybe an "if not home, go home()"
+        #     pass
+        # elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
+        #     # Update the visu of the point of interest so it follows the robot moving around :D
+        #     if robot.carry_resource:
+        #         globals.POIs[robot.carried_resource.index].position.x = robot.position.x
+        #         globals.POIs[robot.carried_resource.index].position.y = robot.position.y
+        #         globals.POIs[robot.carried_resource.index].decay_time = 2
 
-        if robot.state == Resting:
-            #! maybe an "if not home, go home()"
-            pass
-        elif robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
-            # Update the visu of the point of interest so it follows the robot moving around :D
-            if robot.carry_resource:
-                globals.POIs[robot.carried_resource.index].position.x = robot.position.x
-                globals.POIs[robot.carried_resource.index].position.y = robot.position.y
-                globals.POIs[robot.carried_resource.index].decay_time = 2
+        #     if robot.is_avoiding:
+        #         robot.avoid()
+        #     elif proximity_sensors_state == (0, 1, 0):
+        #         if randint(0, 1):
+        #             robot.turn_left()
+        #         else:
+        #             robot.turn_right()
+        #     elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
+        #         robot.turn_left()
+        #     elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
+        #         robot.turn_right()
+        #     elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
+        #         robot.is_avoiding = True
+        #         robot.NB_STEP_TO_AVOID = 7
+        #     else:
 
-            if robot.is_avoiding:
-                robot.avoid()
-            elif proximity_sensors_state == (0, 1, 0):
-                if randint(0, 1):
-                    robot.turn_left()
-                else:
-                    robot.turn_right()
-            elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
-                robot.turn_left()
-            elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
-                robot.turn_right()
-            elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
-                robot.is_avoiding = True
-                robot.NB_STEP_TO_AVOID = 7
-            else:
+        #         area_type = robot.area_type(AREAS)
+        #         if area_type == TYPE_HOME and robot.carry_resource:
+        #             robot.is_avoiding = True
+        #             robot.NB_STEP_TO_AVOID = 15
+        #             globals.NEST.resources += robot.carried_resource.value
+        #             globals.POIs[robot.carried_resource.index].is_visible = False
+        #             robot.carry_resource = False
+        #             robot.carried_resource = None
 
-                area_type = robot.area_type(AREAS)
-                if area_type == TYPE_HOME and robot.carry_resource:
-                    robot.is_avoiding = True
-                    robot.NB_STEP_TO_AVOID = 15
-                    globals.NEST.resources += robot.carried_resource.value
-                    globals.POIs[robot.carried_resource.index].is_visible = False
-                    robot.carry_resource = False
-                    robot.carried_resource = None
-
-                # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-                #! assuming only foragers will be interested into picking up food.
-                if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
-                    robot.is_avoiding = True
-                    robot.NB_STEP_TO_AVOID = 15
-                    robot.trail = True
-                    robot.carry_resource = True
-                    robot.carried_resource = POI
-                    globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
-                elif bottom_sensor_states == (1, 0):
-                    robot.RIGHT_WHEEL_VELOCITY = 1
-                    robot.LEFT_WHEEL_VELOCITY = 0
-                elif bottom_sensor_states == (1, 1):
-                    pass
-                elif bottom_sensor_states == (0, 1):
-                    robot.RIGHT_WHEEL_VELOCITY = 0
-                    robot.LEFT_WHEEL_VELOCITY = 1
-                else:
-                    robot.LEFT_WHEEL_VELOCITY = random()
-                    robot.RIGHT_WHEEL_VELOCITY = random()
-            ###################################
+        #         # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
+        #         #! assuming only foragers will be interested into picking up food.
+        #         if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
+        #             robot.is_avoiding = True
+        #             robot.NB_STEP_TO_AVOID = 15
+        #             robot.trail = True
+        #             robot.carry_resource = True
+        #             robot.carried_resource = POI
+        #             globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+        #         elif bottom_sensor_states == (1, 0):
+        #             robot.soft_turn_left()
+        #         elif bottom_sensor_states == (1, 1):
+        #             pass
+        #         elif bottom_sensor_states == (0, 1):
+        #             robot.soft_turn_right()
+        #         else:
+        #             robot.wander()
+        #     ###################################
 
         robot.simulationstep()
 

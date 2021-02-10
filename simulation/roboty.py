@@ -170,17 +170,17 @@ class Robot:
         top = sensors_values[2]
         left = sensors_values[1]
         right = sensors_values[3]
-        leftest = sensors_values[0]
-        rightest = sensors_values[4]
+        left_most = sensors_values[0]
+        right_most = sensors_values[4]
 
         top_value = 1 if top < 0.04 else 0
         left_value = 1 if left < 0.04 else 0
         right_value = 1 if right < 0.04 else 0
-        leftest_value = 1 if leftest < 0.04 else 0
-        rightest_value = 1 if rightest < 0.04 else 0
+        left_most_value = 1 if left_most < 0.04 else 0
+        right_most_value = 1 if right_most < 0.04 else 0
 
-        # return (leftest_value, left_value, top_value, right_value, rightest_value)
-        return (leftest_value, top_value, rightest_value)
+        # return (left_most_value, left_value, top_value, right_value, right_most_value)
+        return (left_most_value, top_value, right_most_value)
 
     def create_rays(self, W, H):
         rays = []
@@ -225,8 +225,7 @@ class Robot:
 
     def avoid(self):
         self.is_avoiding_cnt += 1
-        self.RIGHT_WHEEL_VELOCITY = -1
-        self.LEFT_WHEEL_VELOCITY = 1
+        self.turn_left()
         if self.is_avoiding_cnt >= self.NB_STEP_TO_AVOID:
             self.is_avoiding_cnt = 0
             self.is_avoiding = False
@@ -276,3 +275,15 @@ class Robot:
     def wander(self):
         robot.LEFT_WHEEL_VELOCITY = random()
         robot.RIGHT_WHEEL_VELOCITY = random()
+
+    def stop(self):
+        robot.LEFT_WHEEL_VELOCITY = 0
+        robot.RIGHT_WHEEL_VELOCITY = 0
+
+    def forward(self, left, right):
+        robot.LEFT_WHEEL_VELOCITY = left
+        robot.RIGHT_WHEEL_VELOCITY = right
+
+    def rotate(self, left, right):
+        robot.LEFT_WHEEL_VELOCITY = left
+        robot.RIGHT_WHEEL_VELOCITY = right
