@@ -144,19 +144,19 @@ fpsClock = pygame.time.Clock()
 
 
 def decay_check():
-    for i, point in enumerate(PHEROMONES_PATH):
-        if point == 0:
-            print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes .
-            break
+    # for i, point in enumerate(PHEROMONES_PATH):
+    #     if point == 0:
+    #         print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes .
+    #         break
 
-        point.decay_time -= 1
+    #     point.decay_time -= 1
 
-        x = int(point.position.x * 100) + int(globals.W * 100/2)
-        y = int(point.position.y * 100) + int(globals.H * 100/2)
+    #     x = int(point.position.x * 100) + int(globals.W * 100/2)
+    #     y = int(point.position.y * 100) + int(globals.H * 100/2)
 
-        if point.decay_time <= 0:
-            globals.PHEROMONES_MAP[x][y] = 0
-            PHEROMONES_PATH.pop(i)
+    #     if point.decay_time <= 0:
+    #         globals.PHEROMONES_MAP[x][y] = 0
+    #         PHEROMONES_PATH.pop(i)
 
     for i, poi in enumerate(globals.POIs):
         poi.decay_time -= 1
@@ -233,49 +233,49 @@ BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
 #! some robot start on top of each others..
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2, math.radians(0)),
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4, math.radians(0)),
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6, math.radians(
+R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.1, math.radians(
     0)), BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8, math.radians(0)),
+R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1, math.radians(0)),
+R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2, math.radians(0)),
+R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4, math.radians(0)),
+R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6, math.radians(0)),
+R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8, math.radians(0)),
+R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2, math.radians(0)),
+R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.1, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2, math.radians(0)),
+R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.1, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4, math.radians(0)),
+R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.1, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6, math.radians(0)),
+R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.1, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8, math.radians(0)),
+R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.1, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3, math.radians(0)),
+R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.1, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
@@ -313,7 +313,7 @@ eggChamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
 
 # Just a wild idea.. when the robot are Idle, they could go in there and have their battery up again.
 chargingArea = Area(Position(-W/2, -H/2+3.2),
-                    1.6, 3.2, TYPE_HOME, (168, 255, 153))
+                    0.7, 3.2, TYPE_HOME, (168, 255, 153))
 AREAS.append(home)
 AREAS.append(eggChamber)
 AREAS.append(chargingArea)
@@ -323,7 +323,7 @@ while True:
     globals.cnt += 1
     VISUALIZER.draw_arena()
     VISUALIZER.draw_areas(AREAS)
-    VISUALIZER.draw_decay(PHEROMONES_PATH)
+    # VISUALIZER.draw_decay(PHEROMONES_PATH)
     for robot in globals.ROBOTS:
 
         if robot.has_collided:
@@ -482,11 +482,11 @@ while True:
         if robot.trail:
             #! should I make sure here that I don't have already a point of interest? ^cause I don't want the ant to miss the food.
             #! maybe there is an interest in having a multi dimensional array for each pixel with multiple points? i dont think so....
-            x = int(robot.position.x * 100) + int(globals.W * 100/2)
-            y = int(robot.position.y * 100) + int(globals.H * 100/2)
+            # x = int(robot.position.x * 100) + int(globals.W * 100/2)
+            # y = int(robot.position.y * 100) + int(globals.H * 100/2)
 
-            globals.PHEROMONES_MAP[x][y] = PointOfInterest(
-                robot.position, DECAY, 1)
+            # globals.PHEROMONES_MAP[x][y] = PointOfInterest(
+            #     robot.position, DECAY, 1)
             PHEROMONES_PATH.append(
                 PointOfInterest(robot.position, DECAY, None))
 

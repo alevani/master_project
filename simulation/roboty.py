@@ -88,6 +88,7 @@ class Robot:
                                       position.q-math.radians(90))
 
         self.position = position
+        self.start_position = position
         self.draw_information = []
         self.has_collided = False
         self.path = []
