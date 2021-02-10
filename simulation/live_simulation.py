@@ -331,18 +331,16 @@ def find_relative_angle(start, dest):
 def goto(robot, dest):
     # First orientate the robot
 
-    # Have somewhat of a margin error, ending precisely at a given angle is merely impossible with kinetic
-    # ? 0.5 .. radians? degree? too little? too much?
-
     delta = find_relative_angle(robot.position, dest)
-    if delta > 0.5:
+    if delta > math.radians(2):
         # Let's assume our robot will move alway clockwise
-        if delta > 1:
+        if delta > math.radians(5):
             # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
             robot.rotate(0.5, -.5)
         else:
             # Othewise full throttle
             robot.rotate(1, -.1)
+
     # Angle is good, let's move toward the point
     else:
         distance = distance(robot, dest[0], dest[1])
@@ -354,7 +352,9 @@ def goto(robot, dest):
                 robot.forward(1, 1)
             else:
                 robot.forward(1, 1)
-    # If we are close enough to our goal, nothing happens, I imagine I will need sort of a flag telling that to the controller
+
+        else:
+            robot.goto_objective_reached = True
 
 
 while True:
@@ -441,7 +441,9 @@ while True:
         # ###################
 
         robot.stop()
-        goto(robot, (0, 0))
+
+        if not robot.goto_objective_reached:
+            goto(robot, (0, 0))
 
         # if robot.state == Resting:
         #     #! maybe an "if not home, go home()"
