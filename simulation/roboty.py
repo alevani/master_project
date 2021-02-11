@@ -60,6 +60,7 @@ class Robot:
         self.number = number
         self.color = color
         self.task = task
+        self.destination = None
         self.state = state
         self.battery_level = battery_level
         self.proximity_sensors = proximity_sensors
@@ -72,7 +73,7 @@ class Robot:
         self.R = R
         self.L = L
         self.carried_resource = None
-        self.goto_objective_reached = False
+        self.goto_objective_reached = True
 
         self.trail = True
 

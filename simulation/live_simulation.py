@@ -124,6 +124,7 @@ PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(0.05,   0.06, math.radians(50))]
 
 TYPE_HOME = 1
+TYPE_CHARGING_AREA = 2
 
 globals.NEST = Nest(0, 0)
 TaskHandler = TaskHandler(globals.NEST)
@@ -227,16 +228,15 @@ TASKS.append(Foraging)
 # TASKS.append(Patrolling)
 #############################################################################
 ### Start's variables #########################################################
-# Arbitrary food treshold
 BASE_BATTERY_LEVEL = 100
 
 BLACK = (0, 0, 0)
 
 #! some robot start on top of each others..
-# R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
-#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0, 0, math.radians(0)),
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+# R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0, 0, math.radians(180)),
+#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 0, 0, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
@@ -281,20 +281,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
+# globals.ROBOTS.append(R2)
+# globals.ROBOTS.append(R3)
+# globals.ROBOTS.append(R4)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -309,16 +309,19 @@ PHEROMONES_PATH = []
 AREAS = []
 
 
+# Markers
+Marker_ResourceDelivery = Position(-W/2 + 1.6, -H/1.6)
+
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
-eggChamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
-                  3.2, TYPE_HOME, (224, 153, 255))
+egg_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
+                   3.2, TYPE_HOME, (224, 153, 255))
 
 # Just a wild idea.. when the robot are Idle, they could go in there and have their battery up again.
-chargingArea = Area(Position(-W/2, -H/2+3.2),
-                    0.7, 3.2, TYPE_HOME, (168, 255, 153))
+charging_area = Area(Position(-W/2, -H/2+3.2),
+                     0.7, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 AREAS.append(home)
-AREAS.append(eggChamber)
-AREAS.append(chargingArea)
+AREAS.append(egg_chamber)
+AREAS.append(charging_area)
 ###############################################################################
 # Make the robot move to a given position
 #
@@ -328,11 +331,11 @@ AREAS.append(chargingArea)
 
 def find_relative_angle(start, dest, d):
 
-    angle = math.acos((start.y - dest[1])/d) - start.q - math.radians(90)
+    angle = math.acos((start.y - dest.y)/d) - start.q - math.radians(90)
 
-    if dest[0] < start.x and dest[1] < start.y:
+    if dest.x <= start.x and dest.y <= start.y:
         angle += math.radians(270)
-    if dest[0] < start.x and dest[1] > start.y:
+    if dest.x <= start.x and dest.y >= start.y:
         angle += math.radians(90)
 
     return angle % math.radians(360)
@@ -340,7 +343,7 @@ def find_relative_angle(start, dest, d):
 
 def goto(robot, dest):
     # First orientate the robot
-    d = distance(robot.position, dest[0], dest[1])
+    d = distance(robot.position, dest.x, dest.y)
     delta = find_relative_angle(robot.position, dest, d)
 
     #! it feels like that in the bad 180 the robot re-orienting is mirrored
@@ -356,10 +359,10 @@ def goto(robot, dest):
         # Let's assume our robot will move alway clockwise
         if delta < math.radians(10):
             # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
-            robot.rotate(0.01 * s, -.01 * s)
+            robot.rotate(0.03 * s, -.03 * s)
         else:
             # Othewise full throttle
-            robot.rotate(0.1 * s, -0.1*s)
+            robot.rotate(0.2 * s, -0.2*s)
 
     # Angle is good, let's move toward the point
     else:
@@ -373,7 +376,7 @@ def goto(robot, dest):
 
         else:
             robot.goto_objective_reached = True
-            sys.exit()
+            robot.destination = None
 
 
 while True:
@@ -397,67 +400,67 @@ while True:
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
-        # Robot's brain ############
-        # # Task allocation #
-        # #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
-        # #! I don't think I must simulate because what I need is to assess the efficiency
-        # if robot.state == Resting:
-        #     candidate = []
-        #     for i, task in enumerate(TASKS):
-        #         if feedback(task) < 0:  # Task is in energy surplus
-        #             # print("Task ["+task+"] is in energy surplus")
-        #             #! that actually works, I am just a dumbass ..
-        #             #! if idle increasing, then somehow only foraging will enter this if
-        #             #! and it's value is yes.. reset to 0
-        #             TASKS_Q[i] = 0
-        #         else:  # Task is in energy deficit
-        #             # print("Task ["+task+"] is in energy deficit")
-        #             # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
-        #             # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
-        #             #! Maybe it's working .. I just need an actual food increase to put it to 0?
-        #             TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
-        #         # print(TASKS_Q)
-        #         # ? if TASKS_Q[i] >= 3:
-        #         if TASKS_Q[i] == 3:
-        #             candidate.append(task)
-        #         # print("Candidate tasks are:")
-        #         # print(candidate)
+        # Robot's brain
+        # Task allocation #
+        #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
+        #! I don't think I must simulate because what I need is to assess the efficiency
+        if robot.state == Resting:
+            candidate = []
+            for i, task in enumerate(TASKS):
+                if feedback(task) < 0:  # Task is in energy surplus
+                    # print("Task ["+task+"] is in energy surplus")
+                    #! that actually works, I am just a dumbass ..
+                    #! if idle increasing, then somehow only foraging will enter this if
+                    #! and it's value is yes.. reset to 0
+                    TASKS_Q[i] = 0
+                else:  # Task is in energy deficit
+                    # print("Task ["+task+"] is in energy deficit")
+                    # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
+                    # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
+                    #! Maybe it's working .. I just need an actual food increase to put it to 0?
+                    TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
+                # print(TASKS_Q)
+                # ? if TASKS_Q[i] >= 3:
+                if TASKS_Q[i] == 3:
+                    candidate.append(task)
+                # print("Candidate tasks are:")
+                # print(candidate)
 
-        #     if candidate != []:
-        #         if randint(0, 1):
-        #             # print("Robot enters candiate task selection")
-        #             for task in TASKS_Q:
-        #                 task = 0
-        #             robot.task = candidate[randint(0, len(candidate)-1)]
-        #             # print("New robot's task is: " + robot.task)
-        #             robot.state = TempWorker
-        #             # print("New robot's state is: " + str(robot.state))
-        # # ? somehow, it waits for all the robot to be in foraging task to start to move????
-        # elif robot.state == FirstReserve:
-        #     if feedback(robot.task) < 0:
-        #         # print("First reserve .. resting")
-        #         robot.state = Resting
-        #     elif randint(0, 1):
-        #         robot.state = TempWorker
-        #     else:
-        #         robot.state = SecondReserve
-        # elif robot.state == SecondReserve:
-        #     if feedback(robot.task) < 0:
-        #         # print("Second reserve .. resting")
-        #         robot.state = Resting
-        #     else:
-        #         robot.state = TempWorker
-        # elif robot.state == TempWorker:
-        #     if feedback(robot.task) < 0:
-        #         robot.state = FirstReserve
-        #     else:
-        #         robot.state = CoreWorker
-        # elif robot.state == CoreWorker:
-        #     if feedback(robot.task) < 0:
-        #         robot.state = TempWorker
+            if candidate != []:
+                if randint(0, 1):
+                    # print("Robot enters candiate task selection")
+                    for task in TASKS_Q:
+                        task = 0
+                    robot.task = candidate[randint(0, len(candidate)-1)]
+                    # print("New robot's task is: " + robot.task)
+                    robot.state = TempWorker
+                    # print("New robot's state is: " + str(robot.state))
+        # ? somehow, it waits for all the robot to be in foraging task to start to move????
+        elif robot.state == FirstReserve:
+            if feedback(robot.task) < 0:
+                # print("First reserve .. resting")
+                robot.state = Resting
+            elif randint(0, 1):
+                robot.state = TempWorker
+            else:
+                robot.state = SecondReserve
+        elif robot.state == SecondReserve:
+            if feedback(robot.task) < 0:
+                # print("Second reserve .. resting")
+                robot.state = Resting
+            else:
+                robot.state = TempWorker
+        elif robot.state == TempWorker:
+            if feedback(robot.task) < 0:
+                robot.state = FirstReserve
+            else:
+                robot.state = CoreWorker
+        elif robot.state == CoreWorker:
+            if feedback(robot.task) < 0:
+                robot.state = TempWorker
 
-        # robot.color = COLORS[robot.task]
-        # ###################
+        robot.color = COLORS[robot.task]
+        ###################
 
         robot.stop()
 
@@ -488,20 +491,37 @@ while True:
             else:
 
                 area_type = robot.area_type(AREAS)
+
+                # Resource dropout
                 if area_type == TYPE_HOME and robot.carry_resource:
-                    robot.is_avoiding = True
-                    robot.NB_STEP_TO_AVOID = 15
                     globals.NEST.resources += robot.carried_resource.value
                     globals.POIs[robot.carried_resource.index].is_visible = False
                     robot.carry_resource = False
                     robot.carried_resource = None
+                    #! here I could also decide to end its reach for the final position, but it's copy pasto
+
+                # Specifying robot.destination == robot.start_position means that the robot intends to be charged
+                if area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position:
+                    # For now, let's say everytime a robot enters the area he as to charge up to 90 to leave
+                    if globals.cnt % 5 == 0:
+                        robot.battery_level += 2
+
+                    if robot.battery_level >= 100:
+                        # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
+                        if robot.carry_resource:
+                            robot.destination = Marker_ResourceDelivery
+                        else:
+                            robot.destination = None
+                            robot.goto_objective_reached = True
 
                 # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
                 #! assuming only foragers will be interested into picking up food.
-                if (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
-                    robot.is_avoiding = True
-                    robot.NB_STEP_TO_AVOID = 15
-                    robot.trail = True
+                elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
+                    # robot.is_avoiding = True
+                    # robot.NB_STEP_TO_AVOID = 15
+                    # robot.trail = T
+                    robot.goto_objective_reached = False
+                    robot.destination = Marker_ResourceDelivery
                     robot.carry_resource = True
                     robot.carried_resource = POI
                     globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
@@ -513,11 +533,11 @@ while True:
                     robot.soft_turn_right()
                 else:
                     if not robot.goto_objective_reached:
-                        goto(robot, (-2, 2))
+                        goto(robot, robot.destination)
                     else:
                         robot.wander()
-            ###################################
-
+        ###################################
+        # goto(robot, Position(-W/2+0.4, -H/2+0.4 + 3.1))
         robot.simulationstep()
 
         # check collision with arena walls
@@ -541,9 +561,14 @@ while True:
             PHEROMONES_PATH.append(
                 PointOfInterest(robot.position, DECAY, None))
 
-        # # Decrease robot's battery .. maybe not useful.
-        # if globals.cnt % 50 == 0:
-        #     robot.battery_level -= 1
+        # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
+        if globals.cnt % 10 == 0:
+            robot.battery_level -= 1
+            if robot.battery_level < 50:
+                # Robot's start positio is it's charging block
+                # TODO if that happens, I should probably change the task of the robot so an other one can take over
+                robot.destination = robot.start_position
+                robot.goto_objective_reached = False
 
         # Robot wise
         if globals.DO_RECORD:
