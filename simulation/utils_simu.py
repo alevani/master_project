@@ -93,7 +93,7 @@ class Visualizator:
 
                 elif event.key == pygame.K_q:
                     if globals.DO_RECORD:
-                        self.FILE.write(json.dumps([globals.cnt, globals.M]))
+                        self.FILE.write(json.dumps([globals.CNT, globals.M]))
                         self.FILE.write("\n"+json.dumps(globals.DRAW_POIS))
                         for robot in globals.ROBOTS:
                             self.FILE.write(

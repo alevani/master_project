@@ -1,13 +1,14 @@
-import shapely
-from shapely.affinity import rotate
 from shapely.geometry import LinearRing, LineString, Point, Polygon
-from shapely.geometry.point import Point
 from numpy import sin, cos, pi, sqrt, zeros
-import math
-import globals
-from random import random
+from shapely.geometry.point import Point
+from shapely.affinity import rotate
+from utils import distance
 from utils import Position
+from random import random
 from copy import deepcopy
+import globals
+import shapely
+import math
 
 
 class Nest:
@@ -291,3 +292,63 @@ class Robot:
     def rotate(self, left, right):
         self.LEFT_WHEEL_VELOCITY = left
         self.RIGHT_WHEEL_VELOCITY = right
+
+    def find_relative_angle(self, start, dest, d):
+
+        angle = math.acos((start.y - dest.y)/d) - start.q - math.radians(90)
+
+        if dest.y == start.y:
+
+            if dest.x < start.x:
+                return math.radians(180) - start.q
+            else:
+                return math.radians(0)
+        elif dest.x < start.x and dest.y < start.y:
+            angle += math.radians(270)
+
+        elif dest.x < start.x and dest.y > start.y:
+
+            angle += math.radians(90)
+
+        return angle % math.radians(360)
+
+    # Make the robot move to a given position
+    #
+    # This function works with the simulation step as well
+    # this means that the robot does not go blindly forward
+    def goto(self, dest):
+        # First orientate the robot
+        d = distance(self.position, dest.x, dest.y)
+        delta = find_relative_angle(self.position, dest, d)
+
+        #! it feels like that in the bad 180 the robot re-orienting is mirrored
+        #! 5 and 10 seem to be okay as of now.
+        if delta > math.radians(5):
+
+            # Determine if the robot should rather turn left or right
+            if delta <= math.radians(180):
+                s = -1
+            else:
+                s = 1
+
+            # Let's assume our robot will move alway clockwise
+            if delta < math.radians(10):
+                # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
+                self.rotate(0.03 * s, -.03 * s)
+            else:
+                # Othewise full throttle
+                self.rotate(0.2 * s, -0.2*s)
+
+        # Angle is good, let's move toward the point
+        else:
+            # As long as we are more than 1cm away
+            if d > 0.02:
+                if d < 0.03:
+                    # Go full throttle
+                    self.forward(0.2, 0.2)
+                else:
+                    self.forward(1, 1)
+
+            else:
+                self.goto_objective_reached = True
+                self.destination = None

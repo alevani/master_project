@@ -1,7 +1,7 @@
 ROBOTS = []
 H = 10
 W = 14
-cnt = 0
+CNT = 0
 M = 2
 
 
@@ -9,7 +9,7 @@ M = 2
 POIs = []
 DRAW_POIS = []
 ZOOM = 1
-V = 2
+
 ROBOT_SIZE = ZOOM * 11.25
 
 NEST = None

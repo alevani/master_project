@@ -1,34 +1,24 @@
 import globals
 import threading
 from random import random
+from random import randint
 
 
 class TaskHandler:
     def __init__(self, nest):
         self.nest = nest
-        self.resource_handler()
-        self.task2()
+
+    def simulationstep(self):
+        if globals.CNT % 100 == 0:
+            self.nest.resources -= randint(0, 3)
+
+        if globals.CNT % 50 == 0:
+            self.nest.task2 -= randint(0, 3)
 
     def print_stats(self):
         print("******* NEST *******")
         print("Resources: ", self.nest.resources)
         print("Task2: ", self.nest.task2)
-
-    def resource_handler(self):
-        self.nest.resources -= 10  # ? this affect the way task is allocated
-
-        # Decrease the resource of the nest randomly
-        thread = threading.Timer(random() + 3, self.resource_handler)
-        thread.setDaemon(True)
-        thread.start()
-
-    def task2(self):
-        self.nest.task2 -= 5  # ? this affect the way task is allocated
-
-        # Decrease the resource of the nest randomly
-        thread = threading.Timer(random() + 3, self.task2)
-        thread.setDaemon(True)
-        thread.start()
 
     # such as ..
     def get_hunger_level(self):
