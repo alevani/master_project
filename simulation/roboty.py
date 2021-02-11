@@ -60,6 +60,7 @@ class CollisionBox:
 class Robot:
     def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level):
         self.number = number
+        self.last_foraging_point = None
         self.color = color
         self.task = task
         self.destination = None
@@ -294,24 +295,14 @@ class Robot:
         self.LEFT_WHEEL_VELOCITY = left
         self.RIGHT_WHEEL_VELOCITY = right
 
-    def find_relative_angle(self, start, dest, d):
+    #! from https://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
+    def angle_trunc(self, a):
+        while a < 0.0:
+            a += pi * 2
+        return a
 
-        angle = math.acos((start.y - dest.y)/d) - start.q - math.radians(90)
-
-        if dest.y == start.y:
-
-            if dest.x < start.x:
-                return math.radians(180) - start.q
-            else:
-                return math.radians(0)
-        elif dest.x < start.x and dest.y < start.y:
-            angle += math.radians(270)
-
-        elif dest.x < start.x and dest.y > start.y:
-
-            angle += math.radians(90)
-
-        return angle % math.radians(360)
+    def find_relative_angle(self, start, dest):
+        return self.angle_trunc(math.atan2((dest.y-start.y), (dest.x-start.x)))
 
     # Make the robot move to a given position
     #
@@ -319,21 +310,22 @@ class Robot:
     # this means that the robot does not go blindly forward
     def goto(self, dest):
         # First orientate the robot
-        d = distance(self.position, dest.x, dest.y)
-        delta = self.find_relative_angle(self.position, dest, d)
+        dest_angle = self.find_relative_angle(self.position, dest)
+
+        diff = abs(dest_angle - self.position.q)
 
         #! it feels like that in the bad 180 the robot re-orienting is mirrored
         #! 5 and 10 seem to be okay as of now.
-        if delta > math.radians(5):
+        if diff > math.radians(5):
 
             # Determine if the robot should rather turn left or right
-            if delta <= math.radians(180):
-                s = -1
-            else:
+            if self.position.q - dest_angle > 180:
                 s = 1
+            else:
+                s = -1
 
             # Let's assume our robot will move alway clockwise
-            if delta < math.radians(10):
+            if diff < math.radians(10):
                 # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
                 self.rotate(0.03 * s, -.03 * s)
             else:
@@ -342,6 +334,7 @@ class Robot:
 
         # Angle is good, let's move toward the point
         else:
+            d = distance(self.position, dest.x, dest.y)
             # As long as we are more than 1cm away
             if d > 0.02:
                 if d < 0.03:
