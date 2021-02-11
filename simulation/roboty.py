@@ -19,9 +19,10 @@ class Nest:
 
 class Area:
     def __init__(self, position, width, height, t, color):
-        self.position = position
-        x, y = position.x, position.y
 
+        self.position = position
+
+        x, y = position.x, position.y
         self.left_bottom = (x, y)
         self.right_bottom = (x + width, y)
         self.left_top = (x, y+height)
@@ -36,12 +37,12 @@ class Area:
 
 class PointOfInterest:
     def __init__(self, position, decay_time, t, value=None, index=None, is_visible=True):
-        self.position = position
+        self.is_visible = is_visible
         self.decay_time = decay_time
-        self.type = t
+        self.position = position
         self.value = value
         self.index = index
-        self.is_visible = is_visible
+        self.type = t
 
     def encode(self):
         return {
@@ -52,8 +53,8 @@ class PointOfInterest:
 
 class CollisionBox:
     def __init__(self, shape, position):
-        self.box = shape
         self.position = position
+        self.box = shape
 
 
 class Robot:
@@ -319,7 +320,7 @@ class Robot:
     def goto(self, dest):
         # First orientate the robot
         d = distance(self.position, dest.x, dest.y)
-        delta = find_relative_angle(self.position, dest, d)
+        delta = self.find_relative_angle(self.position, dest, d)
 
         #! it feels like that in the bad 180 the robot re-orienting is mirrored
         #! 5 and 10 seem to be okay as of now.

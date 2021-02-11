@@ -407,13 +407,13 @@ while True:
         #             else:
         #                 robot.wander()
 
-        # goto(robot, Position(-W/2+0.4, -H/2+0.4 + 3.1))
-        goto(robot, Position(-3, 0))
+        # robot.goto(Position(-W/2+0.4, -H/2+0.4 + 3.1))
+        robot.goto(Position(-3, 0))
         # globals.POIs.append(PointOfInterest(
         #     Position(-W/2+0.4, -H/2+0.4 + 3.1), 10000, 1))
         # globals.POIs.append(PointOfInterest(
         #     Position(-3, 0), 10000, 1))
-        # goto(robot, robot.destination)
+        # robot.goto(robot.destination)
         robot.simulationstep()
         # ###################################
 

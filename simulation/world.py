@@ -1,3 +1,6 @@
+import globals
+
+
 def decay_check():
     # for i, point in enumerate(PHEROMONES_PATH):
     #     if point == 0:
