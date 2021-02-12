@@ -190,16 +190,16 @@ globals.ROBOTS.append(R2)
 globals.ROBOTS.append(R3)
 globals.ROBOTS.append(R4)
 globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 #! nothing in (0,0) why?
@@ -252,6 +252,8 @@ def get_proximity_sensor_values(rays, robot):
     return dists
 
 
+#! when ants have a resource but need to charge up, their last foraging point will change to
+#! the charging pad which is wrong.
 while True:
     globals.CNT += 1
     VISUALIZER.draw_arena()
@@ -339,6 +341,8 @@ while True:
         area_type = robot.area_type(AREAS)
 
         # TODO Problem, if to close to a wall, tries to turn left because shortest angle, but then bumps into the wall and go right .. then go left .. and so on
+        #! I think the problem as been fixed when changing the rotation direction to the correct one
+        #! robot can still block each others
         if robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
             # Update the visu of the point of interest so it follows the robot moving around :D
             if robot.carry_resource:
@@ -471,16 +475,16 @@ while True:
                                       for o in deepcopy(globals.POIs)])
     # Task helper
     TaskHandler.simulationstep()
-    # if globals.CNT % 10 == 0:
-    #     print(chr(27) + "[2J")
-    #     print(" ******* LIVE STATS *******")
-    #     print("N° | % | State | Task")
-    #     for robot in globals.ROBOTS:
-    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-    #     TaskHandler.print_stats()
-    #     print("Q")
-    #     print(TASKS_Q)
+    if globals.CNT % 10 == 0:
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS *******")
+        print("N° | % | State | Task")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+        TaskHandler.print_stats()
+        print("Q")
+        print(TASKS_Q)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

@@ -319,7 +319,7 @@ class Robot:
         if diff > math.radians(5):
 
             # Determine if the robot should rather turn left or right
-            if self.position.q - dest_angle > 180:
+            if self.position.q - dest_angle < 180:
                 s = 1
             else:
                 s = -1
@@ -327,10 +327,10 @@ class Robot:
             # Let's assume our robot will move alway clockwise
             if diff < math.radians(10):
                 # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
-                self.rotate(0.03 * s, -.03 * s)
+                self.rotate(0.2 * s, -.2 * s)
             else:
                 # Othewise full throttle
-                self.rotate(0.2 * s, -0.2*s)
+                self.rotate(0.5 * s, -0.5*s)
 
         # Angle is good, let's move toward the point
         else:
@@ -339,7 +339,7 @@ class Robot:
             if d > 0.02:
                 if d < 0.03:
                     # Go full throttle
-                    self.forward(0.2, 0.2)
+                    self.forward(0.5, 0.5)
                 else:
                     self.forward(1, 1)
 
