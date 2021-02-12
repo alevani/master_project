@@ -86,12 +86,12 @@ class Robot:
 
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
-            position.x, position.y, position.q - math.radians(90))
+            position.x, position.y, position.theta - math.radians(90))
 
         self.update_proximity_sensor_position(position.x, position.y,
-                                              position.q-math.radians(90))
+                                              position.theta-math.radians(90))
         self.rotate_proximity_sensors(position.x, position.y,
-                                      position.q-math.radians(90))
+                                      position.theta-math.radians(90))
 
         self.position = position
         self.start_position = position
@@ -112,11 +112,11 @@ class Robot:
         self.update_collision_box(position)
 
     def update_collision_box(self, position):
-        q = position.q
+        theta = position.theta
         x = position.x
         y = position.y
 
-        q = q - math.radians(90)
+        theta = theta - math.radians(90)
         box_x = 0.0525
         box_y_top = 0.0725
         box_y_bottom = 0.0725 - 0.03
@@ -125,8 +125,8 @@ class Robot:
             ((x - box_x, y - box_y_bottom), (x - box_x, y + box_y_top),
              (x + box_x, y + box_y_top), (x + box_x, y - box_y_bottom)))
 
-        collision_box = rotate(collision_box, q, (x, y), use_radians=True)
-        self.collision_box = CollisionBox(collision_box, Position(q, x, y))
+        collision_box = rotate(collision_box, theta, (x, y), use_radians=True)
+        self.collision_box = CollisionBox(collision_box, Position(theta, x, y))
 
     def get_collision_box_coordinate(self):
         x, y = self.collision_box.box.exterior.coords.xy
@@ -135,9 +135,9 @@ class Robot:
     def get_collision_box(self):
         return self.collision_box.box
 
-    def rotate_proximity_sensors(self, x, y, q):
+    def rotate_proximity_sensors(self, x, y, theta):
         for pos in self.proximity_sensors:
-            point = rotate(Point(pos.x, pos.y), q,
+            point = rotate(Point(pos.x, pos.y), theta,
                            (x, y), use_radians=True)
             pos.x = point.x
             pos.y = point.y
@@ -149,11 +149,11 @@ class Robot:
             pos.x = point.x
             pos.y = point.y
 
-    def update_proximity_sensor_position(self, x, y, q):
+    def update_proximity_sensor_position(self, x, y, theta):
         for pos in self.proximity_sensors:
             pos.x = pos.x + x
             pos.y = pos.y + y
-            pos.q = pos.q + q
+            pos.theta = pos.theta + theta
 
     def update_bottom_sensor_position(self, x, y):
         for pos in self.bottom_sensors:
@@ -193,11 +193,11 @@ class Robot:
         for sensor in self.proximity_sensors:
             nx = sensor.x
             ny = sensor.y
-            nq = sensor.q
-            nx_end = nx+cos(nq)*2*W
-            ny_end = ny+sin(nq)*2*H
+            ntheta = sensor.theta
+            nx_end = nx+cos(ntheta)*2*W
+            ny_end = ny+sin(ntheta)*2*H
             ray = [(nx, ny), (nx_end, ny_end)]
-            spos.append((nx, ny, nq))
+            spos.append((nx, ny, ntheta))
             rays.append(LineString(ray))
         return rays, spos
 
@@ -205,29 +205,29 @@ class Robot:
         # step model time/timestep times
         x = self.position.x
         y = self.position.y
-        q = self.position.q
+        theta = self.position.theta
         for step in range(int(self.ROBOT_TIMESTEP/self.SIMULATION_TIMESTEP)):
-            v_x = cos(q)*(self.R*self.LEFT_WHEEL_VELOCITY /
-                          2 + self.R*self.RIGHT_WHEEL_VELOCITY/2)
-            v_y = sin(q)*(self.R*self.LEFT_WHEEL_VELOCITY /
-                          2 + self.R*self.RIGHT_WHEEL_VELOCITY/2)
+            v_x = cos(theta)*(self.R*self.LEFT_WHEEL_VELOCITY /
+                              2 + self.R*self.RIGHT_WHEEL_VELOCITY/2)
+            v_y = sin(theta)*(self.R*self.LEFT_WHEEL_VELOCITY /
+                              2 + self.R*self.RIGHT_WHEEL_VELOCITY/2)
             omega = (self.R*self.RIGHT_WHEEL_VELOCITY -
                      self.R*self.LEFT_WHEEL_VELOCITY)/(2*self.L)
 
             x += v_x * self.SIMULATION_TIMESTEP
             y += v_y * self.SIMULATION_TIMESTEP
-            q += omega * self.SIMULATION_TIMESTEP
-            q = q % math.radians(360)
+            theta += omega * self.SIMULATION_TIMESTEP
+            theta = theta % math.radians(360)
 
         self.update_proximity_sensor_position(
-            x - self.position.x, y - self.position.y, q-self.position.q)
-        self.rotate_proximity_sensors(x, y, q-self.position.q)
+            x - self.position.x, y - self.position.y, theta-self.position.theta)
+        self.rotate_proximity_sensors(x, y, theta-self.position.theta)
 
         self.update_bottom_sensor_position(
             x - self.position.x, y - self.position.y)
-        self.rotate_bottom_sensor(x, y, q-self.position.q)
+        self.rotate_bottom_sensor(x, y, theta-self.position.theta)
 
-        self.update_position(Position(x, y, q))
+        self.update_position(Position(x, y, theta))
 
     def avoid(self):
         self.is_avoiding_cnt += 1
@@ -312,14 +312,14 @@ class Robot:
         # First orientate the robot
         dest_angle = self.find_relative_angle(self.position, dest)
 
-        diff = abs(dest_angle - self.position.q)
+        diff = abs(dest_angle - self.position.theta)
 
         #! it feels like that in the bad 180 the robot re-orienting is mirrored
         #! 5 and 10 seem to be okay as of now.
         if diff > math.radians(5):
 
             # Determine if the robot should rather turn left or right
-            if self.position.q - dest_angle < 180:
+            if self.position.theta - dest_angle < 180:
                 s = 1
             else:
                 s = -1

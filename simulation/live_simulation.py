@@ -252,6 +252,9 @@ def get_proximity_sensor_values(rays, robot):
     return dists
 
 
+# ? the idea could be to add a bump counter, then there's a 1/2 chance that
+# ? the robot will stop for a few step
+
 #! when ants have a resource but need to charge up, their last foraging point will change to
 #! the charging pad which is wrong.
 while True:

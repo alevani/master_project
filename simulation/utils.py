@@ -7,10 +7,10 @@ def distance(s, x, y):
 
 
 class Position:
-    def __init__(self, x, y, q=None):
+    def __init__(self, x, y, theta=None):
         self.x = x
         self.y = y
-        self.q = q
+        self.theta = theta
 
     def __repr__(self):
-        return "({}, {}, {})".format(self.x, self.y, self.q)
+        return "({}, {}, {})".format(self.x, self.y, self.theta)

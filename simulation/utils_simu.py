@@ -221,7 +221,7 @@ class Visualizator:
 
     def draw(self, pos, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, n):
         self.draw_robot(self.scale(pos.x, pos.y),
-                        pos.q, color, n)
+                        pos.theta, color, n)
 
         counter = self.font.render(str(i), True, RED, WHITE)
         self.screen.blit(counter, (self.MARGIN_W, self.MARGIN_H))
@@ -234,7 +234,7 @@ class Visualizator:
             self.draw_box(box)
 
         if self.DRAW_RAYS:
-            self.draw_rays(spos, sstate, pos.q)
+            self.draw_rays(spos, sstate, pos.theta)
 
         if self.DRAW_PATH:
             for p in path:
