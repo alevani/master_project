@@ -30,6 +30,8 @@ import sys
 # ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same.
 # ? Thesis: Maybe it's going to be important to retrace the step of the simulation development?
 # ? i don't think so. But maybe about the speed and the improvement?
+#! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
+#! I don't think I must simulate because what I need is to assess the efficiency
 
 #! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
 
@@ -47,7 +49,10 @@ import sys
 
 # TOdo changer les angles de Q a theta
 
-# ? should we keep a memory of where was the last high foraging point?
+# ? Does the model really takes into consideration wheter a task is over assigned or not ..?
+# ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
+#! Maybe it's working .. I just need an actual food increase to put it to 0?
+#! as said before, no, cause ants cannot quantify how much a task needs man power or not
 ########
 
 ### GLOBALS ###################################################################
@@ -253,7 +258,7 @@ def get_proximity_sensor_values(rays, robot):
 
 
 # ? the idea could be to add a bump counter, then there's a 1/2 chance that
-# ? the robot will stop for a few step
+# ? the robot will stop for a few stepsp
 
 #! when ants have a resource but need to charge up, their last foraging point will change to
 #! the charging pad which is wrong.
@@ -280,22 +285,14 @@ while True:
 
         # Robot's brain
         # Task allocation #
-        #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
-        #! I don't think I must simulate because what I need is to assess the efficiency
         if robot.state == Resting:
             candidate = []
             for i, task in enumerate(TASKS):
                 if feedback(task) < 0:  # Task is in energy surplus
                     # print("Task ["+task+"] is in energy surplus")
-                    #! that actually works, I am just a dumbass ..
-                    #! if idle increasing, then somehow only foraging will enter this if
-                    #! and it's value is yes.. reset to 0
                     TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
                     # print("Task ["+task+"] is in energy deficit")
-                    # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
-                    # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
-                    #! Maybe it's working .. I just need an actual food increase to put it to 0?
                     TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
                 # print(TASKS_Q)
                 # ? if TASKS_Q[i] >= 3:

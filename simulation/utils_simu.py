@@ -250,12 +250,12 @@ class Visualizator:
             pygame.draw.circle(
                 self.screen, BLUE, self.scale(point[0], point[1]), self.zoom)
 
-    def draw_rays(self, rays, states, q):
+    def draw_rays(self, rays, states, theta):
         for i, ray in enumerate(rays):
-            x, y, q = ray
+            x, y, theta = ray
             x_start, y_start = self.scale(x, y)
-            nx_end = x+cos(q)*0.05
-            ny_end = y+sin(q)*0.05
+            nx_end = x+cos(theta)*0.05
+            ny_end = y+sin(theta)*0.05
             x_end, y_end = self.scale(nx_end, ny_end)
 
             if states[i] == 0:
