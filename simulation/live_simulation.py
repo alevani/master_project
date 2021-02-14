@@ -47,7 +47,6 @@ import sys
 #! maybe re-implement the whole interest level thingy....
 #! https://github.com/alevani/master_project/commit/d7812d9175dfd5a8090e68be942d5bbc83cb0e68
 
-# TOdo changer les angles de Q a theta
 
 # ? Does the model really takes into consideration wheter a task is over assigned or not ..?
 # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
@@ -125,12 +124,12 @@ COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (125, 125, 125)]
 
 TASKS_Q.append(0)  # Idle
 TASKS_Q.append(0)  # Foraging
-# TASKS_Q.append(0)  # Nest maintenance
+TASKS_Q.append(0)  # Nest maintenance
 # TASKS_Q.append([0, BroodCare])
 # TASKS_Q.append([0, Patrolling])
 TASKS.append(Idle)
 TASKS.append(Foraging)
-# TASKS.append(NestMaintenance)
+TASKS.append(NestMaintenance)
 # TASKS.append(BroodCare)
 # TASKS.append(Patrolling)
 #############################################################################
@@ -200,14 +199,13 @@ globals.ROBOTS.append(R7)
 globals.ROBOTS.append(R8)
 globals.ROBOTS.append(R9)
 globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
-#! nothing in (0,0) why?
 for x in range(int(globals.W * 100)):
     inner = []
     for y in range(int(globals.H * 100)):
@@ -245,30 +243,27 @@ def get_proximity_sensor_values(rays, robot):
                               robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
 
     # Robot detection
-    for r in globals.ROBOTS:
-        # Don't check ourselves
-        if r.number != robot.number:
-            for index, ray in enumerate(rays):
-                if r.is_sensing(ray):
-                    p1, p2 = nearest_points(r.get_collision_box(), Point(
-                        robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                    dists[index] = distance(p1, p2.x, p2.y)
+
+    # for r in globals.ROBOTS:
+    #     #! maybe r is trying to reach a point, take 1/2 chance that I stop or go backward for a few st
+    #     #! maybe this is the best decision .. with a flag .. let's try
+    #     # Don't check ourselves
+    #     if r.number != robot.number:
+    #         for index, ray in enumerate(rays):
+    #             if r.is_sensing(ray):
+    #                 p1, p2 = nearest_points(r.get_collision_box(), Point(
+    #                     robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+    #                 dists[index] = distance(p1, p2.x, p2.y)
 
     return dists
 
 
-# ? the idea could be to add a bump counter, then there's a 1/2 chance that
-# ? the robot will stop for a few stepsp
-
-#! when ants have a resource but need to charge up, their last foraging point will change to
-#! the charging pad which is wrong.
 while True:
     globals.CNT += 1
     VISUALIZER.draw_arena()
     VISUALIZER.draw_areas(AREAS)
     # VISUALIZER.draw_decay(PHEROMONES_PATH)
     for robot in globals.ROBOTS:
-
         if robot.has_collided:
             break
 
@@ -343,82 +338,91 @@ while True:
         # TODO Problem, if to close to a wall, tries to turn left because shortest angle, but then bumps into the wall and go right .. then go left .. and so on
         #! I think the problem as been fixed when changing the rotation direction to the correct one
         #! robot can still block each others
-        if robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
-            # Update the visu of the point of interest so it follows the robot moving around :D
+
+        if robot.state == Resting or robot.state == SecondReserve or robot.state == FirstReserve:
+            #       if robot carries resoure
+            #       -> Leave the resource on the ground
             if robot.carry_resource:
-                globals.POIs[robot.carried_resource.index].position.x = robot.position.x
-                globals.POIs[robot.carried_resource.index].position.y = robot.position.y
-                globals.POIs[robot.carried_resource.index].decay_time = 2
+                robot.carry_resource = False
 
-            if robot.is_avoiding:
-                robot.avoid()
-            elif proximity_sensors_state == (0, 1, 0):
-                if randint(0, 1):
-                    robot.turn_left()
-                else:
-                    robot.turn_right()
-            elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
+                x = int(robot.position.x * 100) + int(globals.W * 100/2)
+                y = int(robot.position.y * 100) + int(globals.H * 100/2)
+                globals.PHEROMONES_MAP[x][y] = robot.payload
+                robot.payload = None
+
+            robot.last_foraging_point = None
+            robot.destination = robot.start_position
+            robot.goto_objective_reached = False
+
+        # if robot.state == CoreWorker and (robot.task == Foraging or robot.task == NestMaintenance):
+        # Update the visu of the point of interest so it follows the robot moving around :D
+
+        if robot.carry_resource:
+            globals.POIs[robot.payload.index].position.x = robot.position.x
+            globals.POIs[robot.payload.index].position.y = robot.position.y
+
+        if robot.is_avoiding:
+            robot.avoid()
+        elif proximity_sensors_state == (0, 1, 0):
+            if randint(0, 1):
                 robot.turn_left()
-            elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
-                robot.turn_right()
-            elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
-                robot.is_avoiding = True
-                robot.NB_STEP_TO_AVOID = 7
             else:
+                robot.turn_right()
+        elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
+            robot.turn_left()
+        elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
+            robot.turn_right()
+        elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
+            robot.is_avoiding = True
+            robot.NB_STEP_TO_AVOID = 7
+        else:
 
-                # Resource dropout
-                if area_type == TYPE_HOME and robot.carry_resource:
-                    globals.NEST.resources += robot.carried_resource.value
-                    globals.POIs[robot.carried_resource.index].is_visible = False
-                    robot.carry_resource = False
-                    robot.carried_resource = None
-                    robot.destination = robot.last_foraging_point
+            # Resource dropout
+            if area_type == TYPE_HOME and robot.carry_resource:
+                globals.NEST.resources += robot.payload.value
+                globals.POIs[robot.payload.index].is_visible = False
+                robot.carry_resource = False
+                robot.payload = None
+                robot.destination = robot.last_foraging_point
 
-                # Specifying robot.destination == robot.start_position means that the robot intends to be charged
-                if area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position:
-                    # For now, let's say everytime a robot enters the area he as to charge up to 90 to leave
-                    if globals.CNT % 5 == 0:
-                        robot.battery_level += 2
+            # Specifying robot.destination == robot.start_position means that the robot intends to be charged
+            if area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position:
+                # For now, let's say everytime a robot enters the area he as to charge up to 90 to leave
+                if globals.CNT % 5 == 0 and robot.battery_level < 100:
+                    robot.battery_level += 2
 
-                    if robot.battery_level >= 100:
-                        # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
-                        if robot.carry_resource:
-                            robot.destination = Marker_ResourceDelivery
-                        else:
-                            robot.destination = None
-                            robot.goto_objective_reached = True
-
-                # Here, depending on the pheromone trail type, we could easily avoid path to go home and such ..
-                #! assuming only foragers will be interested into picking up food.
-                elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging:
-                    # robot.is_avoiding = True
-                    # robot.NB_STEP_TO_AVOID = 15
-                    # robot.trail = T
-                    robot.goto_objective_reached = False
-                    robot.destination = Marker_ResourceDelivery
-                    robot.last_foraging_point = robot.position
-                    robot.carry_resource = True
-                    robot.carried_resource = POI
-                    globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
-                elif bottom_sensor_states == (1, 0):
-                    robot.soft_turn_left()
-                elif bottom_sensor_states == (1, 1):
-                    pass
-                elif bottom_sensor_states == (0, 1):
-                    robot.soft_turn_right()
-                else:
-                    if not robot.goto_objective_reached:
-                        robot.goto(robot.destination)
+                if robot.battery_level >= 100:
+                    # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
+                    if robot.carry_resource:
+                        robot.destination = Marker_ResourceDelivery
                     else:
-                        robot.wander()
+                        robot.destination = None
+                        robot.goto_objective_reached = True
 
-        # robot.goto(Position(-W/2+0.4, -H/2+0.4 + 3.1))
+            # Mathematic model seems to say that also TempWorker can work ..
+            #! assuming only foragers will be interested into picking up food.
+            elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging and (robot.state == CoreWorker or robot.state == TempWorker):
+                # robot.is_avoiding = True
+                # robot.NB_STEP_TO_AVOID = 15
+                # robot.trail = T
+                robot.goto_objective_reached = False
+                robot.destination = Marker_ResourceDelivery
+                robot.last_foraging_point = robot.position
+                robot.carry_resource = True
+                robot.payload = POI
+                globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+            elif bottom_sensor_states == (1, 0):
+                robot.soft_turn_left()
+            elif bottom_sensor_states == (1, 1):
+                pass
+            elif bottom_sensor_states == (0, 1):
+                robot.soft_turn_right()
+            else:
+                if not robot.goto_objective_reached:
+                    robot.goto(robot.destination)
+                else:
+                    robot.wander()
 
-        # # globals.POIs.append(PointOfInterest(
-        # #     Position(-W/2+0.4, -H/2+0.4 + 3.1), 10000, 1))
-        # # globals.POIs.append(PointOfInterest(
-        # #     Position(-3, 0), 10000, 1))
-        # # robot.goto(robot.destination)
         robot.simulationstep()
         # ###################################
 

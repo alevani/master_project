@@ -3,6 +3,7 @@ from numpy import sin, cos, pi, sqrt, zeros
 from shapely.geometry.point import Point
 from shapely.affinity import rotate
 from utils import distance
+from random import randint
 from utils import Position
 from random import random
 from copy import deepcopy
@@ -75,7 +76,7 @@ class Robot:
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
-        self.carried_resource = None
+        self.payload = None
         self.goto_objective_reached = True
 
         self.trail = True
@@ -309,6 +310,7 @@ class Robot:
     # This function works with the simulation step as well
     # this means that the robot does not go blindly forward
     def goto(self, dest):
+
         # First orientate the robot
         dest_angle = self.find_relative_angle(self.position, dest)
 
@@ -319,7 +321,7 @@ class Robot:
         if diff > math.radians(5):
 
             # Determine if the robot should rather turn left or right
-            if self.position.theta - dest_angle < 180:
+            if self.position.theta - dest_angle < math.radians(180):
                 s = 1
             else:
                 s = -1

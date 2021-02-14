@@ -101,6 +101,8 @@ class Visualizator:
                         self.FILE.close()
                     pygame.quit()
                     sys.exit()
+                elif event.key == pygame.K_r:
+                    globals.NEST.resources -= 200
                 elif event.key == pygame.K_d:
                     self.DRAW_DECAY = not self.DRAW_DECAY
                     print("[Display] Toggle pheromone decay visualization")
