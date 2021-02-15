@@ -147,8 +147,8 @@ TASKS.append(NestMaintenance)
 TYPE_HOME = 1
 TYPE_CHARGING_AREA = 2
 TYPE_NEST_MAINTENANCE = 2
-globals.NEST = Nest(-30, 0)
-# globals.NEST = Nest(-30, 0)
+globals.NEST = Nest(-30, -30)
+
 
 TaskHandler = TaskHandler(globals.NEST)
 
@@ -273,10 +273,9 @@ while True:
     VISUALIZER.draw_areas(AREAS)
     # VISUALIZER.draw_decay(PHEROMONES_PATH)
     for robot in globals.ROBOTS:
-        if robot.has_collided:
-            break
-
         # ? if robot battery level to 0 .. stop moving it?
+        if robot.battery_level <= 0:
+            break
 
         rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
 
@@ -339,9 +338,9 @@ while True:
         has_to_work = robot.state == CoreWorker or robot.state == TempWorker
 
         # TASK CONTROLLER #
+        #! sometimes two robot decide to couple up to rush against a wall leading to a collision, how fun?
+        #! sometimes, due to how crappy my code is, a robot bouce back behind WALL and then throw out an error.
         # if the robot does not have to work .. let it rest in its charging area.
-        #! this will be called everystep .. useless.
-        #! should I set a new objective?
         if not robot.battery_low:
             if not has_to_work:
                 # if the robot was carrying a resource, drop it
@@ -381,6 +380,8 @@ while True:
                         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
                 elif robot.task == NestMaintenance:
+                    if globals.CNT % 25 == 0:
+                        globals.NEST.task2 += randint(0, 3)
                     # TODO
                     # if area_type == TYPE_HOME:
                     #     #! todo .. when the robot change from foraging to nest maintenance .. it first goes through home .. why?
@@ -390,8 +391,8 @@ while True:
                     robot.goto_objective_reached = False
                     pass
 
-        # if the robot intends to go back to its station to charge
-        if area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position:
+        # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
+        if (area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position) or robot.battery_low:
 
             # charge its battery level up to 100
             if globals.CNT % 5 == 0 and robot.battery_level < 100:
@@ -452,7 +453,7 @@ while True:
             PointOfInterest(robot.position, DECAY, None))
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
-        if globals.CNT % 10 == 0 and not area_type == TYPE_CHARGING_AREA:
+        if globals.CNT % 100 == 0 and not area_type == TYPE_CHARGING_AREA:
             robot.battery_level -= randint(0, 4)
             if robot.battery_level < 25:
                 # Robot's start position is its charging block
@@ -470,8 +471,9 @@ while True:
         if collided:
             #! sometimes a lot of robot that are not even in the same area collide in the same time
             #! I need to figure out why.
-            print("collided")
-            robot.has_collided = True
+            print("Robot {} collided, its position has been reseted to its original position").format(
+                robot.number)
+            robot.reset()
     # sleep(0.2)
     VISUALIZER.pygame_event_manager(pygame.event.get())
     VISUALIZER.draw_poi(globals.POIs)
@@ -483,17 +485,17 @@ while True:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
     # Task helper
-    TaskHandler.simulationstep()
-    if globals.CNT % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS *******")
-        print("N° | % | State | Task")
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-        TaskHandler.print_stats()
-        print("Q")
-        print(TASKS_Q)
+    # TaskHandler.simulationstep()
+    # if globals.CNT % 10 == 0:
+    #     print(chr(27) + "[2J")
+    #     print(" ******* LIVE STATS *******")
+    #     print("N° | % | State | Task")
+    #     for robot in globals.ROBOTS:
+    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+    #     TaskHandler.print_stats()
+    #     print("Q")
+    #     print(TASKS_Q)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

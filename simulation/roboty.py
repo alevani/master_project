@@ -84,11 +84,21 @@ class Robot:
         self.obstacle_detection_range = 0.05
         self.battery_low = False
         self.trail = True
-
         self.is_avoiding = False
         self.is_avoiding_cnt = 0
         self.NB_STEP_TO_AVOID = 15
 
+        self.position = position
+        self.start_position = position
+        self.reset()
+        self.draw_information = []
+        self.has_collided = False
+        self.path = []
+
+        self.update_collision_box(position)
+
+    def reset(self):
+        position = self.start_position
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
             position.x, position.y, position.theta - math.radians(90))
@@ -97,14 +107,6 @@ class Robot:
                                               position.theta-math.radians(90))
         self.rotate_proximity_sensors(position.x, position.y,
                                       position.theta-math.radians(90))
-
-        self.position = position
-        self.start_position = position
-        self.draw_information = []
-        self.has_collided = False
-        self.path = []
-
-        self.update_collision_box(position)
 
     def is_colliding(self, shape):
         return self.collision_box.box.intersects(shape)
