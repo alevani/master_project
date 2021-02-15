@@ -77,7 +77,9 @@ class Robot:
         self.R = R
         self.L = L
         self.payload = None
-        self.goto_objective_reached = True
+        self.goto_objective_reached = False
+
+        self.obstacle_detection_range = 0.04
 
         self.trail = True
 
@@ -179,11 +181,11 @@ class Robot:
         left_most = sensors_values[0]
         right_most = sensors_values[4]
 
-        top_value = 1 if top < 0.04 else 0
-        left_value = 1 if left < 0.04 else 0
-        right_value = 1 if right < 0.04 else 0
-        left_most_value = 1 if left_most < 0.04 else 0
-        right_most_value = 1 if right_most < 0.04 else 0
+        top_value = 1 if top < self.obstacle_detection_range else 0
+        left_value = 1 if left < self.obstacle_detection_range else 0
+        right_value = 1 if right < self.obstacle_detection_range else 0
+        left_most_value = 1 if left_most < self.obstacle_detection_range else 0
+        right_most_value = 1 if right_most < self.obstacle_detection_range else 0
 
         # return (left_most_value, left_value, top_value, right_value, right_most_value)
         return (left_most_value, top_value, right_most_value)
@@ -309,7 +311,25 @@ class Robot:
     #
     # This function works with the simulation step as well
     # this means that the robot does not go blindly forward
-    def goto(self, dest):
+    def goto(self, dest, proximity_sensor_values):
+
+        # the simple algorithm would be to
+        # the obstacle is ..
+        # the more the robot will be impacted
+        # I am going to try to use only left most and right most for the moment
+
+        # Obstacle range is 0.04 .. but I feel like that's already to close to act on
+        # so I will use 0.1 as an arbitraty try value
+        # That says .. above .1 .. disregard the obstacle
+        left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else 1000
+        right_most = proximity_sensor_values[4] if proximity_sensor_values[4] < 0.1 else 1000
+
+        print(left_most, right_most)
+        left_wheel_velocity_diff = 0.01 / left_most
+        right_wheel_velocity_diff = 0.01 / right_most
+        # left_wheel_velocity_diff = 0
+        # right_wheel_velocity_diff = 0
+        print(left_wheel_velocity_diff, right_wheel_velocity_diff)
 
         # First orientate the robot
         dest_angle = self.find_relative_angle(self.position, dest)
@@ -322,17 +342,21 @@ class Robot:
 
             # Determine if the robot should rather turn left or right
             if self.position.theta - dest_angle < math.radians(180):
-                s = 1
-            else:
                 s = -1
+            else:
+                s = 1
+
+            #! maybe the velo diff has to be proportional to 0.2 and 0.5
 
             # Let's assume our robot will move alway clockwise
             if diff < math.radians(10):
                 # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
-                self.rotate(0.2 * s, -.2 * s)
+                self.rotate((0.2 * s) + left_wheel_velocity_diff,
+                            (-.2 * s) + right_wheel_velocity_diff)
             else:
                 # Othewise full throttle
-                self.rotate(0.5 * s, -0.5*s)
+                self.rotate((0.5 * s) + left_wheel_velocity_diff,
+                            (-0.5 * s) + right_wheel_velocity_diff)
 
         # Angle is good, let's move toward the point
         else:
