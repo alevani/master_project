@@ -306,12 +306,12 @@ while True:
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
                     # when the robot get attributed a new task, let's make sure there's no mixup with the current state
-                    robot.destination = None
-                    robot.goto_objective_reached = True
+                    robot.rest()
                     robot.state = TempWorker
         elif robot.state == FirstReserve:
             if feedback(robot.task) < 0:
                 robot.state = Resting
+                robot.rest()
             elif randint(0, 1):
                 robot.state = TempWorker
             else:
@@ -319,6 +319,7 @@ while True:
         elif robot.state == SecondReserve:
             if feedback(robot.task) < 0:
                 robot.state = Resting
+                robot.rest()
             else:
                 robot.state = TempWorker
         elif robot.state == TempWorker:
@@ -338,21 +339,22 @@ while True:
         has_to_work = robot.state == CoreWorker or robot.state == TempWorker
 
         # TASK CONTROLLER #
+
         #! sometimes two robot decide to couple up to rush against a wall leading to a collision, how fun?
         #! sometimes, due to how crappy my code is, a robot bouce back behind WALL and then throw out an error.
+
+        #! I have witnessed something unusual ... the robots were all in the chargin area and they could not get out of it .. like if I had implemented them to stay in but no :|
+        # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area, but maybe not the greatest
+        # but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase
+
+        #! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
             if not has_to_work:
                 # if the robot was carrying a resource, drop it
                 if robot.goto_objective_reached:
                     if robot.carry_resource:
-                        robot.carry_resource = False
-                        x = int(robot.position.x * 100) + \
-                            int(globals.W * 100/2)
-                        y = int(robot.position.y * 100) + \
-                            int(globals.H * 100/2)
-                        globals.PHEROMONES_MAP[x][y] = robot.payload
-                        robot.payload = None
+                        robot.drop_resource()
 
                     # set the robot's destination to its charging area
                     robot.last_foraging_point = None
@@ -364,32 +366,24 @@ while True:
                 if robot.task == Foraging:
                     # if I arrived home and I do carry a resource, unload it.
                     if area_type == TYPE_HOME and robot.carry_resource:
-                        globals.NEST.resources += robot.payload.value
-                        globals.POIs[robot.payload.index].is_visible = False
-                        robot.carry_resource = False
-                        robot.payload = None
-                        robot.destination = robot.last_foraging_point
+                        robot.compute_resource()
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
                     elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
-                        robot.goto_objective_reached = False
-                        robot.destination = Marker_home
-                        robot.last_foraging_point = robot.position
-                        robot.carry_resource = True
-                        robot.payload = POI
-                        globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+                        robot.pickup_resource()
 
                 elif robot.task == NestMaintenance:
-                    if globals.CNT % 25 == 0:
-                        globals.NEST.task2 += randint(0, 3)
-                    # TODO
-                    # if area_type == TYPE_HOME:
-                    #     #! todo .. when the robot change from foraging to nest maintenance .. it first goes through home .. why?
-                    #     robot.stop()
-                    # else:
-                    robot.destination = Marker_home
-                    robot.goto_objective_reached = False
-                    pass
+                    # "for some time spent in the nest, increment the resource"
+                    if area_type == TYPE_HOME:
+                        #! I am not liking that too much, seems a bit sketchy
+                        #! keep the robot in the area but ........... energvor?
+                        robot.destination = None
+                        robot.goto_objective_reached = True
+                        if globals.CNT % 100 == 0:
+                            globals.NEST.task2 += randint(0, 3)
+                    else:
+                        robot.destination = Marker_home
+                        robot.goto_objective_reached = False
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
         if (area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position) or robot.battery_low:
@@ -471,8 +465,7 @@ while True:
         if collided:
             #! sometimes a lot of robot that are not even in the same area collide in the same time
             #! I need to figure out why.
-            print("Robot {} collided, its position has been reseted to its original position").format(
-                robot.number)
+            print("Robot {} collided, position reseted".format(robot.number))
             robot.reset()
     # sleep(0.2)
     VISUALIZER.pygame_event_manager(pygame.event.get())
@@ -485,17 +478,17 @@ while True:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
     # Task helper
-    # TaskHandler.simulationstep()
-    # if globals.CNT % 10 == 0:
-    #     print(chr(27) + "[2J")
-    #     print(" ******* LIVE STATS *******")
-    #     print("N° | % | State | Task")
-    #     for robot in globals.ROBOTS:
-    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-    #     TaskHandler.print_stats()
-    #     print("Q")
-    #     print(TASKS_Q)
+    TaskHandler.simulationstep()
+    if globals.CNT % 10 == 0:
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS *******")
+        print("N° | % | State | Task")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+        TaskHandler.print_stats()
+        print("Q")
+        print(TASKS_Q)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

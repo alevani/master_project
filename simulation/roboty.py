@@ -97,6 +97,12 @@ class Robot:
 
         self.update_collision_box(position)
 
+    def rest(self):
+        self.destination = None
+        self.goto_objective_reached = True
+        if self.carry_resource:
+            self.drop_resource()
+
     def reset(self):
         position = self.start_position
         self.update_bottom_sensor_position(position.x, position.y)
@@ -107,6 +113,30 @@ class Robot:
                                               position.theta-math.radians(90))
         self.rotate_proximity_sensors(position.x, position.y,
                                       position.theta-math.radians(90))
+
+    def pickup_resource(self):
+        self.goto_objective_reached = False
+        self.destination = Marker_home
+        self.last_foraging_point = self.position
+        self.carry_resource = True
+        self.payload = POI
+        globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+
+    def drop_resource(self):
+        robot.carry_resource = False
+        x = int(robot.position.x * 100) + \
+            int(globals.W * 100/2)
+        y = int(robot.position.y * 100) + \
+            int(globals.H * 100/2)
+        globals.PHEROMONES_MAP[x][y] = robot.payload
+        robot.payload = None
+
+    def compute_resource(self):
+        globals.NEST.resources += self.payload.value
+        globals.POIs[self.payload.index].is_visible = False
+        self.carry_resource = False
+        self.payload = None
+        self.destination = self.last_foraging_point
 
     def is_colliding(self, shape):
         return self.collision_box.box.intersects(shape)
