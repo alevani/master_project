@@ -346,7 +346,7 @@ while True:
 
         #! I have witnessed something unusual ... the robots were all in the chargin area and they could not get out of it .. like if I had implemented them to stay in but no :|
         # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area, but maybe not the greatest
-        # but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase
+        # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase
 
         #! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
         # if the robot does not have to work .. let it rest in its charging area.
