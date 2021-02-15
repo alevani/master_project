@@ -82,7 +82,7 @@ class Robot:
         self.goto_objective_reached = True
 
         self.obstacle_detection_range = 0.05
-
+        self.battery_low = False
         self.trail = True
 
         self.is_avoiding = False
