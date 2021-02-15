@@ -146,6 +146,12 @@ BASE_BATTERY_LEVEL = 100
 
 BLACK = (0, 0, 0)
 
+# R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0, 0, math.radians(270)),
+#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+
+# R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0, -0.5, math.radians(270)),
+#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
@@ -266,10 +272,10 @@ while True:
     VISUALIZER.draw_arena()
     VISUALIZER.draw_areas(AREAS)
     # VISUALIZER.draw_decay(PHEROMONES_PATH)
+    globals.POIs.append(PointOfInterest(Position(0, -3), 100000, 1))
     for robot in globals.ROBOTS:
         if robot.has_collided:
             break
-
         rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
 
         proximity_sensor_values = get_proximity_sensor_values(
@@ -338,9 +344,9 @@ while True:
         robot.stop()
         area_type = robot.area_type(AREAS)
 
-        # # TODO Problem, if to close to a wall, tries to turn left because shortest angle, but then bumps into the wall and go right .. then go left .. and so on
-        # #! I think the problem as been fixed when changing the rotation direction to the correct one
-        # #! robot can still block each others
+        # TODO Problem, if to close to a wall, tries to turn left because shortest angle, but then bumps into the wall and go right .. then go left .. and so on
+        #! I think the problem as been fixed when changing the rotation direction to the correct one
+        #! robot can still block each others
 
         if robot.state == Resting or robot.state == SecondReserve or robot.state == FirstReserve:
             #       if robot carries resoure
@@ -412,6 +418,9 @@ while True:
 
             robot.goto(robot.destination, proximity_sensor_values)
 
+        # robot.destination = Position(0, -3)
+        # robot.goto(robot.destination, proximity_sensor_values)
+        # if robot.number == 1:
         robot.simulationstep()
         # ###################################
 
@@ -448,7 +457,7 @@ while True:
             #! I need to figure out why.
             print("collided")
             robot.has_collided = True
-
+    # sleep(0.2)
     VISUALIZER.pygame_event_manager(pygame.event.get())
     VISUALIZER.draw_poi(globals.POIs)
 

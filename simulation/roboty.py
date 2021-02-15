@@ -81,7 +81,7 @@ class Robot:
         self.payload = None
         self.goto_objective_reached = True
 
-        self.obstacle_detection_range = 0.04
+        self.obstacle_detection_range = 0.05
 
         self.trail = True
 
@@ -332,6 +332,8 @@ class Robot:
         right_most = right_most if right_most != 0 else 0.01
 
         #! 0.1 / math.sqrt(x) variates between 0.3 and 1
+        # print("print (left,right) sensor value (cm)")
+        # print(left_most, right_most)
         left_wheel_velocity_diff = 0.1 / math.sqrt(left_most)
         right_wheel_velocity_diff = 0.1 / math.sqrt(right_most)
 
@@ -340,6 +342,7 @@ class Robot:
         diff = abs(dest_angle - self.position.theta)
 
         if diff > math.radians(5):
+            # print("RRRRR ROTATING RRRRR")
 
             # Determine if the robot should rather turn left or right
             s = 1
@@ -358,24 +361,34 @@ class Robot:
                 left_speed = 0.5 * s
                 right_speed = -0.5 * s
 
+            if top < 0.05:
+                left_speed -= 3
+
+                # and left_most == OUT_RANGE and right_most == OUT_RANGE:
+
+                # take the smallest (left, right), add more speed to it
+            # print("right - left")
+            # print(min(right_speed + right_wheel_velocity_diff, 1),
+            #       min(left_speed + left_wheel_velocity_diff, 1))
             self.rotate(min(left_speed + left_wheel_velocity_diff, 1),
                         min(right_speed + right_wheel_velocity_diff, 1))
 
         # Angle is good, let's move toward the point
         else:
+            # print("FFFFFF FORWARD FFFFFF")
             d = distance(self.position, dest.x, dest.y)
             # As long as we are more than 1cm away
             if d > 0.02:
 
-                if top < 0.04 and left_most == OUT_RANGE and right_most == OUT_RANGE:
-                    if randint(0, 1):
-                        left_wheel_velocity_diff = 1
-                    else:
-                        right_wheel_velocity_diff = 1
+                if top < 0.05:
+                    # and left_most == OUT_RANGE and right_most == OUT_RANGE:
+                    # print("WITHIN TOP RANGE")
+                    right_wheel_velocity_diff = 2
 
                 left_speed = 1 - right_wheel_velocity_diff
                 right_speed = 1 - left_wheel_velocity_diff
-
+                # print("right - left")
+                # print(right_speed, left_speed)
                 self.forward(left_speed, right_speed)
 
             else:
