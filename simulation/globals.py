@@ -18,3 +18,5 @@ NEST = None
 
 DO_RECORD = False
 PHEROMONES_MAP = [[]]
+
+MARKER_HOME = None

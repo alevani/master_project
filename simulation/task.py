@@ -13,7 +13,7 @@ class TaskHandler:
             self.nest.resources -= randint(0, 3)
 
         if globals.CNT % 50 == 0:
-            self.nest.task2 -= randint(0, 3)
+            self.nest.task2 -= randint(0, 10)
 
     def print_stats(self):
         print("******* NEST *******")

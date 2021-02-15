@@ -230,7 +230,8 @@ AREAS = []
 
 
 # Markers
-Marker_home = Position(-W/2 + 1.6, -H/2 + 1.6)
+
+globals.MARKER_HOME = Position(-W/2 + 1.6, -H/2 + 1.6)
 
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
 egg_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
@@ -370,7 +371,7 @@ while True:
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
                     elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
-                        robot.pickup_resource()
+                        robot.pickup_resource(POI)
 
                 elif robot.task == NestMaintenance:
                     # "for some time spent in the nest, increment the resource"
@@ -382,7 +383,7 @@ while True:
                         if globals.CNT % 100 == 0:
                             globals.NEST.task2 += randint(0, 3)
                     else:
-                        robot.destination = Marker_home
+                        robot.destination = globals.MARKER_HOME
                         robot.goto_objective_reached = False
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
@@ -396,7 +397,7 @@ while True:
                 # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
                 robot.battery_low = False
                 if robot.carry_resource:
-                    robot.destination = Marker_home
+                    robot.destination = globals.MARKER_HOME
                 else:
                     robot.destination = None
                     robot.goto_objective_reached = True

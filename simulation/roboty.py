@@ -114,22 +114,22 @@ class Robot:
         self.rotate_proximity_sensors(position.x, position.y,
                                       position.theta-math.radians(90))
 
-    def pickup_resource(self):
+    def pickup_resource(self, POI):
         self.goto_objective_reached = False
-        self.destination = Marker_home
+        self.destination = globals.MARKER_HOME
         self.last_foraging_point = self.position
         self.carry_resource = True
         self.payload = POI
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
     def drop_resource(self):
-        robot.carry_resource = False
-        x = int(robot.position.x * 100) + \
+        self.carry_resource = False
+        x = int(self.position.x * 100) + \
             int(globals.W * 100/2)
-        y = int(robot.position.y * 100) + \
+        y = int(self.position.y * 100) + \
             int(globals.H * 100/2)
-        globals.PHEROMONES_MAP[x][y] = robot.payload
-        robot.payload = None
+        globals.PHEROMONES_MAP[x][y] = self.payload
+        self.payload = None
 
     def compute_resource(self):
         globals.NEST.resources += self.payload.value
