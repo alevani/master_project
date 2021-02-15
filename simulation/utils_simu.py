@@ -256,10 +256,9 @@ class Visualizator:
         for i, ray in enumerate(rays):
             x, y, theta = ray
             x_start, y_start = self.scale(x, y)
-            # nx_end = x+cos(theta)*0.05
-            # ny_end = y+sin(theta)*0.05
-            nx_end = x+cos(theta)*1
-            ny_end = y+sin(theta)*1
+            nx_end = x+cos(theta)*0.05
+            ny_end = y+sin(theta)*0.05
+
             x_end, y_end = self.scale(nx_end, ny_end)
 
             if states[i] == 0:

@@ -75,12 +75,17 @@ BOTTOM_LIGHT_SENSORS_POSITION = [
     Position(-0.012, 0.05), Position(0.012, 0.05)]  # ! false measurments
 
 # Assuming the robot is looking north
-# TODO deactivate left and right ray
-PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
-                              Position(-0.025,  0.075, math.radians(108.5)),
-                              Position(0, 0.0778, math.radians(90)),
-                              Position(0.025,  0.075, math.radians(71.5)),
-                              Position(0.05,   0.06, math.radians(50))]
+
+# PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
+#                               Position(-0.025,  0.075, math.radians(108.5)),
+#                               Position(0, 0.0778, math.radians(90)),
+#                               Position(0.025,  0.075, math.radians(71.5)),
+#                               Position(0.05,   0.06, math.radians(50))]
+PROXIMITY_SENSORS_POSITION = [
+    Position(-0.05,   0.06, math.radians(130)),
+    Position(0, 0.0778, math.radians(90)),
+    Position(0.05,   0.06, math.radians(50))
+]
 
 # PYGAME
 globals.DO_RECORD = True
@@ -432,7 +437,7 @@ while True:
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
         VISUALIZER.draw(robot.position, robot.color, globals.CNT,
-                        robot.path, collision_box, (proximity_sensors_state[0], 0, proximity_sensors_state[1], 0, proximity_sensors_state[2]), DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, robot.number)
+                        robot.path, collision_box, proximity_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, robot.number)
 
         # if robot.trail:
         PHEROMONES_PATH.append(

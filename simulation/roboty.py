@@ -177,19 +177,13 @@ class Robot:
         return 0
 
     def get_proximity_sensor_state(self, sensors_values):
-        top = sensors_values[2]
-        left = sensors_values[1]
-        right = sensors_values[3]
+        top = sensors_values[1]
         left_most = sensors_values[0]
-        right_most = sensors_values[4]
+        right_most = sensors_values[2]
 
         top_value = 1 if top < self.obstacle_detection_range else 0
-        left_value = 1 if left < self.obstacle_detection_range else 0
-        right_value = 1 if right < self.obstacle_detection_range else 0
         left_most_value = 1 if left_most < self.obstacle_detection_range else 0
         right_most_value = 1 if right_most < self.obstacle_detection_range else 0
-
-        # return (left_most_value, left_value, top_value, right_value, right_most_value)
         return (left_most_value, top_value, right_most_value)
 
     def create_rays(self, W, H):
@@ -324,9 +318,9 @@ class Robot:
         # so I will use 0.1 as an arbitraty try value
         # That says .. above .1 .. disregard the obstacle
 
-        top = proximity_sensor_values[2]
+        top = proximity_sensor_values[1]
         left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else OUT_RANGE
-        right_most = proximity_sensor_values[4] if proximity_sensor_values[4] < 0.1 else OUT_RANGE
+        right_most = proximity_sensor_values[2] if proximity_sensor_values[2] < 0.1 else OUT_RANGE
 
         left_most = left_most if left_most != 0 else 0.01
         right_most = right_most if right_most != 0 else 0.01
