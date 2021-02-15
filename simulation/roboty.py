@@ -321,15 +321,19 @@ class Robot:
         # Obstacle range is 0.04 .. but I feel like that's already to close to act on
         # so I will use 0.1 as an arbitraty try value
         # That says .. above .1 .. disregard the obstacle
-        left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else 1000
-        right_most = proximity_sensor_values[4] if proximity_sensor_values[4] < 0.1 else 1000
+        print(proximity_sensor_values[0], proximity_sensor_values[4])
+        left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else 10000
+        right_most = proximity_sensor_values[4] if proximity_sensor_values[4] < 0.1 else 10000
 
-        print(left_most, right_most)
-        left_wheel_velocity_diff = 0.01 / left_most
-        right_wheel_velocity_diff = 0.01 / right_most
+        left_most = left_most if left_most != 0 else 0.01
+        right_most = right_most if right_most != 0 else 0.01
+
+        #! 0.1 / math.sqrt(x) is a nice curve ..
+        #! variates between 0.3 and 1
+        left_wheel_velocity_diff = 0.1 / math.sqrt(left_most)
+        right_wheel_velocity_diff = 0.1 / math.sqrt(right_most)
         # left_wheel_velocity_diff = 0
         # right_wheel_velocity_diff = 0
-        print(left_wheel_velocity_diff, right_wheel_velocity_diff)
 
         # First orientate the robot
         dest_angle = self.find_relative_angle(self.position, dest)
@@ -341,13 +345,12 @@ class Robot:
         if diff > math.radians(5):
 
             # Determine if the robot should rather turn left or right
-            if self.position.theta - dest_angle < math.radians(180):
+            s = 1
+            if (self.position.theta - dest_angle) % 360 >= math.radians(180):
                 s = -1
-            else:
-                s = 1
 
             #! maybe the velo diff has to be proportional to 0.2 and 0.5
-
+            #! maybe I should make sure speed < 1 here,,,
             # Let's assume our robot will move alway clockwise
             if diff < math.radians(10):
                 # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
@@ -355,6 +358,10 @@ class Robot:
                             (-.2 * s) + right_wheel_velocity_diff)
             else:
                 # Othewise full throttle
+                if self.number == 2:
+                    print("turning full")
+                    print((0.5 * s) + left_wheel_velocity_diff,
+                          (-0.5 * s) + right_wheel_velocity_diff)
                 self.rotate((0.5 * s) + left_wheel_velocity_diff,
                             (-0.5 * s) + right_wheel_velocity_diff)
 

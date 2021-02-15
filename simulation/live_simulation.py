@@ -147,7 +147,7 @@ BLACK = (0, 0, 0)
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(.05, -0.05, math.radians(90)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-.05, 0.05, math.radians(270)),
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-.15, 0.05, math.radians(270)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 # R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
 #            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
@@ -277,13 +277,18 @@ while True:
 
         proximity_sensor_values = get_proximity_sensor_values(
             rays, robot)
-
+        print("-----")
+        print(robot.number)
         bottom_sensor_states, POI = robot.get_bottom_sensor_states(
             globals.PHEROMONES_MAP)
 
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
-        print(proximity_sensors_state)
+
+        if robot.number == 1:
+            robot.destination = Position(-2, 0)
+        else:
+            robot.destination = Position(2, 0)
 
         # Robot's brain
         # Task allocation #
@@ -370,16 +375,20 @@ while True:
 
         if robot.is_avoiding:
             robot.avoid()
-        elif proximity_sensors_state == (0, 1, 0):
-            if randint(0, 1):
+        #! Here I say .. if the robot is trying to reach a goal .. then you disregard non-dynamic obstacle avoidance
+        #! because I assume that no walls exist in the arena (but the arena itself) .. only dynamic object
+        elif robot.destination == None:
+            if proximity_sensors_state == (0, 1, 0):
+                if randint(0, 1):
+                    robot.turn_left()
+                else:
+                    robot.turn_right()
+            elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
                 robot.turn_left()
-            else:
+            elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
                 robot.turn_right()
-        elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
-            robot.turn_left()
-        elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
-            robot.turn_right()
         else:
+            print("has destination")
             robot.goto(robot.destination, proximity_sensor_values)
         # elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
         #     robot.is_avoiding = True
@@ -434,11 +443,6 @@ while True:
         #         else:
         #             robot.wander()
 
-        if robot.number == 1:
-            robot.destination = Position(-2, 0)
-        else:
-            robot.destination = Position(2, 0)
-
         robot.simulationstep()
         # ###################################
 
@@ -487,7 +491,7 @@ while True:
     VISUALIZER.draw_poi(globals.POIs)
 
     decay_check()
-
+    sleep(0.2)
     # World wise
     if globals.DO_RECORD:
         if globals.CNT % globals.M == 0:
