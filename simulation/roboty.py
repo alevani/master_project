@@ -11,6 +11,8 @@ import globals
 import shapely
 import math
 
+OUT_RANGE = 10000
+
 
 class Nest:
     def __init__(self, resources, task2, position=None):
@@ -77,7 +79,7 @@ class Robot:
         self.R = R
         self.L = L
         self.payload = None
-        self.goto_objective_reached = False
+        self.goto_objective_reached = True
 
         self.obstacle_detection_range = 0.04
 
@@ -314,34 +316,29 @@ class Robot:
     def goto(self, dest, proximity_sensor_values):
 
         # the simple algorithm would be to
-        # the obstacle is ..
+        # the closer the obstacle is ..
         # the more the robot will be impacted
         # I am going to try to use only left most and right most for the moment
 
         # Obstacle range is 0.04 .. but I feel like that's already to close to act on
         # so I will use 0.1 as an arbitraty try value
         # That says .. above .1 .. disregard the obstacle
-        print(proximity_sensor_values[0], proximity_sensor_values[4])
-        left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else 10000
-        right_most = proximity_sensor_values[4] if proximity_sensor_values[4] < 0.1 else 10000
+
+        top = proximity_sensor_values[2]
+        left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else OUT_RANGE
+        right_most = proximity_sensor_values[4] if proximity_sensor_values[4] < 0.1 else OUT_RANGE
 
         left_most = left_most if left_most != 0 else 0.01
         right_most = right_most if right_most != 0 else 0.01
 
-        #! 0.1 / math.sqrt(x) is a nice curve ..
-        #! variates between 0.3 and 1
+        #! 0.1 / math.sqrt(x) variates between 0.3 and 1
         left_wheel_velocity_diff = 0.1 / math.sqrt(left_most)
         right_wheel_velocity_diff = 0.1 / math.sqrt(right_most)
-        # left_wheel_velocity_diff = 0
-        # right_wheel_velocity_diff = 0
 
         # First orientate the robot
         dest_angle = self.find_relative_angle(self.position, dest)
-
         diff = abs(dest_angle - self.position.theta)
 
-        #! it feels like that in the bad 180 the robot re-orienting is mirrored
-        #! 5 and 10 seem to be okay as of now.
         if diff > math.radians(5):
 
             # Determine if the robot should rather turn left or right
@@ -354,27 +351,32 @@ class Robot:
             # Let's assume our robot will move alway clockwise
             if diff < math.radians(10):
                 # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
-                self.rotate((0.2 * s) + left_wheel_velocity_diff,
-                            (-.2 * s) + right_wheel_velocity_diff)
+                left_speed = 0.2 * s
+                right_speed = -0.2 * s
             else:
                 # Othewise full throttle
-                if self.number == 2:
-                    print("turning full")
-                    print((0.5 * s) + left_wheel_velocity_diff,
-                          (-0.5 * s) + right_wheel_velocity_diff)
-                self.rotate((0.5 * s) + left_wheel_velocity_diff,
-                            (-0.5 * s) + right_wheel_velocity_diff)
+                left_speed = 0.5 * s
+                right_speed = -0.5 * s
+
+            self.rotate(min(left_speed + left_wheel_velocity_diff, 1),
+                        min(right_speed + right_wheel_velocity_diff, 1))
 
         # Angle is good, let's move toward the point
         else:
             d = distance(self.position, dest.x, dest.y)
             # As long as we are more than 1cm away
             if d > 0.02:
-                if d < 0.03:
-                    # Go full throttle
-                    self.forward(0.5, 0.5)
-                else:
-                    self.forward(1, 1)
+
+                if top < 0.04 and left_most == OUT_RANGE and right_most == OUT_RANGE:
+                    if randint(0, 1):
+                        left_wheel_velocity_diff = 1
+                    else:
+                        right_wheel_velocity_diff = 1
+
+                left_speed = 1 - right_wheel_velocity_diff
+                right_speed = 1 - left_wheel_velocity_diff
+
+                self.forward(left_speed, right_speed)
 
             else:
                 self.goto_objective_reached = True

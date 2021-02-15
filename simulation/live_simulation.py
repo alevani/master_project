@@ -75,6 +75,7 @@ BOTTOM_LIGHT_SENSORS_POSITION = [
     Position(-0.012, 0.05), Position(0.012, 0.05)]  # ! false measurments
 
 # Assuming the robot is looking north
+# TODO deactivate left and right ray
 PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
                               Position(-0.025,  0.075, math.radians(108.5)),
                               Position(0, 0.0778, math.radians(90)),
@@ -137,7 +138,8 @@ TASKS.append(NestMaintenance)
 ### Start's variables #########################################################
 TYPE_HOME = 1
 TYPE_CHARGING_AREA = 2
-globals.NEST = Nest(-30, 0)
+# globals.NEST = Nest(-30, 0)
+globals.NEST = Nest(-300, 0)
 TaskHandler = TaskHandler(globals.NEST)
 
 BASE_BATTERY_LEVEL = 100
@@ -363,7 +365,7 @@ while True:
             robot.avoid()
         #! Here I say .. if the robot is trying to reach a goal .. then you disregard non-dynamic obstacle avoidance
         #! because I assume that no walls exist in the arena (but the arena itself) .. only dynamic object
-        elif not robot.goto_objective_reached:
+        elif robot.goto_objective_reached:
             if proximity_sensors_state == (0, 1, 0):
                 if randint(0, 1):
                     robot.turn_left()
@@ -376,43 +378,39 @@ while True:
             elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
                 robot.is_avoiding = True
                 robot.NB_STEP_TO_AVOID = 7
+            # Mathematic model seems to say that also TempWorker can work ..
+            #! assuming only foragers will be interested into picking up food.
+            elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging and (robot.state == CoreWorker or robot.state == TempWorker):
+                robot.goto_objective_reached = False
+                robot.destination = Marker_ResourceDelivery
+                robot.last_foraging_point = robot.position
+                robot.carry_resource = True
+                robot.payload = POI
+                globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
             else:
                 robot.wander()
+        # Specifying robot.destination == robot.start_position means that the robot intends to be charged
+        elif area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position:
+            # For now, let's say everytime a robot enters the area he as to charge up to 90 to leave
+            if globals.CNT % 5 == 0 and robot.battery_level < 100:
+                robot.battery_level += 2
+
+            if robot.battery_level >= 100:
+                # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
+                if robot.carry_resource:
+                    robot.destination = Marker_ResourceDelivery
+                else:
+                    robot.destination = None
+                    robot.goto_objective_reached = True
         else:
+            if area_type == TYPE_HOME and robot.carry_resource:
+                globals.NEST.resources += robot.payload.value
+                globals.POIs[robot.payload.index].is_visible = False
+                robot.carry_resource = False
+                robot.payload = None
+                robot.destination = robot.last_foraging_point
+
             robot.goto(robot.destination, proximity_sensor_values)
-        # else:
-
-        #     # Resource dropout
-        #     if area_type == TYPE_HOME and robot.carry_resource:
-        #         globals.NEST.resources += robot.payload.value
-        #         globals.POIs[robot.payload.index].is_visible = False
-        #         robot.carry_resource = False
-        #         robot.payload = None
-        #         robot.destination = robot.last_foraging_point
-
-        #     # Specifying robot.destination == robot.start_position means that the robot intends to be charged
-        #     if area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position:
-        #         # For now, let's say everytime a robot enters the area he as to charge up to 90 to leave
-        #         if globals.CNT % 5 == 0 and robot.battery_level < 100:
-        #             robot.battery_level += 2
-
-        #         if robot.battery_level >= 100:
-        #             # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
-        #             if robot.carry_resource:
-        #                 robot.destination = Marker_ResourceDelivery
-        #             else:
-        #                 robot.destination = None
-        #                 robot.goto_objective_reached = True
-
-        #     # Mathematic model seems to say that also TempWorker can work ..
-        #     #! assuming only foragers will be interested into picking up food.
-        #     elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging and (robot.state == CoreWorker or robot.state == TempWorker):
-        #         robot.goto_objective_reached = False
-        #         robot.destination = Marker_ResourceDelivery
-        #         robot.last_foraging_point = robot.position
-        #         robot.carry_resource = True
-        #         robot.payload = POI
-        #         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
         robot.simulationstep()
         # ###################################
