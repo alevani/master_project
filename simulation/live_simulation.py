@@ -52,6 +52,15 @@ import sys
 # ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
 #! Maybe it's working .. I just need an actual food increase to put it to 0?
 #! as said before, no, cause ants cannot quantify how much a task needs man power or not
+
+# ? now .. do I really need the two bottom sensors? one would be plenty. (no pheromone)
+#! yes -> to stay within an area
+
+#! there is like .. one bug where .. the robot kept going to the nest to the last foraging point ..
+#! even though no resrouces was there .. couldn't reproduce .. ¯\_(ツ)_/¯
+
+#! todo .. faire un test avec un robot qui fonce contre le mur (parce que sa dest est plus loin), voir
+#! comment il réagit.
 ########
 
 ### GLOBALS ###################################################################
@@ -75,12 +84,6 @@ BOTTOM_LIGHT_SENSORS_POSITION = [
     Position(-0.012, 0.05), Position(0.012, 0.05)]  # ! false measurments
 
 # Assuming the robot is looking north
-
-# PROXIMITY_SENSORS_POSITION = [Position(-0.05,   0.06, math.radians(130)),
-#                               Position(-0.025,  0.075, math.radians(108.5)),
-#                               Position(0, 0.0778, math.radians(90)),
-#                               Position(0.025,  0.075, math.radians(71.5)),
-#                               Position(0.05,   0.06, math.radians(50))]
 PROXIMITY_SENSORS_POSITION = [
     Position(-0.05,   0.06, math.radians(130)),
     Position(0, 0.0778, math.radians(90)),
@@ -143,19 +146,15 @@ TASKS.append(NestMaintenance)
 ### Start's variables #########################################################
 TYPE_HOME = 1
 TYPE_CHARGING_AREA = 2
+TYPE_NEST_MAINTENANCE = 2
+globals.NEST = Nest(-30, 0)
 # globals.NEST = Nest(-30, 0)
-globals.NEST = Nest(-300, 0)
+
 TaskHandler = TaskHandler(globals.NEST)
 
 BASE_BATTERY_LEVEL = 100
 
 BLACK = (0, 0, 0)
-
-# R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-0, 0, math.radians(270)),
-#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
-
-# R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(0, -0.5, math.radians(270)),
-#            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
 
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
@@ -231,7 +230,7 @@ AREAS = []
 
 
 # Markers
-Marker_ResourceDelivery = Position(-W/2 + 1.6, -H/2 + 1.6)
+Marker_home = Position(-W/2 + 1.6, -H/2 + 1.6)
 
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
 egg_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
@@ -256,11 +255,7 @@ def get_proximity_sensor_values(rays, robot):
                               robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
 
     # Robot detection
-    #! if I don't use the left and right ..
-    #! why do I bother calculating it ..
     for r in globals.ROBOTS:
-        #! maybe r is trying to reach a point, take 1/2 chance that I stop or go backward for a few st
-        #! maybe this is the best decision .. with a flag .. let's try
         # Don't check ourselves
         if r.number != robot.number:
             for index, ray in enumerate(rays):
@@ -277,10 +272,11 @@ while True:
     VISUALIZER.draw_arena()
     VISUALIZER.draw_areas(AREAS)
     # VISUALIZER.draw_decay(PHEROMONES_PATH)
-    globals.POIs.append(PointOfInterest(Position(0, -3), 100000, 1))
     for robot in globals.ROBOTS:
         if robot.has_collided:
             break
+
+        # ? if robot battery level to 0 .. stop moving it?
         rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
 
         proximity_sensor_values = get_proximity_sensor_values(
@@ -348,12 +344,15 @@ while True:
 
         robot.stop()
         area_type = robot.area_type(AREAS)
+        has_to_work = robot.state == CoreWorker or robot.state == TempWorker
 
         # TODO Problem, if to close to a wall, tries to turn left because shortest angle, but then bumps into the wall and go right .. then go left .. and so on
         #! I think the problem as been fixed when changing the rotation direction to the correct one
         #! robot can still block each others
 
-        if robot.state == Resting or robot.state == SecondReserve or robot.state == FirstReserve:
+        # this should be moved somewhere else .. cause it could impact a lot of other stuff
+        #! this will be called everystep .. useless.
+        if not has_to_work and robot.goto_objective_reached:
             #       if robot carries resoure
             #       -> Leave the resource on the ground
             if robot.carry_resource:
@@ -372,6 +371,16 @@ while True:
             globals.POIs[robot.payload.index].position.x = robot.position.x
             globals.POIs[robot.payload.index].position.y = robot.position.y
 
+        # Mathematic model seems to say that also TempWorker can work ..
+        #! assuming only foragers will be interested into picking up food.
+        if robot.task == Foraging and has_to_work and (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
+            robot.goto_objective_reached = False
+            robot.destination = Marker_home
+            robot.last_foraging_point = robot.position
+            robot.carry_resource = True
+            robot.payload = POI
+            globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+
         if robot.is_avoiding:
             robot.avoid()
         #! Here I say .. if the robot is trying to reach a goal .. then you disregard non-dynamic obstacle avoidance
@@ -389,15 +398,13 @@ while True:
             elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
                 robot.is_avoiding = True
                 robot.NB_STEP_TO_AVOID = 7
-            # Mathematic model seems to say that also TempWorker can work ..
-            #! assuming only foragers will be interested into picking up food.
-            elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False and robot.task == Foraging and (robot.state == CoreWorker or robot.state == TempWorker):
-                robot.goto_objective_reached = False
-                robot.destination = Marker_ResourceDelivery
-                robot.last_foraging_point = robot.position
-                robot.carry_resource = True
-                robot.payload = POI
-                globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+            elif robot.task == NestMaintenance and has_to_work:
+                if area_type == TYPE_HOME:
+                    #! todo .. when the robot change from foraging to nest maintenance .. it first goes through home .. why?
+                    robot.stop()
+                else:
+                    robot.destination = Marker_home
+                    robot.goto_objective_reached = False
             else:
                 robot.wander()
         # Specifying robot.destination == robot.start_position means that the robot intends to be charged
@@ -409,7 +416,7 @@ while True:
             if robot.battery_level >= 100:
                 # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
                 if robot.carry_resource:
-                    robot.destination = Marker_ResourceDelivery
+                    robot.destination = Marker_home
                 else:
                     robot.destination = None
                     robot.goto_objective_reached = True
@@ -423,9 +430,6 @@ while True:
 
             robot.goto(robot.destination, proximity_sensor_values)
 
-        # robot.destination = Position(0, -3)
-        # robot.goto(robot.destination, proximity_sensor_values)
-        # if robot.number == 1:
         robot.simulationstep()
         # ###################################
 
@@ -446,9 +450,11 @@ while True:
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
         if globals.CNT % 100 == 0 and not area_type == TYPE_CHARGING_AREA:
             robot.battery_level -= randint(0, 4)
-            if robot.battery_level < 50:
+            if robot.battery_level < 25:
                 # Robot's start position is its charging block
-                # TODO if that happens, I should probably change the task of the robot so an other one can take over
+                #! below is making a good point
+                # TODO if that happens, I should probably change the task of the robot so an other one can take over -> yes, but let's think about that later shall we.
+
                 robot.destination = robot.start_position
                 robot.goto_objective_reached = False
 
@@ -474,16 +480,16 @@ while True:
                                       for o in deepcopy(globals.POIs)])
     # Task helper
     TaskHandler.simulationstep()
-    # if globals.CNT % 10 == 0:
-    #     print(chr(27) + "[2J")
-    #     print(" ******* LIVE STATS *******")
-    #     print("N° | % | State | Task")
-    #     for robot in globals.ROBOTS:
-    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-    #     TaskHandler.print_stats()
-    #     print("Q")
-    #     print(TASKS_Q)
+    if globals.CNT % 10 == 0:
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS *******")
+        print("N° | % | State | Task")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+        TaskHandler.print_stats()
+        print("Q")
+        print(TASKS_Q)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

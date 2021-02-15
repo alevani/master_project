@@ -356,11 +356,8 @@ class Robot:
                 right_speed = -0.5 * s
 
             if top < 0.05:
-                left_speed -= 3
+                left_speed -= 3  # ! yikes
 
-                # and left_most == OUT_RANGE and right_most == OUT_RANGE:
-
-                # take the smallest (left, right), add more speed to it
             # print("right - left")
             # print(min(right_speed + right_wheel_velocity_diff, 1),
             #       min(left_speed + left_wheel_velocity_diff, 1))
