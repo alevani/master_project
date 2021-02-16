@@ -10,7 +10,6 @@ from task import TaskHandler
 from pygame.locals import *
 from utils import Position
 from utils import distance
-from task import feedback
 from copy import deepcopy
 from roboty import Robot
 from roboty import Area
@@ -129,30 +128,27 @@ Patrolling = 4
 
 TASKS_NAME = ['Idle', 'Foraging',
               'Nest maintenance', 'Brood care', 'Patrolling']
-COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255), (125, 125, 125)]
 
 TASKS_Q.append(0)  # Idle
 TASKS_Q.append(0)  # Foraging
 TASKS_Q.append(0)  # Nest maintenance
-# TASKS_Q.append([0, BroodCare])
+TASKS_Q.append(0)  # BroodCare
 # TASKS_Q.append([0, Patrolling])
 TASKS.append(Idle)
 TASKS.append(Foraging)
 TASKS.append(NestMaintenance)
-# TASKS.append(BroodCare)
+TASKS.append(BroodCare)
 # TASKS.append(Patrolling)
+
+TYPE_HOME = 1
+TYPE_CHARGING_AREA = 2
+TYPE_BROOD_CHAMBER = 3
+globals.NEST = Nest(-30, -30, -30)
+TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
-TYPE_HOME = 1
-TYPE_CHARGING_AREA = 2
-TYPE_NEST_MAINTENANCE = 2
-globals.NEST = Nest(-30, -30)
 
-
-TaskHandler = TaskHandler(globals.NEST)
-
-BASE_BATTERY_LEVEL = 100
 
 BLACK = (0, 0, 0)
 
@@ -232,15 +228,16 @@ AREAS = []
 # Markers
 
 globals.MARKER_HOME = Position(-W/2 + 1.6, -H/2 + 1.6)
+globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 4, -H/2 + 1.6)
 
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
-egg_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
-                   3.2, 10, (224, 153, 255))
+brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
+                     3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
 
 charging_area = Area(Position(-W/2, -H/2+3.2),
                      0.7, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 AREAS.append(home)
-AREAS.append(egg_chamber)
+AREAS.append(brood_chamber)
 AREAS.append(charging_area)
 ###############################################################################
 
@@ -289,53 +286,9 @@ while True:
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
-        # Task allocation #########################
-        if robot.state == Resting:
-            candidate = []
-            for i, task in enumerate(TASKS):
-                if feedback(task) < 0:  # Task is in energy surplus
-                    TASKS_Q[i] = 0
-                else:  # Task is in energy deficit
-                    TASKS_Q[i] = min(TASKS_Q[i] + 1, 3)
-                if TASKS_Q[i] == 3:
-                    candidate.append(task)
-
-            if candidate != []:
-                if randint(0, 1):
-                    for task in TASKS_Q:
-                        task = 0
-
-                    robot.task = candidate[randint(0, len(candidate)-1)]
-                    # when the robot get attributed a new task, let's make sure there's no mixup with the current state
-                    robot.rest()
-                    robot.state = TempWorker
-        elif robot.state == FirstReserve:
-            if feedback(robot.task) < 0:
-                robot.state = Resting
-                robot.rest()
-            elif randint(0, 1):
-                robot.state = TempWorker
-            else:
-                robot.state = SecondReserve
-        elif robot.state == SecondReserve:
-            if feedback(robot.task) < 0:
-                robot.state = Resting
-                robot.rest()
-            else:
-                robot.state = TempWorker
-        elif robot.state == TempWorker:
-            if feedback(robot.task) < 0:
-                robot.state = FirstReserve
-            else:
-                robot.state = CoreWorker
-        elif robot.state == CoreWorker:
-            if feedback(robot.task) < 0:
-                robot.state = TempWorker
-
-        robot.color = COLORS[robot.task]
-        ###################
-
+        TaskHandler.assign(robot)
         robot.stop()
+
         area_type = robot.area_type(AREAS)
         has_to_work = robot.state == CoreWorker or robot.state == TempWorker
 
@@ -381,9 +334,21 @@ while True:
                         robot.destination = None
                         robot.goto_objective_reached = True
                         if globals.CNT % 100 == 0:
-                            globals.NEST.task2 += randint(0, 3)
+                            globals.NEST.NestMaintenance += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_HOME
+                        robot.goto_objective_reached = False
+
+                elif robot.task == BroodCare:
+                    if area_type == TYPE_BROOD_CHAMBER:
+                        #! I am not liking that too much, seems a bit sketchy
+                        #! keep the robot in the area but ........... energvor?
+                        robot.destination = None
+                        robot.goto_objective_reached = True
+                        if globals.CNT % 100 == 0:
+                            globals.NEST.broodCare += randint(0, 3)
+                    else:
+                        robot.destination = globals.MARKER_BROOD_CHAMBER
                         robot.goto_objective_reached = False
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
@@ -427,6 +392,7 @@ while True:
                         robot.wander()
 
         robot.simulationstep()
+
         # if the robot carries a resource, update the resource's position according to the robot's movement
         if robot.carry_resource:
             globals.POIs[robot.payload.index].position.x = robot.position.x

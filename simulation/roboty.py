@@ -15,9 +15,10 @@ OUT_RANGE = 10000
 
 
 class Nest:
-    def __init__(self, resources, task2, position=None):
+    def __init__(self, resources, NestMaintenance, broodCare):
         self.resources = resources
-        self.task2 = task2
+        self.NestMaintenance = NestMaintenance
+        self.broodCare = broodCare
 
 
 class Area:
@@ -92,10 +93,7 @@ class Robot:
         self.start_position = position
         self.reset()
         self.draw_information = []
-        self.has_collided = False
         self.path = []
-
-        self.update_collision_box(position)
 
     def rest(self):
         self.destination = None
@@ -104,7 +102,10 @@ class Robot:
             self.drop_resource()
 
     def reset(self):
+        #! should I clear the payload and maybe the task assignement and all?
+        #! make it sound like it's a brand new robot
         position = self.start_position
+        self.position = position
         self.update_bottom_sensor_position(position.x, position.y)
         self.rotate_bottom_sensor(
             position.x, position.y, position.theta - math.radians(90))
@@ -113,6 +114,7 @@ class Robot:
                                               position.theta-math.radians(90))
         self.rotate_proximity_sensors(position.x, position.y,
                                       position.theta-math.radians(90))
+        self.update_collision_box(position)
 
     def pickup_resource(self, POI):
         self.goto_objective_reached = False
