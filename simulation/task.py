@@ -18,7 +18,7 @@ class TaskHandler:
         self.TempWorker = 3
         self.CoreWorker = 4
 
-    def assign(self, robot):
+    def assign_task(self, robot):
         if robot.state == self.Resting:
             candidate = []
             for i, task in enumerate(self.TASKS):
