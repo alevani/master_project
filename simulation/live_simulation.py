@@ -149,7 +149,7 @@ TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
 
 ### Start's variables #########################################################
 
-
+BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
@@ -286,7 +286,7 @@ while True:
         proximity_sensors_state = robot.get_proximity_sensor_state(
             proximity_sensor_values)
 
-        TaskHandler.assign(robot)
+        TaskHandler.assign_task(robot)
         robot.stop()
 
         area_type = robot.area_type(AREAS)
@@ -367,6 +367,7 @@ while True:
                     robot.destination = None
                     robot.goto_objective_reached = True
 
+        #! could be in a separate file .. useful?
         # Navigation controller
         if not robot.goto_objective_reached:
             robot.goto(robot.destination, proximity_sensor_values)

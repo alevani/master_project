@@ -82,6 +82,17 @@ class Robot:
         self.payload = None
         self.goto_objective_reached = True
 
+        self.position = position
+        self.update_bottom_sensor_position(position.x, position.y)
+        self.rotate_bottom_sensor(
+            position.x, position.y, position.theta - math.radians(90))
+
+        self.update_proximity_sensor_position(position.x, position.y,
+                                              position.theta-math.radians(90))
+        self.rotate_proximity_sensors(position.x, position.y,
+                                      position.theta-math.radians(90))
+        self.update_collision_box(position)
+
         self.obstacle_detection_range = 0.05
         self.battery_low = False
         self.trail = True
@@ -91,9 +102,11 @@ class Robot:
 
         self.position = position
         self.start_position = position
-        self.reset()
         self.draw_information = []
         self.path = []
+
+        self.proximity_sensors_backup = deepcopy(proximity_sensors)
+        self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
     def rest(self):
         self.destination = None
@@ -106,14 +119,8 @@ class Robot:
         #! make it sound like it's a brand new robot
         position = self.start_position
         self.position = position
-        self.update_bottom_sensor_position(position.x, position.y)
-        self.rotate_bottom_sensor(
-            position.x, position.y, position.theta - math.radians(90))
-
-        self.update_proximity_sensor_position(position.x, position.y,
-                                              position.theta-math.radians(90))
-        self.rotate_proximity_sensors(position.x, position.y,
-                                      position.theta-math.radians(90))
+        self.proximity_sensors = deepcopy(self.proximity_sensors_backup)
+        self.bottom_sensors = deepcopy(self.bottom_sensors_backup)
         self.update_collision_box(position)
 
     def pickup_resource(self, POI):
