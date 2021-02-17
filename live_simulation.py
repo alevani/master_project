@@ -138,7 +138,7 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
-globals.NEST = Nest(-30, -30, -30)
+globals.NEST = Nest(-200, -30, -30)
 #############################################################################
 
 ### Start's variables #########################################################
@@ -193,20 +193,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-# globals.ROBOTS.append(R2)
-# globals.ROBOTS.append(R3)
-# globals.ROBOTS.append(R4)
-# globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R2)
+globals.ROBOTS.append(R3)
+globals.ROBOTS.append(R4)
+globals.ROBOTS.append(R5)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS, len(globals.ROBOTS))
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
@@ -253,13 +253,18 @@ def get_proximity_sensors_values(robot_rays, robot):
 
     # Robot detection
     for r in globals.ROBOTS:
+        #! What I add here only serves the purpose to make the program faster
+        #! should not be reproduce into a real life setup
+        #! but does not affect how accurate to real life the setup currently is
+
         # Don't check ourselves
         if r.number != robot.number:
-            for index, ray in enumerate(robot_rays):
-                if r.is_sensing(ray):
-                    p1, p2 = nearest_points(r.get_collision_box(), Point(
-                        robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                    values[index] = distance(p1, p2.x, p2.y)
+            if robot.in_range(r.position):
+                for index, ray in enumerate(robot_rays):
+                    if r.is_sensing(ray):
+                        p1, p2 = nearest_points(r.get_collision_box(), Point(
+                            robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+                        values[index] = distance(p1, p2.x, p2.y)
 
     return values
 
@@ -396,31 +401,31 @@ while True:
                                       for o in deepcopy(globals.POIs)])
     # Task helper
     TaskHandler.simulationstep()
-    if globals.CNT % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS *******")
-        print("N° | % | State | Task")
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-        TaskHandler.print_stats()
-        print("Q")
-        print(TASKS_Q)
+    # if globals.CNT % 10 == 0:
+    #     print(chr(27) + "[2J")
+    #     print(" ******* LIVE STATS *******")
+    #     print("N° | % | State | Task")
+    #     for robot in globals.ROBOTS:
+    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+    #     TaskHandler.print_stats()
+    #     print("Q")
+    #     print(TASKS_Q)
 
-        # print to csv file
-        # TODO could be nice to also print each robot task and state to see oscillation ?
-        txt = str(globals.CNT)+";"
-        for i in range(len(TASKS)):
-            txt += assigned(i) + ";"
-            if i == foraging:
-                txt += str(globals.NEST.resources * -1)+";"
-            elif i == idle:
-                txt += "0;"
-            elif i == nest_maintenance:
-                txt += str(globals.NEST.maintenance * -1)+";"
-            elif i == brood_care:
-                txt += str(globals.NEST.brood_care * -1)
-        globals.CSV_FILE.write(txt+"\n")
+    #     # print to csv file
+    #     # TODO could be nice to also print each robot task and state to see oscillation ?
+    #     txt = str(globals.CNT)+";"
+    #     for i in range(len(TASKS)):
+    #         txt += assigned(i) + ";"
+    #         if i == foraging:
+    #             txt += str(globals.NEST.resources * -1)+";"
+    #         elif i == idle:
+    #             txt += "0;"
+    #         elif i == nest_maintenance:
+    #             txt += str(globals.NEST.maintenance * -1)+";"
+    #         elif i == brood_care:
+    #             txt += str(globals.NEST.brood_care * -1)
+    #     globals.CSV_FILE.write(txt+"\n")
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)
