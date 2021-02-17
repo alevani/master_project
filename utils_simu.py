@@ -11,6 +11,7 @@ import json
 import os
 from random import randint
 import globals
+from robot_start_vars import *
 
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
@@ -27,6 +28,18 @@ DECAY25 = (150, 150, 150)
 DECAY10 = (200, 200, 200)
 LEFT_CLICK = 1
 RIGHT_CLICK = 3
+
+idle = 0
+resting = 0
+
+
+def add_robot(posx, posy):
+    from copy import deepcopy
+    from roboty import Robot
+    globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx, posy, math.radians(270)),
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, 100))
+    # TODO
+    # TaskHandler.colony_size += 1
 
 
 class Visualizator:
@@ -63,27 +76,31 @@ class Visualizator:
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                if event.button == 1:
 
-                #! This will fail if out of boundaries
-                # TODO make sure it stays in boundaries
-                n = randint(1, 50)
+                    #! This will fail if out of boundaries
+                    # TODO make sure it stays in boundaries
+                    n = randint(1, 50)
 
-                for _ in range(n):
-                    x = randint(pos[0] - 100, pos[0] + 100)
-                    y = randint(pos[1] - 100, pos[1] + 100)
+                    for _ in range(n):
+                        x = randint(pos[0] - 100, pos[0] + 100)
+                        y = randint(pos[1] - 100, pos[1] + 100)
 
-                    index = len(globals.POIs)
-                    x, y = self.unscale(x, y)
+                        index = len(globals.POIs)
+                        x, y = self.unscale(x, y)
 
-                    globals.POIs.append(PointOfInterest(
-                        Position(x, y), 15000, 2, 10))
+                        globals.POIs.append(PointOfInterest(
+                            Position(x, y), 15000, 2, 10))
 
-                    # ? why did I divide by two ..aaaa
-                    x_scaled = int(x * 100) + int(globals.W * 100/2)
-                    y_scaled = int(y * 100) + int(globals.H * 100/2)
+                        # ? why did I divide by two ..aaaa
+                        x_scaled = int(x * 100) + int(globals.W * 100/2)
+                        y_scaled = int(y * 100) + int(globals.H * 100/2)
 
-                    globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
-                        Position(x_scaled, y_scaled), 15000, 2, 10, index)
+                        globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
+                            Position(x_scaled, y_scaled), 15000, 2, 10, index)
+                else:
+                    x, y = self.unscale(pos[0], pos[1])
+                    add_robot(x, y)
 
             elif event.type == QUIT:
                 pygame.quit()

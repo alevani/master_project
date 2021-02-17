@@ -5,11 +5,11 @@ from shapely.ops import nearest_points
 from shapely.affinity import rotate
 from utils_simu import Visualizator
 from roboty import PointOfInterest
+from robot_start_vars import *
 from world import decay_check
 from task import TaskHandler
 from pygame.locals import *
 from utils import distance
-from utils import Position
 from task import assigned
 from copy import deepcopy
 from roboty import Robot
@@ -85,27 +85,10 @@ import sys
 # WORLD
 # TODO Redo measurements of the robot's sensors' position
 
-# Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
-ROBOT_TIMESTEP = 1
-SIMULATION_TIMESTEP = .01
-
-R = 0.02  # radius of wheels in meters
-L = 0.095  # distance between wheels in meters
-
 W = globals.W
 H = globals.H
 
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
-
-BOTTOM_LIGHT_SENSORS_POSITION = [
-    Position(-0.012, 0.05), Position(0.012, 0.05)]  # ! false measurments
-
-# Assuming the robot is looking north
-PROXIMITY_SENSORS_POSITION = [
-    Position(-0.05,   0.06, math.radians(130)),
-    Position(0, 0.0778, math.radians(90)),
-    Position(0.05,   0.06, math.radians(50))
-]
 
 # PYGAME
 if globals.DO_RECORD:
@@ -160,6 +143,7 @@ globals.NEST = Nest(-30, -30, -30)
 
 ### Start's variables #########################################################
 
+
 BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
@@ -209,20 +193,20 @@ R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
+# globals.ROBOTS.append(R2)
+# globals.ROBOTS.append(R3)
+# globals.ROBOTS.append(R4)
+# globals.ROBOTS.append(R5)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS, len(globals.ROBOTS))
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
@@ -388,11 +372,10 @@ while True:
                 robot.battery_low = True
                 robot.destination = robot.start_position
                 robot.has_destination = True
-
         # Robot wise
-        if globals.DO_RECORD:
-            if globals.CNT % globals.M == 0:
-                robot.path.append(robot.position.__dict__)
+        # if globals.DO_RECORD:
+        # if globals.CNT % globals.M == 0:
+        #     robot.path.append(robot.position.__dict__)
 
         if collided:
             #! sometimes a lot of robot that are not even in the same area collide in the same time
