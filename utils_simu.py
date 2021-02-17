@@ -9,6 +9,7 @@ from roboty import PointOfInterest
 from time import sleep
 import json
 import os
+from random import randint
 import globals
 
 WHITE = (255, 255, 255)
@@ -60,24 +61,32 @@ class Visualizator:
 
     def pygame_event_manager(self, events):
         for event in events:
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == LEFT_CLICK:
                     poi_type = 2
                 else:
                     poi_type = 3
 
                 pos = pygame.mouse.get_pos()
-                x, y = self.unscale(pos[0], pos[1])
 
-                index = len(globals.POIs)
-                globals.POIs.append(PointOfInterest(
-                    Position(x, y), 5000, poi_type, 10))
+                #! This will fail if out of boundaries
+                # TODO make sure it stays in boundaries
+                n = randint(1, 50)
+                for _ in range(n):
+                    x = randint(pos[0] - 100, pos[0] + 100)
+                    y = randint(pos[1] - 100, pos[1] + 100)
 
-                x = int(x * 100) + int(globals.W * 100/2)
-                y = int(y * 100) + int(globals.H * 100/2)
+                    index = len(globals.POIs)
+                    x, y = self.unscale(x, y)
+                    globals.POIs.append(PointOfInterest(
+                        Position(x, y), 5000, poi_type, 10))
 
-                globals.PHEROMONES_MAP[x][y] = PointOfInterest(
-                    Position(x, y), 5000, poi_type, 10, index)
+                    # ? why did I divide by two ..aaaa
+                    x_scaled = int(x * 100) + int(globals.W * 100/2)
+                    y_scaled = int(y * 100) + int(globals.H * 100/2)
+
+                    globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
+                        Position(x, y), 5000, poi_type, 10, index)
 
             elif event.type == QUIT:
                 pygame.quit()

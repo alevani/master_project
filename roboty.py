@@ -432,8 +432,7 @@ class Robot:
 
     # Navigation controller
     def step(self, robot_prox_sensors_values):
-        self.prox_sensors_state = self.calculate_proximity_sensors_state(
-            robot_prox_sensors_values)
+        self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
         if self.has_destination:
             self.goto(self.destination, robot_prox_sensors_values)

@@ -210,6 +210,7 @@ for x in range(int(globals.W * 100)):
         inner.append(0)
     globals.PHEROMONES_MAP.append(inner)
 
+
 # Contains robot's pheromone (if used)
 # PHEROMONES_PATH = []
 
@@ -290,6 +291,7 @@ while True:
         #! I will assess the efficiency of the model with the constraint I have, and propose maybe some improvmenet. I have to asses the efficiency with the Lemmas and theroem the group wrote.
         #! they made assumption that I need to verify and discuss
 
+        # ? early measurments: if one task can be set to an equilibrium, then all other task will be servred .. because when eq. reached, the robot are reassigned
         #! improvement: Every n step, re assign every robot with the current world state -> my take is that the distribution is going to be better
         #! maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
 
