@@ -20,10 +20,10 @@ CoreWorker = 4
 
 
 class Nest:
-    def __init__(self, resources, NestMaintenance, broodCare):
+    def __init__(self, resources, maintenance, brood_care):
         self.resources = resources
-        self.NestMaintenance = NestMaintenance
-        self.broodCare = broodCare
+        self.maintenance = maintenance
+        self.brood_care = brood_care
 
 
 class Area:

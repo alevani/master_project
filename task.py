@@ -68,7 +68,7 @@ class TaskHandler:
             self.nest.resources -= randint(0, 3)
 
         if globals.CNT % 50 == 0:
-            self.nest.NestMaintenance -= randint(0, 10)
+            self.nest.maintenance -= randint(0, 10)
 
         if globals.CNT % 50 == 0:
             self.nest.brood_care -= randint(0, 10)
@@ -76,7 +76,7 @@ class TaskHandler:
     def print_stats(self):
         print("******* NEST *******")
         print("Resources: ", self.nest.resources)
-        print("Nest Maintenance: ", self.nest.NestMaintenance)
+        print("Nest Maintenance: ", self.nest.maintenance)
         print("Brood Care: ", self.nest.brood_care)
 
     # such as ..
@@ -112,7 +112,7 @@ def demand(task):
         # print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
         return 0
     elif task == 2:
-        return globals.NEST.NestMaintenance * -1
+        return globals.NEST.maintenance * -1
     elif task == 3:
         return globals.NEST.brood_care * -1
     # ask the task handler for task information

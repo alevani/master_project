@@ -337,7 +337,7 @@ while True:
                         robot.destination = None
                         robot.has_destination = False
                         if globals.CNT % 50 == 0:
-                            globals.NEST.nest_maintenance += randint(0, 3)
+                            globals.NEST.maintenance += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_HOME
                         robot.has_destination = True
