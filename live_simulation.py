@@ -293,7 +293,8 @@ while True:
 
         # ? early measurments: if one task can be set to an equilibrium, then all other task will be servred .. because when eq. reached, the robot are reassigned
         #! improvement: Every n step, re assign every robot with the current world state -> my take is that the distribution is going to be better
-        #! maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
+        #! - maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
+        #! - maybe the gordon idea with the map could be tested as improvement
 
         #! sometimes two robot decide to couple up to rush against a wall leading to a collision, how fun?
         #! sometimes, due to how crappy my code is, a robot bouce back behind WALL and then throw out an error.
@@ -305,21 +306,20 @@ while True:
         #! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
 
         #! sometimes a robot end up wandering around even though it has a resource .. ? is the resource real? or has it been dropped and the point is just still visible .. ?
+
+        #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
-            if not robot.has_to_work:
-                # if the robot was carrying a resource, drop it
+            if not robot.has_to_work():
                 if not robot.has_destination:
                     if robot.carry_resource:
                         robot.drop_resource()
-
-                    # set the robot's destination to its charging area
-                    robot.last_foraging_point = None
-                    robot.destination = robot.start_position
-                    robot.has_destination = True
+                    robot.go_home()
             # the robot has to be active
             else:
-                if robot.task == foraging:
+                if robot.task == idle:
+                    robot.go_home()
+                elif robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
                     if area_type == TYPE_HOME and robot.carry_resource:
                         robot.compute_resource()

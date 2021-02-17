@@ -134,12 +134,12 @@ class Robot:
         self.last_foraging_point = self.position
         self.carry_resource = True
         self.payload = POI
-        try:
-            globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
-        except:
-            import sys
-            print(POI.position.x, POI.position.y)
-            sys.exit()
+        globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+        # try:
+        # except:
+        #     import sys
+        #     print(POI.position.x, POI.position.y)
+        #     sys.exit()
 
     def drop_resource(self):
         self.carry_resource = False
@@ -198,6 +198,12 @@ class Robot:
             pos.x = point.x
             pos.y = point.y
 
+    def go_home(self):
+        # set the robot's destination to its charging area
+        self.last_foraging_point = None
+        self.destination = self.start_position
+        self.has_destination = True
+
     def rotate_bottom_sensors(self, x, y, a):
         for pos in self.bottom_sensors:
             point = rotate(Point(pos.x, pos.y), a,
@@ -217,7 +223,7 @@ class Robot:
             pos.y = pos.y + y
 
     def has_to_work(self):
-        self.state == CoreWorker or self.state == TempWorker
+        return self.state == CoreWorker or self.state == TempWorker
 
     def get_area_type(self, areas):
         box_left = Point(
