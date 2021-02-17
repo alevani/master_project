@@ -135,11 +135,6 @@ class Robot:
         self.carry_resource = True
         self.payload = POI
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
-        # try:
-        # except:
-        #     import sys
-        #     print(POI.position.x, POI.position.y)
-        #     sys.exit()
 
     def drop_resource(self):
         self.carry_resource = False

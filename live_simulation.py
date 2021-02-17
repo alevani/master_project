@@ -76,6 +76,8 @@ import sys
 #! - maybe the gordon idea with the map could be tested as improvement
 #! the paper proposes initial condition (such as no mouvement in task needs for a define amount of time) -> maybe I could propose stress test to relate to real life condition
 #! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
+
+#! if necessary .. instead of hiding the POIs I could build a system that rewrite the list and the indexes. I don't know yet if this would improve performences
 ########
 
 ### GLOBALS ###################################################################
@@ -106,7 +108,6 @@ PROXIMITY_SENSORS_POSITION = [
 ]
 
 # PYGAME
-globals.DO_RECORD = True
 if globals.DO_RECORD:
     FILE = open("points.json", "w")
 else:
@@ -153,7 +154,6 @@ TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
 globals.NEST = Nest(-30, -30, -30)
-TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
@@ -221,6 +221,7 @@ globals.ROBOTS.append(R12)
 globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
+TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS, len(globals.ROBOTS))
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(globals.W * 100)):
@@ -410,7 +411,8 @@ while True:
     VISUALIZER.pygame_event_manager(pygame.event.get())
     VISUALIZER.draw_poi(globals.POIs)
 
-    decay_check()
+    # ? I don't think that the decay is fully necessary. if it is not, then delete and re assess the need of making POIs invisible instead of deleting
+    # decay_check()
     # World wise
     if globals.DO_RECORD:
         if globals.CNT % globals.M == 0:
@@ -431,8 +433,21 @@ while True:
 
         # TODO will be used later for stats
         # print to csv file
-        # for i in range(5):
-        #     print(globals.CNT+";"+assigned(i))
+        txt = str(globals.CNT)+";"
+        for i in range(len(TASKS)):
+            txt += assigned(i) + ";"
+            if i == foraging:
+                txt += str(globals.NEST.resources)
+            elif i == idle:
+                txt += "0"
+            elif i == nest_maintenance:
+                txt += str(globals.NEST.maintenance)
+            elif i == brood_care:
+                txt += str(globals.NEST.brood_care)
+            else:
+                print("oaihdauhdawudadi")
+
+        print(txt)
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

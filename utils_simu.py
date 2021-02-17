@@ -76,7 +76,7 @@ class Visualizator:
                     x, y = self.unscale(x, y)
 
                     globals.POIs.append(PointOfInterest(
-                        Position(x, y), 5000, 2, 10))
+                        Position(x, y), 15000, 2, 10))
 
                     # ? why did I divide by two ..aaaa
                     x_scaled = int(x * 100) + int(globals.W * 100/2)
