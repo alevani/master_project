@@ -89,7 +89,7 @@ class Robot:
 
         self.position = position
         self.update_bottom_sensor_position(position.x, position.y)
-        self.rotate_bottom_sensor(
+        self.rotate_bottom_sensors(
             position.x, position.y, position.theta - math.radians(90))
 
         self.update_proximity_sensor_position(position.x, position.y,
@@ -193,7 +193,7 @@ class Robot:
             pos.x = point.x
             pos.y = point.y
 
-    def rotate_bottom_sensor(self, x, y, a):
+    def rotate_bottom_sensors(self, x, y, a):
         for pos in self.bottom_sensors:
             point = rotate(Point(pos.x, pos.y), a,
                            (x, y), use_radians=True)
@@ -225,7 +225,7 @@ class Robot:
                 return area.type
         return 0
 
-    def get_proximity_sensor_state(self, sensors_values):
+    def calculate_proximity_sensors_state(self, sensors_values):
         top = sensors_values[1]
         left_most = sensors_values[0]
         right_most = sensors_values[2]
@@ -233,7 +233,8 @@ class Robot:
         top_value = 1 if top < self.obstacle_detection_range else 0
         left_most_value = 1 if left_most < self.obstacle_detection_range else 0
         right_most_value = 1 if right_most < self.obstacle_detection_range else 0
-        return (left_most_value, top_value, right_most_value)
+        self.prox_sensors_state = (
+            left_most_value, top_value, right_most_value)
 
     def create_rays(self, W, H):
         rays = []
@@ -273,7 +274,7 @@ class Robot:
 
         self.update_bottom_sensor_position(
             x - self.position.x, y - self.position.y)
-        self.rotate_bottom_sensor(x, y, theta-self.position.theta)
+        self.rotate_bottom_sensors(x, y, theta-self.position.theta)
 
         self.update_position(Position(x, y, theta))
 
@@ -284,7 +285,7 @@ class Robot:
             self.is_avoiding_cnt = 0
             self.is_avoiding = False
 
-    def get_bottom_sensor_states(self, pheromones_map):
+    def get_bottom_sensors_state(self, pheromones_map):
         left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
         left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
 
@@ -428,3 +429,33 @@ class Robot:
             else:
                 self.has_destination = False
                 self.destination = None
+
+    # Navigation controller
+    def navigate(self, robot_prox_sensors_values):
+        self.prox_sensors_state = self.calculate_proximity_sensors_state(
+            robot_prox_sensors_values)
+
+        if self.has_destination:
+            self.goto(self.destination, robot_prox_sensors_values)
+        else:
+            if self.is_avoiding:
+                self.avoid()
+            else:
+                # Wall / Robot avoidance under no goal
+                if self.prox_sensors_state == (0, 1, 0):
+                    if randint(0, 1):
+                        self.turn_left()
+                    else:
+                        self.turn_right()
+                elif self.prox_sensors_state == (1, 0, 0) or self.prox_sensors_state == (1, 1, 0):
+                    self.turn_left()
+                elif self.prox_sensors_state == (0, 0, 1) or self.prox_sensors_state == (0, 1, 1):
+                    self.turn_right()
+                elif self.prox_sensors_state == (1, 0, 1) or self.prox_sensors_state == (1, 1, 1):
+                    self.is_avoiding = True
+                    self.NB_STEP_TO_AVOID = 7
+                else:
+                    if not self.battery_low:
+                        self.wander()
+
+        self.simulationstep()

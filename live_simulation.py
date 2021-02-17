@@ -133,9 +133,6 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
-TYPE_HOME = 1
-TYPE_CHARGING_AREA = 2
-TYPE_BROOD_CHAMBER = 3
 globals.NEST = Nest(-30, -30, -30)
 TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
 #############################################################################
@@ -223,6 +220,10 @@ globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 4, -H/2 + 1.6)
 
 # Areas
 AREAS = []
+TYPE_NEUTRAL = 0
+TYPE_HOME = 1
+TYPE_CHARGING_AREA = 2
+TYPE_BROOD_CHAMBER = 3
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
 brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
                      3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
@@ -271,11 +272,8 @@ while True:
         robot_prox_sensors_values = get_proximity_sensors_values(
             robot_rays, robot)
 
-        robot_bottom_sensor_states, pointOfInterest = robot.get_bottom_sensor_states(
+        robot_bottom_sensor_states, pointOfInterest = robot.get_bottom_sensors_state(
             globals.PHEROMONES_MAP)
-
-        robot_prox_sensors_state = robot.get_proximity_sensor_state(
-            robot_prox_sensors_values)
 
         TaskHandler.assign_task(robot)
         robot.stop()
@@ -329,11 +327,18 @@ while True:
                     elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2) or robot_bottom_sensor_states == (1, 2) or robot_bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
                         robot.pickup_resource(pointOfInterest)
 
+                    # # Avoid the robot to go into area that will not receive drop of resources
+                    #! not working, not important now.
+                    # elif not TYPE_NEUTRAL:
+                    #     robot.has_destination = True
+                    #     robot.destination = Position(0, 0)
+                    # else:
+                    #     robot.has_destination = False
+                    #     robot.destination = None
+
                 elif robot.task == nest_maintenance:
                     # "for some time spent in the nest, increment the resource"
                     if area_type == TYPE_HOME:
-                        #! I am not liking that too much, seems a bit sketchy
-                        #! keep the robot in the area but ........... energvor?
                         robot.destination = None
                         robot.has_destination = False
                         if globals.CNT % 50 == 0:
@@ -344,8 +349,6 @@ while True:
 
                 elif robot.task == brood_care:
                     if area_type == TYPE_BROOD_CHAMBER:
-                        #! I am not liking that too much, seems a bit sketchy
-                        #! keep the robot in the area but ........... energvor?
                         robot.destination = None
                         robot.has_destination = False
                         if globals.CNT % 50 == 0:
@@ -370,32 +373,7 @@ while True:
                         robot.destination = None
                         robot.has_destination = False
 
-        #! could be in a separate file .. useful?
-        # Navigation controller
-        if robot.has_destination:
-            robot.goto(robot.destination, robot_prox_sensors_values)
-        else:
-            if robot.is_avoiding:
-                robot.avoid()
-            else:
-                # Wall / Robot avoidance under no goal
-                if robot_prox_sensors_state == (0, 1, 0):
-                    if randint(0, 1):
-                        robot.turn_left()
-                    else:
-                        robot.turn_right()
-                elif robot_prox_sensors_state == (1, 0, 0) or robot_prox_sensors_state == (1, 1, 0):
-                    robot.turn_left()
-                elif robot_prox_sensors_state == (0, 0, 1) or robot_prox_sensors_state == (0, 1, 1):
-                    robot.turn_right()
-                elif robot_prox_sensors_state == (1, 0, 1) or robot_prox_sensors_state == (1, 1, 1):
-                    robot.is_avoiding = True
-                    robot.NB_STEP_TO_AVOID = 7
-                else:
-                    if not robot.battery_low:
-                        robot.wander()
-
-        robot.simulationstep()
+        robot.navigate(robot_prox_sensors_values)
 
         # if the robot carries a resource, update the resource's position according to the robot's movement
         if robot.carry_resource:
@@ -411,7 +389,7 @@ while True:
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
         VISUALIZER.draw(robot.position, robot.color, globals.CNT,
-                        robot.path, collision_box, robot_prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
+                        robot.path, collision_box, robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
         # if robot.trail:
         # PHEROMONES_PATH.append(
