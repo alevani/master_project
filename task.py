@@ -26,6 +26,7 @@ class TaskHandler:
                     self.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
                     self.TASKS_Q[i] = min(self.TASKS_Q[i] + 1, 3)
+                    # self.TASKS_Q[i] = max(self.TASKS_Q[i] + 1, 3)
                 if self.TASKS_Q[i] == 3:
                     candidate.append(task)
 
@@ -133,7 +134,10 @@ def energy(task, robot):
     # As of now.. the energy is 1. Meaning that each robot can perform anytask as good as any other
 
     #! but the energy will depend of the task
-    return 1
+    if not robot.state == 0:  # 0 is resting
+        return 1
+    else:
+        return 0
 
 
 # # Return the number of ant assigned to a task "task" at time "step"
