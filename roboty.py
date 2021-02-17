@@ -113,6 +113,9 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
+    def in_range(self, position):
+        return True if distance(position, self.position.x, self.position.y) <= 0.12 else False
+
     def rest(self):
         self.destination = None
         self.has_destination = False
