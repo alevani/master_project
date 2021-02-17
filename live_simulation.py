@@ -26,7 +26,7 @@ import math
 import sys
 
 # IDEAS
-# ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same.
+# ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same. just talk about it at some point .. it is part of the constraint
 # ? Thesis: Maybe it's going to be important to retrace the step of the simulation development?
 # ? i don't think so. But maybe about the speed and the improvement?
 #! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
@@ -57,9 +57,6 @@ import sys
 
 #! there is like .. one bug where .. the robot kept going to the nest to the last foraging point ..
 #! even though no resrouces was there .. couldn't reproduce .. ¯\_(ツ)_/¯
-
-#! todo .. faire un test avec un robot qui fonce contre le mur (parce que sa dest est plus loin), voir
-#! comment il réagit.
 ########
 
 ### GLOBALS ###################################################################
@@ -293,6 +290,18 @@ while True:
         has_to_work = robot.state == CoreWorker or robot.state == TempWorker
 
         # TASK CONTROLLER #
+        #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
+        #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
+        #! I imagine it is going to be interesting to asses how many robot it needs for a set of task to be at an equilibrium
+        #! how do I simulate the degradation of resources? maybe as a function of the number of ants + number of ants working to a task?
+        #! maybe like .. the more ants there is at broodcaring the quicker the resources will disapear?
+        #! could be nice to have something to save a state .. ? and then load back the state for study
+
+        #! I will assess the efficiency of the model with the constraint I have, and propose maybe some improvmenet. I have to asses the efficiency with the Lemmas and theroem the group wrote.
+        #! they made assumption that I need to verify and discuss
+
+        #! improvement: Every n step, re assign every robot with the current world state -> my take is that the distribution is going to be better
+        #! maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
 
         #! sometimes two robot decide to couple up to rush against a wall leading to a collision, how fun?
         #! sometimes, due to how crappy my code is, a robot bouce back behind WALL and then throw out an error.
@@ -302,6 +311,8 @@ while True:
         # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase
 
         #! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
+
+        #! sometimes a robot end up wandering around even though it has a resource .. ? is the resource real? or has it been dropped and the point is just still visible .. ?
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
             if not has_to_work:
@@ -316,7 +327,6 @@ while True:
                     robot.goto_objective_reached = False
             # the robot has to be active
             else:
-                #! en general, if I have a destination, I should not try to forage or so
                 if robot.task == Foraging:
                     # if I arrived home and I do carry a resource, unload it.
                     if area_type == TYPE_HOME and robot.carry_resource:
@@ -333,7 +343,7 @@ while True:
                         #! keep the robot in the area but ........... energvor?
                         robot.destination = None
                         robot.goto_objective_reached = True
-                        if globals.CNT % 100 == 0:
+                        if globals.CNT % 50 == 0:
                             globals.NEST.NestMaintenance += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_HOME
@@ -345,27 +355,27 @@ while True:
                         #! keep the robot in the area but ........... energvor?
                         robot.destination = None
                         robot.goto_objective_reached = True
-                        if globals.CNT % 100 == 0:
+                        if globals.CNT % 50 == 0:
                             globals.NEST.broodCare += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_BROOD_CHAMBER
                         robot.goto_objective_reached = False
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
-        if (area_type == TYPE_CHARGING_AREA and robot.destination == robot.start_position) or robot.battery_low:
+        if area_type == TYPE_CHARGING_AREA:
+            if robot.destination == robot.start_position or robot.battery_low:
+                # charge its battery level up to 100
+                if globals.CNT % 5 == 0 and robot.battery_level < 100:
+                    robot.battery_level += 2
 
-            # charge its battery level up to 100
-            if globals.CNT % 5 == 0 and robot.battery_level < 100:
-                robot.battery_level += 2
-
-            if robot.battery_level >= 100:
-                # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
-                robot.battery_low = False
-                if robot.carry_resource:
-                    robot.destination = globals.MARKER_HOME
-                else:
-                    robot.destination = None
-                    robot.goto_objective_reached = True
+                if robot.battery_level >= 100:
+                    # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
+                    robot.battery_low = False
+                    if robot.carry_resource:
+                        robot.destination = globals.MARKER_HOME
+                    else:
+                        robot.destination = None
+                        robot.goto_objective_reached = True
 
         #! could be in a separate file .. useful?
         # Navigation controller
