@@ -72,12 +72,15 @@ class Visualizator:
                 #! This will fail if out of boundaries
                 # TODO make sure it stays in boundaries
                 n = randint(1, 50)
+                print(pos[0], pos[1])
                 for _ in range(n):
                     x = randint(pos[0] - 100, pos[0] + 100)
                     y = randint(pos[1] - 100, pos[1] + 100)
-
+                    print(x, y)
                     index = len(globals.POIs)
                     x, y = self.unscale(x, y)
+
+                    print(x, y)
                     globals.POIs.append(PointOfInterest(
                         Position(x, y), 5000, poi_type, 10))
 
@@ -87,6 +90,8 @@ class Visualizator:
 
                     globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
                         Position(x, y), 5000, poi_type, 10, index)
+                import sys
+                sys.exit()
 
             elif event.type == QUIT:
                 pygame.quit()

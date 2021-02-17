@@ -64,14 +64,15 @@ class TaskHandler:
         robot.color = self.COLORS[robot.task]
 
     def simulationstep(self):
-        if globals.CNT % 100 == 0:
-            self.nest.resources -= randint(0, 3)
+        # if globals.CNT % 100 == 0:
+        #     self.nest.resources -= randint(0, 3)
 
-        if globals.CNT % 50 == 0:
-            self.nest.maintenance -= randint(0, 10)
+        # if globals.CNT % 50 == 0:
+        #     self.nest.maintenance -= randint(0, 10)
 
-        if globals.CNT % 50 == 0:
-            self.nest.brood_care -= randint(0, 10)
+        # if globals.CNT % 50 == 0:
+        #     self.nest.brood_care -= randint(0, 10)
+        pass
 
     def print_stats(self):
         print("******* NEST *******")
