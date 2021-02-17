@@ -101,7 +101,7 @@ fpsClock = pygame.time.Clock()
 ###############################################################################
 
 ### Task allocation #########################################################
-Resting = 0
+resting = 0
 FirstReserve = 1
 SecondReserve = 2
 TempWorker = 3
@@ -117,10 +117,10 @@ TASKS_Q = []
 TASKS = []
 
 # A task is a tuple of its energy and a task object
-Idle = 0
-Foraging = 1
+idle = 0
+foraging = 1
 NestMaintenance = 2
-BroodCare = 3
+brood_care = 3
 Patrolling = 4
 
 TASKS_NAME = ['Idle', 'Foraging',
@@ -129,12 +129,12 @@ TASKS_NAME = ['Idle', 'Foraging',
 TASKS_Q.append(0)  # Idle
 TASKS_Q.append(0)  # Foraging
 TASKS_Q.append(0)  # Nest maintenance
-TASKS_Q.append(0)  # BroodCare
+TASKS_Q.append(0)  # brood_care
 # TASKS_Q.append([0, Patrolling])
-TASKS.append(Idle)
-TASKS.append(Foraging)
+TASKS.append(idle)
+TASKS.append(foraging)
 TASKS.append(NestMaintenance)
-TASKS.append(BroodCare)
+TASKS.append(brood_care)
 # TASKS.append(Patrolling)
 
 TYPE_HOME = 1
@@ -150,49 +150,49 @@ BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.1, math.radians(
-    0)), BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+    0)), BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.1, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.1, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.1, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.1, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.1, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.1, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.1, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, Idle, Resting, BASE_BATTERY_LEVEL)
+            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
 globals.ROBOTS.append(R2)
@@ -324,7 +324,7 @@ while True:
                     robot.has_destination = True
             # the robot has to be active
             else:
-                if robot.task == Foraging:
+                if robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
                     if area_type == TYPE_HOME and robot.carry_resource:
                         robot.compute_resource()
@@ -346,14 +346,14 @@ while True:
                         robot.destination = globals.MARKER_HOME
                         robot.has_destination = True
 
-                elif robot.task == BroodCare:
+                elif robot.task == brood_care:
                     if area_type == TYPE_BROOD_CHAMBER:
                         #! I am not liking that too much, seems a bit sketchy
                         #! keep the robot in the area but ........... energvor?
                         robot.destination = None
                         robot.has_destination = False
                         if globals.CNT % 50 == 0:
-                            globals.NEST.broodCare += randint(0, 3)
+                            globals.NEST.brood_care += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_BROOD_CHAMBER
                         robot.has_destination = True

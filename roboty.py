@@ -12,6 +12,11 @@ import shapely
 import math
 
 OUT_RANGE = 10000
+Resting = 0
+FirstReserve = 1
+SecondReserve = 2
+TempWorker = 3
+CoreWorker = 4
 
 
 class Nest:
@@ -80,7 +85,7 @@ class Robot:
         self.R = R
         self.L = L
         self.payload = None
-        self.goto_objective_reached = True
+        self.has_destination = False
 
         self.position = position
         self.update_bottom_sensor_position(position.x, position.y)
@@ -110,7 +115,7 @@ class Robot:
 
     def rest(self):
         self.destination = None
-        self.goto_objective_reached = True
+        self.has_destination = False
         if self.carry_resource:
             self.drop_resource()
 
@@ -124,7 +129,7 @@ class Robot:
         self.update_collision_box(position)
 
     def pickup_resource(self, POI):
-        self.goto_objective_reached = False
+        self.has_destination = True
         self.destination = globals.MARKER_HOME
         self.last_foraging_point = self.position
         self.carry_resource = True
@@ -206,7 +211,10 @@ class Robot:
             pos.x = pos.x + x
             pos.y = pos.y + y
 
-    def area_type(self, areas):
+    def has_to_work(self):
+        self.state == CoreWorker or self.state == TempWorker
+
+    def get_area_type(self, areas):
         box_left = Point(
             self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.01)
         box_right = Point(
@@ -418,5 +426,5 @@ class Robot:
                 self.forward(left_speed, right_speed)
 
             else:
-                self.goto_objective_reached = True
+                self.has_destination = False
                 self.destination = None

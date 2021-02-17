@@ -12,14 +12,14 @@ class TaskHandler:
         self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
                        (0, 0, 255), (125, 125, 125)]
 
-        self.Resting = 0
-        self.FirstReserve = 1
-        self.SecondReserve = 2
-        self.TempWorker = 3
-        self.CoreWorker = 4
+        self.resting = 0
+        self.first_reserve = 1
+        self.second_reserve = 2
+        self.temp_worker = 3
+        self.core_worker = 4
 
     def assign_task(self, robot):
-        if robot.state == self.Resting:
+        if robot.state == self.resting:
             candidate = []
             for i, task in enumerate(self.TASKS):
                 if feedback(task) < 0:  # Task is in energy surplus
@@ -37,29 +37,29 @@ class TaskHandler:
                     robot.task = candidate[randint(0, len(candidate)-1)]
                     # when the robot get attributed a new task, let's make sure there's no mixup with the current state
                     robot.rest()
-                    robot.state = self.TempWorker
-        elif robot.state == self.FirstReserve:
+                    robot.state = self.temp_worker
+        elif robot.state == self.first_reserve:
             if feedback(robot.task) < 0:
-                robot.state = self.Resting
+                robot.state = self.resting
                 robot.rest()
             elif randint(0, 1):
-                robot.state = self.TempWorker
+                robot.state = self.temp_worker
             else:
-                robot.state = self.SecondReserve
-        elif robot.state == self.SecondReserve:
+                robot.state = self.second_reserve
+        elif robot.state == self.second_reserve:
             if feedback(robot.task) < 0:
-                robot.state = self.Resting
+                robot.state = self.resting
                 robot.rest()
             else:
-                robot.state = self.TempWorker
-        elif robot.state == self.TempWorker:
+                robot.state = self.temp_worker
+        elif robot.state == self.temp_worker:
             if feedback(robot.task) < 0:
-                robot.state = self.FirstReserve
+                robot.state = self.first_reserve
             else:
-                robot.state = self.CoreWorker
-        elif robot.state == self.CoreWorker:
+                robot.state = self.core_worker
+        elif robot.state == self.core_worker:
             if feedback(robot.task) < 0:
-                robot.state = self.TempWorker
+                robot.state = self.temp_worker
 
         robot.color = self.COLORS[robot.task]
 
@@ -71,13 +71,13 @@ class TaskHandler:
             self.nest.NestMaintenance -= randint(0, 10)
 
         if globals.CNT % 50 == 0:
-            self.nest.broodCare -= randint(0, 10)
+            self.nest.brood_care -= randint(0, 10)
 
     def print_stats(self):
         print("******* NEST *******")
         print("Resources: ", self.nest.resources)
         print("Nest Maintenance: ", self.nest.NestMaintenance)
-        print("Brood Care: ", self.nest.broodCare)
+        print("Brood Care: ", self.nest.brood_care)
 
     # such as ..
     def get_hunger_level(self):
@@ -114,7 +114,7 @@ def demand(task):
     elif task == 2:
         return globals.NEST.NestMaintenance * -1
     elif task == 3:
-        return globals.NEST.broodCare * -1
+        return globals.NEST.brood_care * -1
     # ask the task handler for task information
     pass
 
