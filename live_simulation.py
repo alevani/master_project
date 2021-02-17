@@ -304,13 +304,11 @@ while True:
         area_type = robot.get_area_type(AREAS)
 
         #! I have witnessed something unusual ... the robots were all in the chargin area and they could not get out of it .. like if I had implemented them to stay in but no :|
-        # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area, but maybe not the greatest
-        # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase
+        # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area
+        # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase -> no.
 
-        #! sometimes a robot end up wandering around even though it has a resource .. ? is the resource real? or has it been dropped and the point is just still visible .. ?
         #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
 
-        # TODO les faire sortir du nid quand ils doivent aller forage
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
             if not robot.has_to_work():
@@ -328,17 +326,8 @@ while True:
                         robot.compute_resource()
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
-                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2) or robot_bottom_sensor_states == (1, 2) or robot_bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
+                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False:
                         robot.pickup_resource(pointOfInterest)
-
-                    # # Avoid the robot to go into area that will not receive drop of resources
-                    #! not working, not important now.
-                    # elif not TYPE_NEUTRAL:
-                    #     robot.has_destination = True
-                    #     robot.destination = Position(0, 0)
-                    # else:
-                    #     robot.has_destination = False
-                    #     robot.destination = None
 
                 elif robot.task == nest_maintenance:
                     # "for some time spent in the nest, increment the resource"

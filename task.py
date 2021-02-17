@@ -138,6 +138,8 @@ def energy(task, robot):
     #! but the energy will depend of the task
     #! what does "engaged means .. because if the robot is in second worker or so it will not work .."
     # ? maybe .. if the robots know about any last foraging point .. then maybe the energy it can supply is greater?
+    #! or .. if you already are on the area for the task .. maybe increase?
+    #! based on gordon as well
     if robot.has_to_work and robot.task == task:  # 0 is resting
         return 1
     else:
