@@ -5,13 +5,14 @@ from random import randint
 
 
 class TaskHandler:
-    def __init__(self, nest, TASKS_Q, TASKS):
+    def __init__(self, nest, TASKS_Q, TASKS, colony_size):
         self.nest = nest
         self.TASKS = TASKS
         self.TASKS_Q = TASKS_Q
         self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
                        (0, 0, 255), (125, 125, 125)]
 
+        self.colony_size = colony_size
         self.resting = 0
         self.first_reserve = 1
         self.second_reserve = 2
@@ -65,8 +66,9 @@ class TaskHandler:
         robot.color = self.COLORS[robot.task]
 
     def simulationstep(self):
-        if globals.CNT % 100 == 0:
-            self.nest.resources -= randint(0, 3)
+        if globals.CNT % 300 == 0:
+            # every N steps, every ant has a likelyhood of 1/2 of increasing its hunger level from 1
+            self.nest.resources -= randint(0, self.colony_size)
 
         if globals.CNT % 50 == 0:
             self.nest.maintenance -= randint(0, 10)
@@ -135,6 +137,7 @@ def energy(task, robot):
 
     #! but the energy will depend of the task
     #! what does "engaged means .. because if the robot is in second worker or so it will not work .."
+    # ? maybe .. if the robots know about any last foraging point .. then maybe the energy it can supply is greater?
     if robot.has_to_work and robot.task == task:  # 0 is resting
         return 1
     else:

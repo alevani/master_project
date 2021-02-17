@@ -98,6 +98,7 @@ class Visualizator:
                                     pause = False
 
                 elif event.key == pygame.K_q:
+                    globals.CSV_FILE.close()
                     if globals.DO_RECORD:
                         self.FILE.write(json.dumps([globals.CNT, globals.M]))
                         self.FILE.write("\n"+json.dumps(globals.DRAW_POIS))

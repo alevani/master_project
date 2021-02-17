@@ -19,5 +19,7 @@ NEST = None
 DO_RECORD = False
 PHEROMONES_MAP = [[]]
 
+CSV_FILE = None
+
 MARKER_HOME = None
 MARKER_BROOD_CHAMBER = None

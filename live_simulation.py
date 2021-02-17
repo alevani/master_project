@@ -113,6 +113,8 @@ if globals.DO_RECORD:
 else:
     FILE = None
 
+globals.CSV_FILE = open("stats.csv", "w")
+
 DECAY = 750
 VISUALIZER = Visualizator(W, H, DECAY, FILE)
 pygame.init()
@@ -307,6 +309,8 @@ while True:
 
         #! sometimes a robot end up wandering around even though it has a resource .. ? is the resource real? or has it been dropped and the point is just still visible .. ?
         #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
+
+        # TODO les faire sortir du nid quand ils doivent aller forage
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
             if not robot.has_to_work():
@@ -431,23 +435,20 @@ while True:
         print("Q")
         print(TASKS_Q)
 
-        # TODO will be used later for stats
         # print to csv file
+        # TODO could be nice to also print each robot task and state to see oscillation ?
         txt = str(globals.CNT)+";"
         for i in range(len(TASKS)):
             txt += assigned(i) + ";"
             if i == foraging:
-                txt += str(globals.NEST.resources)
+                txt += str(globals.NEST.resources * -1)+";"
             elif i == idle:
-                txt += "0"
+                txt += "0;"
             elif i == nest_maintenance:
-                txt += str(globals.NEST.maintenance)
+                txt += str(globals.NEST.maintenance * -1)+";"
             elif i == brood_care:
-                txt += str(globals.NEST.brood_care)
-            else:
-                print("oaihdauhdawudadi")
-
-        print(txt)
+                txt += str(globals.NEST.brood_care * -1)
+        globals.CSV_FILE.write(txt+"\n")
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)
