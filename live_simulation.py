@@ -280,7 +280,6 @@ while True:
 
         area_type = robot.get_area_type(AREAS)
 
-        # TASK CONTROLLER #
         #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
         #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
         #! I imagine it is going to be interesting to asses how many robot it needs for a set of task to be at an equilibrium
@@ -373,27 +372,17 @@ while True:
                         robot.destination = None
                         robot.has_destination = False
 
-        robot.navigate(robot_prox_sensors_values)
-
-        # if the robot carries a resource, update the resource's position according to the robot's movement
-        if robot.carry_resource:
-            globals.POIs[robot.payload.index].position.x = robot.position.x
-            globals.POIs[robot.payload.index].position.y = robot.position.y
+        robot.step(robot_prox_sensors_values)
         # ###################################
 
         # check collision with arena walls
         collided = robot.is_colliding(WORLD)
-        collision_box = robot.get_collision_box_coordinate()
 
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
         VISUALIZER.draw(robot.position, robot.color, globals.CNT,
-                        robot.path, collision_box, robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
-
-        # if robot.trail:
-        # PHEROMONES_PATH.append(
-        #     PointOfInterest(robot.position, DECAY, None))
+                        robot.path, robot.get_collision_box_coordinate(), robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
         if globals.CNT % 100 == 0 and not area_type == TYPE_CHARGING_AREA:
@@ -416,6 +405,7 @@ while True:
             #! I need to figure out why.
             print("Robot {} collided, position reseted".format(robot.number))
             robot.reset()
+
     # sleep(0.2)
     VISUALIZER.pygame_event_manager(pygame.event.get())
     VISUALIZER.draw_poi(globals.POIs)

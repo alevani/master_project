@@ -431,7 +431,7 @@ class Robot:
                 self.destination = None
 
     # Navigation controller
-    def navigate(self, robot_prox_sensors_values):
+    def step(self, robot_prox_sensors_values):
         self.prox_sensors_state = self.calculate_proximity_sensors_state(
             robot_prox_sensors_values)
 
@@ -459,3 +459,8 @@ class Robot:
                         self.wander()
 
         self.simulationstep()
+
+        # if the robot carries a resource, update the resource's position according to the robot's movement
+        if self.carry_resource:
+            globals.POIs[self.payload.index].position.x = self.position.x
+            globals.POIs[self.payload.index].position.y = self.position.y
