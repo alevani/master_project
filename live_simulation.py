@@ -102,11 +102,6 @@ fpsClock = pygame.time.Clock()
 
 ### Task allocation #########################################################
 resting = 0
-FirstReserve = 1
-SecondReserve = 2
-TempWorker = 3
-CoreWorker = 4
-
 STATES_NAME = ['Resting', 'First reserve',
                'Second reserve', 'Temporary worker', 'Core worker']
 
@@ -119,9 +114,9 @@ TASKS = []
 # A task is a tuple of its energy and a task object
 idle = 0
 foraging = 1
-NestMaintenance = 2
+nest_maintenance = 2
 brood_care = 3
-Patrolling = 4
+patrolling = 4
 
 TASKS_NAME = ['Idle', 'Foraging',
               'Nest maintenance', 'Brood care', 'Patrolling']
@@ -129,13 +124,14 @@ TASKS_NAME = ['Idle', 'Foraging',
 TASKS_Q.append(0)  # Idle
 TASKS_Q.append(0)  # Foraging
 TASKS_Q.append(0)  # Nest maintenance
-TASKS_Q.append(0)  # brood_care
-# TASKS_Q.append([0, Patrolling])
+TASKS_Q.append(0)  # Brood care
+# TASKS_Q.append(0) # Patrolling
+
 TASKS.append(idle)
 TASKS.append(foraging)
-TASKS.append(NestMaintenance)
+TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
-# TASKS.append(Patrolling)
+# TASKS.append(patrolling)
 
 TYPE_HOME = 1
 TYPE_CHARGING_AREA = 2
@@ -333,7 +329,7 @@ while True:
                     elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2) or robot_bottom_sensor_states == (1, 2) or robot_bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
                         robot.pickup_resource(pointOfInterest)
 
-                elif robot.task == NestMaintenance:
+                elif robot.task == nest_maintenance:
                     # "for some time spent in the nest, increment the resource"
                     if area_type == TYPE_HOME:
                         #! I am not liking that too much, seems a bit sketchy
@@ -341,7 +337,7 @@ while True:
                         robot.destination = None
                         robot.has_destination = False
                         if globals.CNT % 50 == 0:
-                            globals.NEST.NestMaintenance += randint(0, 3)
+                            globals.NEST.nest_maintenance += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_HOME
                         robot.has_destination = True
