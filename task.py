@@ -65,14 +65,14 @@ class TaskHandler:
         robot.color = self.COLORS[robot.task]
 
     def simulationstep(self):
-        # if globals.CNT % 100 == 0:
-        #     self.nest.resources -= randint(0, 3)
+        if globals.CNT % 100 == 0:
+            self.nest.resources -= randint(0, 3)
 
-        # if globals.CNT % 50 == 0:
-        #     self.nest.maintenance -= randint(0, 10)
+        if globals.CNT % 50 == 0:
+            self.nest.maintenance -= randint(0, 10)
 
-        # if globals.CNT % 50 == 0:
-        #     self.nest.brood_care -= randint(0, 10)
+        if globals.CNT % 50 == 0:
+            self.nest.brood_care -= randint(0, 10)
         pass
 
     def print_stats(self):
@@ -134,15 +134,16 @@ def energy(task, robot):
     # As of now.. the energy is 1. Meaning that each robot can perform anytask as good as any other
 
     #! but the energy will depend of the task
-    if not robot.state == 0:  # 0 is resting
+    #! what does "engaged means .. because if the robot is in second worker or so it will not work .."
+    if robot.has_to_work and robot.task == task:  # 0 is resting
         return 1
     else:
         return 0
 
 
-# # Return the number of ant assigned to a task "task" at time "step"
-# def assigned(task):
-#     return sum([1 for robot in globals.ROBOTS if robot.task == task])
+# # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
+def assigned(task):
+    return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work]))
 
 
 # # Return the number of ant unassigned to a task at time "step"
@@ -152,7 +153,7 @@ def energy(task, robot):
 
 # Return the energy supplied to a task "task" at time "step"
 def energy_supplied(task):
-    return sum([energy(task, robot) for robot in globals.ROBOTS if robot.task == task])
+    return sum([energy(task, robot) for robot in globals.ROBOTS])
 
 
 # Return the energy status of a task "task" at time "step"

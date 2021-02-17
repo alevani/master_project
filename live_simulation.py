@@ -8,8 +8,9 @@ from roboty import PointOfInterest
 from world import decay_check
 from task import TaskHandler
 from pygame.locals import *
-from utils import Position
 from utils import distance
+from utils import Position
+from task import assigned
 from copy import deepcopy
 from roboty import Robot
 from roboty import Area
@@ -57,6 +58,24 @@ import sys
 
 #! there is like .. one bug where .. the robot kept going to the nest to the last foraging point ..
 #! even though no resrouces was there .. couldn't reproduce .. ¯\_(ツ)_/¯
+
+
+#! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
+#! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
+#! I imagine it is going to be interesting to asses how many robot it needs for a set of task to be at an equilibrium
+#! how do I simulate the degradation of resources? maybe as a function of the number of ants + number of ants working to a task?
+#! maybe like .. the more ants there is at broodcaring the quicker the resources will disapear?
+#! could be nice to have something to save a state .. ? and then load back the state for study
+
+#! I will assess the efficiency of the model with the constraint I have, and propose maybe some improvmenet. I have to asses the efficiency with the Lemmas and theroem the group wrote.
+#! they made assumption that I need to verify and discuss
+
+# ? early measurments: if one task can be set to an equilibrium, then all other task will be servred .. because when eq. reached, the robot are reassigned
+#! improvement: Every n step, re assign every robot with the current world state -> my take is that the distribution is going to be better
+#! - maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
+#! - maybe the gordon idea with the map could be tested as improvement
+#! the paper proposes initial condition (such as no mouvement in task needs for a define amount of time) -> maybe I could propose stress test to relate to real life condition
+#! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
 ########
 
 ### GLOBALS ###################################################################
@@ -142,49 +161,49 @@ TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
 BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.1, math.radians(0)),
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.1, math.radians(0)),
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.1, math.radians(
+R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.3, math.radians(
     0)), BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.1, math.radians(0)),
+R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.1, math.radians(0)),
+R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.1, math.radians(0)),
+R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.1, math.radians(0)),
+R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.1, math.radians(0)),
+R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.1, math.radians(0)),
+R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.3, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.1, math.radians(0)),
+R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.3, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.1, math.radians(0)),
+R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.3, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.1, math.radians(0)),
+R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.3, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.1, math.radians(0)),
+R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.3, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.1, math.radians(0)),
+R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.3, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
-R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.1, math.radians(0)),
+R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.3, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
@@ -228,7 +247,7 @@ TYPE_BROOD_CHAMBER = 3
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
 brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
                      3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
-charging_area = Area(Position(-W/2, -H/2+3.2),
+charging_area = Area(Position(-W/2, -H/2+3.4),
                      0.7, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 AREAS.append(home)
 AREAS.append(brood_chamber)
@@ -281,32 +300,11 @@ while True:
 
         area_type = robot.get_area_type(AREAS)
 
-        #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
-        #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
-        #! I imagine it is going to be interesting to asses how many robot it needs for a set of task to be at an equilibrium
-        #! how do I simulate the degradation of resources? maybe as a function of the number of ants + number of ants working to a task?
-        #! maybe like .. the more ants there is at broodcaring the quicker the resources will disapear?
-        #! could be nice to have something to save a state .. ? and then load back the state for study
-
-        #! I will assess the efficiency of the model with the constraint I have, and propose maybe some improvmenet. I have to asses the efficiency with the Lemmas and theroem the group wrote.
-        #! they made assumption that I need to verify and discuss
-
-        # ? early measurments: if one task can be set to an equilibrium, then all other task will be servred .. because when eq. reached, the robot are reassigned
-        #! improvement: Every n step, re assign every robot with the current world state -> my take is that the distribution is going to be better
-        #! - maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
-        #! - maybe the gordon idea with the map could be tested as improvement
-
-        #! sometimes two robot decide to couple up to rush against a wall leading to a collision, how fun?
-        #! sometimes, due to how crappy my code is, a robot bouce back behind WALL and then throw out an error.
-
         #! I have witnessed something unusual ... the robots were all in the chargin area and they could not get out of it .. like if I had implemented them to stay in but no :|
         # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area, but maybe not the greatest
         # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase
 
-        #! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
-
         #! sometimes a robot end up wandering around even though it has a resource .. ? is the resource real? or has it been dropped and the point is just still visible .. ?
-
         #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
@@ -430,6 +428,11 @@ while True:
         TaskHandler.print_stats()
         print("Q")
         print(TASKS_Q)
+
+        # TODO will be used later for stats
+        # print to csv file
+        # for i in range(5):
+        #     print(globals.CNT+";"+assigned(i))
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

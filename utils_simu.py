@@ -62,11 +62,6 @@ class Visualizator:
     def pygame_event_manager(self, events):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == LEFT_CLICK:
-                    poi_type = 2
-                else:
-                    poi_type = 3
-
                 pos = pygame.mouse.get_pos()
 
                 #! This will fail if out of boundaries
@@ -81,14 +76,14 @@ class Visualizator:
                     x, y = self.unscale(x, y)
 
                     globals.POIs.append(PointOfInterest(
-                        Position(x, y), 5000, poi_type, 10))
+                        Position(x, y), 5000, 2, 10))
 
                     # ? why did I divide by two ..aaaa
                     x_scaled = int(x * 100) + int(globals.W * 100/2)
                     y_scaled = int(y * 100) + int(globals.H * 100/2)
 
                     globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
-                        Position(x_scaled, y_scaled), 5000, poi_type, 10, index)
+                        Position(x_scaled, y_scaled), 15000, 2, 10, index)
 
             elif event.type == QUIT:
                 pygame.quit()
