@@ -217,20 +217,19 @@ for x in range(int(globals.W * 100)):
         inner.append(0)
     globals.PHEROMONES_MAP.append(inner)
 
-
-PHEROMONES_PATH = []
-AREAS = []
+# Contains robot's pheromone (if used)
+# PHEROMONES_PATH = []
 
 
 # Markers
-
 globals.MARKER_HOME = Position(-W/2 + 1.6, -H/2 + 1.6)
 globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 4, -H/2 + 1.6)
 
+# Areas
+AREAS = []
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
 brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
                      3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
-
 charging_area = Area(Position(-W/2, -H/2+3.2),
                      0.7, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 AREAS.append(home)
@@ -238,28 +237,27 @@ AREAS.append(brood_chamber)
 AREAS.append(charging_area)
 ###############################################################################
 
-# This is not in the robot's object because it seemed to be slower if so
 
-
-def get_proximity_sensor_values(rays, robot):
-    dists = []
+#! to move in the robot
+def get_proximity_sensors_values(robot_rays, robot):
+    values = []
 
     # Wall detection
-    for index, ray in enumerate(rays):
-        dists.append(distance(WORLD.intersection(ray),
-                              robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+    for index, ray in enumerate(robot_rays):
+        values.append(distance(WORLD.intersection(ray),
+                               robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
 
     # Robot detection
     for r in globals.ROBOTS:
         # Don't check ourselves
         if r.number != robot.number:
-            for index, ray in enumerate(rays):
+            for index, ray in enumerate(robot_rays):
                 if r.is_sensing(ray):
                     p1, p2 = nearest_points(r.get_collision_box(), Point(
                         robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                    dists[index] = distance(p1, p2.x, p2.y)
+                    values[index] = distance(p1, p2.x, p2.y)
 
-    return dists
+    return values
 
 
 while True:
@@ -268,26 +266,25 @@ while True:
     VISUALIZER.draw_areas(AREAS)
     # VISUALIZER.draw_decay(PHEROMONES_PATH)
     for robot in globals.ROBOTS:
-        # ? if robot battery level to 0 .. stop moving it?
+
         if robot.battery_level <= 0:
             break
 
-        rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
+        robot_rays, DRAW_proximity_sensor_position = robot.create_rays(W, H)
 
-        proximity_sensor_values = get_proximity_sensor_values(
-            rays, robot)
+        robot_prox_sensors_values = get_proximity_sensors_values(
+            robot_rays, robot)
 
-        bottom_sensor_states, POI = robot.get_bottom_sensor_states(
+        robot_bottom_sensor_states, pointOfInterest = robot.get_bottom_sensor_states(
             globals.PHEROMONES_MAP)
 
-        proximity_sensors_state = robot.get_proximity_sensor_state(
-            proximity_sensor_values)
+        robot_prox_sensors_state = robot.get_proximity_sensor_state(
+            robot_prox_sensors_values)
 
         TaskHandler.assign_task(robot)
         robot.stop()
 
-        area_type = robot.area_type(AREAS)
-        has_to_work = robot.state == CoreWorker or robot.state == TempWorker
+        area_type = robot.get_area_type(AREAS)
 
         # TASK CONTROLLER #
         #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
@@ -315,16 +312,16 @@ while True:
         #! sometimes a robot end up wandering around even though it has a resource .. ? is the resource real? or has it been dropped and the point is just still visible .. ?
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
-            if not has_to_work:
+            if not robot.has_to_work:
                 # if the robot was carrying a resource, drop it
-                if robot.goto_objective_reached:
+                if not robot.has_destination:
                     if robot.carry_resource:
                         robot.drop_resource()
 
                     # set the robot's destination to its charging area
                     robot.last_foraging_point = None
                     robot.destination = robot.start_position
-                    robot.goto_objective_reached = False
+                    robot.has_destination = True
             # the robot has to be active
             else:
                 if robot.task == Foraging:
@@ -333,8 +330,8 @@ while True:
                         robot.compute_resource()
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
-                    elif (bottom_sensor_states == (2, 0) or bottom_sensor_states == (0, 2) or bottom_sensor_states == (1, 2) or bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
-                        robot.pickup_resource(POI)
+                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2) or robot_bottom_sensor_states == (1, 2) or robot_bottom_sensor_states == (2, 1)) and robot.carry_resource == False:
+                        robot.pickup_resource(pointOfInterest)
 
                 elif robot.task == NestMaintenance:
                     # "for some time spent in the nest, increment the resource"
@@ -342,24 +339,24 @@ while True:
                         #! I am not liking that too much, seems a bit sketchy
                         #! keep the robot in the area but ........... energvor?
                         robot.destination = None
-                        robot.goto_objective_reached = True
+                        robot.has_destination = False
                         if globals.CNT % 50 == 0:
                             globals.NEST.NestMaintenance += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_HOME
-                        robot.goto_objective_reached = False
+                        robot.has_destination = True
 
                 elif robot.task == BroodCare:
                     if area_type == TYPE_BROOD_CHAMBER:
                         #! I am not liking that too much, seems a bit sketchy
                         #! keep the robot in the area but ........... energvor?
                         robot.destination = None
-                        robot.goto_objective_reached = True
+                        robot.has_destination = False
                         if globals.CNT % 50 == 0:
                             globals.NEST.broodCare += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_BROOD_CHAMBER
-                        robot.goto_objective_reached = False
+                        robot.has_destination = True
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
         if area_type == TYPE_CHARGING_AREA:
@@ -375,27 +372,27 @@ while True:
                         robot.destination = globals.MARKER_HOME
                     else:
                         robot.destination = None
-                        robot.goto_objective_reached = True
+                        robot.has_destination = False
 
         #! could be in a separate file .. useful?
         # Navigation controller
-        if not robot.goto_objective_reached:
-            robot.goto(robot.destination, proximity_sensor_values)
+        if robot.has_destination:
+            robot.goto(robot.destination, robot_prox_sensors_values)
         else:
             if robot.is_avoiding:
                 robot.avoid()
             else:
                 # Wall / Robot avoidance under no goal
-                if proximity_sensors_state == (0, 1, 0):
+                if robot_prox_sensors_state == (0, 1, 0):
                     if randint(0, 1):
                         robot.turn_left()
                     else:
                         robot.turn_right()
-                elif proximity_sensors_state == (1, 0, 0) or proximity_sensors_state == (1, 1, 0):
+                elif robot_prox_sensors_state == (1, 0, 0) or robot_prox_sensors_state == (1, 1, 0):
                     robot.turn_left()
-                elif proximity_sensors_state == (0, 0, 1) or proximity_sensors_state == (0, 1, 1):
+                elif robot_prox_sensors_state == (0, 0, 1) or robot_prox_sensors_state == (0, 1, 1):
                     robot.turn_right()
-                elif proximity_sensors_state == (1, 0, 1) or proximity_sensors_state == (1, 1, 1):
+                elif robot_prox_sensors_state == (1, 0, 1) or robot_prox_sensors_state == (1, 1, 1):
                     robot.is_avoiding = True
                     robot.NB_STEP_TO_AVOID = 7
                 else:
@@ -418,11 +415,11 @@ while True:
             robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
         VISUALIZER.draw(robot.position, robot.color, globals.CNT,
-                        robot.path, collision_box, proximity_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, bottom_sensor_states, robot.number)
+                        robot.path, collision_box, robot_prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
         # if robot.trail:
-        PHEROMONES_PATH.append(
-            PointOfInterest(robot.position, DECAY, None))
+        # PHEROMONES_PATH.append(
+        #     PointOfInterest(robot.position, DECAY, None))
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
         if globals.CNT % 100 == 0 and not area_type == TYPE_CHARGING_AREA:
@@ -433,7 +430,7 @@ while True:
                 # TODO if that happens, I should probably change the task of the robot so an other one can take over -> yes, but let's think about that later shall we.
                 robot.battery_low = True
                 robot.destination = robot.start_position
-                robot.goto_objective_reached = False
+                robot.has_destination = True
 
         # Robot wise
         if globals.DO_RECORD:
