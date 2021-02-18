@@ -9,6 +9,7 @@ M = 2
 
 # point of interest
 POIs = []
+STOCK = []
 DRAW_POIS = []
 ZOOM = 1
 

@@ -140,20 +140,23 @@ class Robot:
         self.payload = POI
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
-    def drop_resource(self):
-        self.carry_resource = False
-        x = int(self.position.x * 100) + \
-            int(globals.W * 100/2)
-        y = int(self.position.y * 100) + \
-            int(globals.H * 100/2)
-        globals.PHEROMONES_MAP[x][y] = self.payload
-        self.payload = None
+#! something is off there .. also maybe assigning the POI object to the robot is maybe not necessary .. it makes sense but maybe I can just assign the index to the POIs array?
+#! would it be less .. more .. energy ?
+    #  def drop_resource(self):
+    #     self.carry_resource = False
+    #     x = int(self.payload.position.x * 100) + \
+    #         int(globals.W * 100/2)
+    #     y = int(self.payload.position.y * 100) + \
+    #         int(globals.H * 100/2)
+    #     globals.PHEROMONES_MAP[self.payload.position.x][self.payload.position.y] = self.payload
+    #     self.payload = None
 
-    def compute_resource(self):
-        globals.NEST.resource_need += self.payload.value
-        globals.NEST.resource_stock += self.payload.value
-        self.destination = self.last_foraging_point
-        self.drop_resource()
+    # def compute_resource(self):
+    #     globals.NEST.resource_need += self.payload.value
+    #     globals.NEST.resource_stock += self.payload.value
+    #     # globals.STOCK.append(Position(self.position.x, self.position.y))
+    #     self.destination = self.last_foraging_point
+    #     self.drop_resource()
 
     def is_colliding(self, shape):
         return self.collision_box.box.intersects(shape)
