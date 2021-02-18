@@ -255,7 +255,7 @@ while True:
         TaskHandler.assign_task(robot)
         robot.stop()
 
-        area_type = robot.get_area_type(AREAS)
+        robot.sense_area(AREAS)
 
         #! I have witnessed something unusual ... the robots were all in the chargin area and they could not get out of it .. like if I had implemented them to stay in but no :|
         # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area
@@ -276,28 +276,60 @@ while True:
                     robot.go_home()
                 elif robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
-                    if area_type == TYPE_HOME and robot.carry_resource:
+                    if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
+
                         robot.compute_resource()
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
-                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False:
+                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_FORAGING:
                         robot.pickup_resource(pointOfInterest)
 
+                        # Arbitrary, makes sure the resource is in home (Hopefully)
+                        robot.time_before_drop_out = randint(50, 100)
+
                 elif robot.task == nest_maintenance:
-                    # "for some time spent in the nest, increment the resource"
-                    if area_type == TYPE_HOME:
-                        robot.destination = None
-                        robot.has_destination = False
-                        if globals.CNT % 50 == 0:
-                            if globals.NEST.resource_stock > 0:
-                                globals.NEST.resource_stock -= 1
-                                globals.NEST.resource_transformed += 1
-                    else:
+
+                    if robot.carry_resource:
+                        if globals.CNT - robot.payload_carry_time == 200:
+                            robot.transform_resource()
+
+                    # robot is off
+                    if robot.reaching_for_resource and not robot.has_destination:
+                        robot.has_destination = True
+                        robot.destination = robot.backup_resource_pos
+
+                    if not robot.carry_resource and not robot.reaching_for_resource and len(globals.STOCK) > 0:
+                        robot.has_destination = True
+                        robot.reaching_for_resource = True
+                        #! is a new internal state known by all ants
+
+                        robot.reaching_for_resource_label, robot.destination = globals.STOCK.pop(
+                            0)
+                        robot.backup_resource_pos = robot.destination
+
+                        #! is a new internal state known by all ants
+                        #! that for the task allocation assessement it is okay... ? like no matter how I do the task as long as I can assess them ..
+                        #! robot.payload_carry_time = globals.CNT -> wrong place, start the carry time when robot picks up the resource.
+
+                    elif robot.reaching_for_resource:
+                        if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_NEST_PROCESSING and pointOfInterest.index == robot.reaching_for_resource_label:
+                            robot.pickup_resource(pointOfInterest)
+                            robot.payload_carry_time = globals.CNT
+                            robot.reaching_for_resource = False
+                            robot.reaching_for_resource_label = None
+                            robot.backup_resource_pos = None
+
+                    elif not robot.is_on_area(TYPE_HOME):
                         robot.destination = globals.MARKER_HOME
                         robot.has_destination = True
+                    elif robot.is_on_area(TYPE_HOME):
+                        # TODO, basic area detection + motor impact
+                        robot.destination = None
+                        robot.has_destination = False
+                        robot.stay_home()
 
                 elif robot.task == brood_care:
-                    if area_type == TYPE_BROOD_CHAMBER:
+                    if robot.is_on_area(TYPE_BROOD_CHAMBER):
                         robot.destination = None
                         robot.has_destination = False
                         # if globals.CNT % 50 == 0:
@@ -307,7 +339,7 @@ while True:
                         robot.has_destination = True
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
-        if area_type == TYPE_CHARGING_AREA:
+        if robot.is_on_area(TYPE_CHARGING_AREA):
             if robot.destination == robot.start_position or robot.battery_low:
                 # charge its battery level up to 100
                 if globals.CNT % 5 == 0 and robot.battery_level < 100:
@@ -335,7 +367,7 @@ while True:
                         robot.path, robot.get_collision_box_coordinate(), robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
-        if globals.CNT % 100 == 0 and not area_type == TYPE_CHARGING_AREA:
+        if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
             robot.battery_level -= randint(0, 4)
             if robot.battery_level < 25:
                 # Robot's start position is its charging block
@@ -368,32 +400,32 @@ while True:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
     # Task helper
-    if globals.CNT % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS *******")
-        print("N° | % | State | Task")
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-        TaskHandler.print_stats()
-        print("Q")
-        print(TASKS_Q)
+    # if globals.CNT % 10 == 0:
+    #     print(chr(27) + "[2J")
+    #     print(" ******* LIVE STATS *******")
+    #     print("N° | % | State | Task")
+    #     for robot in globals.ROBOTS:
+    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+    #     TaskHandler.print_stats()
+    #     print("Q")
+    #     print(TASKS_Q)
 
-        # print to csv file
-        # TODO could be nice to also print each robot task and state to see oscillation ?
-        #! problem here .. the assigned right is always 0 but should fluctuate..
-        txt = str(globals.CNT)+";"
-        for i in range(len(TASKS)):
-            txt += assigned(i) + ";"
-            if i == foraging:
-                txt += str(globals.NEST.resource_need)+";"
-            elif i == idle:
-                txt += "0;"
-            elif i == nest_maintenance:
-                txt += str(globals.NEST.resource_stock)+";"
-            elif i == brood_care:
-                txt += str(globals.NEST.resource_transformed)
-        globals.CSV_FILE.write(txt+"\n")
+    #     # print to csv file
+    #     # TODO could be nice to also print each robot task and state to see oscillation ?
+    #     #! problem here .. the assigned right is always 0 but should fluctuate..
+    #     txt = str(globals.CNT)+";"
+    #     for i in range(len(TASKS)):
+    #         txt += assigned(i) + ";"
+    #         if i == foraging:
+    #             txt += str(globals.NEST.resource_need)+";"
+    #         elif i == idle:
+    #             txt += "0;"
+    #         elif i == nest_maintenance:
+    #             txt += str(globals.NEST.resource_stock)+";"
+    #         elif i == brood_care:
+    #             txt += str(globals.NEST.resource_transformed)
+    #     globals.CSV_FILE.write(txt+"\n")
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

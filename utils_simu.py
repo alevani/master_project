@@ -33,7 +33,7 @@ idle = 0
 resting = 0
 
 
-x_a = int((-globals.W/2 + 0.05) * 100)
+x_a = int((-globals.W/2 + 0.1) * 100)
 x_b = int((-globals.W/2 + 1.35) * 100)
 
 y_a = int((-globals.H/2+3.6 + 0.05)*100)
@@ -46,8 +46,6 @@ def add_robot(posx, posy):
 
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
-    print(posx/100, posy/100)
-
     globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),
                                 BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, 100))
 
@@ -180,8 +178,10 @@ class Visualizator:
         for poi in pois:
             if poi.is_visible:
                 x, y = self.scale(poi.position.x, poi.position.y)
-                if poi.type == 2:
+                if poi.state == RESOURCE_STATE_FORAGING:
                     color = GREEN
+                elif poi.state == RESOURCE_STATE_NEST_PROCESSING:
+                    color = GRAY
                 else:
                     color = BLUE
                 pygame.draw.circle(self.screen, color,

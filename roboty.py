@@ -7,6 +7,7 @@ from random import randint
 from utils import Position
 from random import random
 from copy import deepcopy
+from robot_start_vars import *
 import globals
 import shapely
 import math
@@ -53,6 +54,7 @@ class PointOfInterest:
         self.value = value
         self.index = index
         self.type = t
+        self.state = RESOURCE_STATE_FORAGING
 
     def encode(self):
         return {
@@ -87,6 +89,10 @@ class Robot:
         self.L = L
         self.payload = None
         self.has_destination = False
+        self.area_left = -1
+        self.reaching_for_resource_label = -1
+        self.area_right = -1
+        self.reaching_for_resource = False
 
         self.position = position
         self.update_bottom_sensor_position(position.x, position.y)
@@ -132,6 +138,17 @@ class Robot:
         self.bottom_sensors = deepcopy(self.bottom_sensors_backup)
         self.update_collision_box(position)
 
+    def stay_home(self):
+        if not self.area_left and not self.area_right:
+            if randint(0, 1):
+                self.turn_left()
+            else:
+                self.turn_right()
+        elif not self.area_right:
+            self.soft_turn_left()
+        elif not self.area_left:
+            self.soft_turn_right()
+
     def pickup_resource(self, POI):
         self.has_destination = True
         self.destination = globals.MARKER_HOME
@@ -142,21 +159,32 @@ class Robot:
 
 #! something is off there .. also maybe assigning the POI object to the robot is maybe not necessary .. it makes sense but maybe I can just assign the index to the POIs array?
 #! would it be less .. more .. energy ?
-    #  def drop_resource(self):
-    #     self.carry_resource = False
-    #     x = int(self.payload.position.x * 100) + \
-    #         int(globals.W * 100/2)
-    #     y = int(self.payload.position.y * 100) + \
-    #         int(globals.H * 100/2)
-    #     globals.PHEROMONES_MAP[self.payload.position.x][self.payload.position.y] = self.payload
-    #     self.payload = None
+    def drop_resource(self):
+        self.carry_resource = False
+        x = int(self.position.x * 100) + \
+            int(globals.W * 100/2)
+        y = int(self.position.y * 100) + \
+            int(globals.H * 100/2)
+        globals.PHEROMONES_MAP[x][y] = self.payload
+        self.payload = None
 
-    # def compute_resource(self):
-    #     globals.NEST.resource_need += self.payload.value
-    #     globals.NEST.resource_stock += self.payload.value
-    #     # globals.STOCK.append(Position(self.position.x, self.position.y))
-    #     self.destination = self.last_foraging_point
-    #     self.drop_resource()
+    def transform_resource(self):
+        globals.NEST.resource_stock -= self.payload.value
+        globals.NEST.resource_transformed += self.payload.value
+        globals.POIs[self.payload.index].state = RESOURCE_STATE_TRANSFORMED
+        self.payload.state = RESOURCE_STATE_TRANSFORMED
+        self.drop_resource()
+
+    def compute_resource(self):
+        globals.NEST.resource_need += self.payload.value
+        globals.NEST.resource_stock += self.payload.value
+        globals.STOCK.append(
+            [self.payload.index, Position(self.position.x, self.position.y)])
+        globals.POIs[self.payload.index].state = RESOURCE_STATE_NEST_PROCESSING
+
+        self.destination = self.last_foraging_point
+        self.payload.state = RESOURCE_STATE_NEST_PROCESSING
+        self.drop_resource()
 
     def is_colliding(self, shape):
         return self.collision_box.box.intersects(shape)
@@ -226,16 +254,20 @@ class Robot:
     def has_to_work(self):
         return self.state == CoreWorker or self.state == TempWorker
 
-    def get_area_type(self, areas):
+    def sense_area(self, areas):
         box_left = Point(
             self.bottom_sensors[0].x, self.bottom_sensors[0].y).buffer(0.01)
         box_right = Point(
             self.bottom_sensors[1].x, self.bottom_sensors[1].y).buffer(0.01)
 
+        self.area_left = 0
+        self.area_right = 0
         for area in areas:
-            if area.box.intersects(box_left) or area.box.intersects(box_right):
-                return area.type
-        return 0
+            if area.box.intersects(box_left):
+                self.area_left = area.type
+
+            if area.box.intersects(box_right):
+                self.area_right = area.type
 
     def calculate_proximity_sensors_state(self, sensors_values):
         top = sensors_values[1]
@@ -349,6 +381,9 @@ class Robot:
     def rotate(self, left, right):
         self.LEFT_WHEEL_VELOCITY = left
         self.RIGHT_WHEEL_VELOCITY = right
+
+    def is_on_area(self, area):
+        return True if self.area_left == area or self.area_right == area else False
 
     #! from https://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
     def angle_trunc(self, a):
