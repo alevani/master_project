@@ -277,56 +277,33 @@ while True:
                 elif robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
                     if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
-
-                        robot.compute_resource()
+                        if robot.time_in_zone == robot.time_to_drop_out:
+                            robot.compute_resource()
+                        else:
+                            robot.time_in_zone += 1
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
                     elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_FORAGING:
                         robot.pickup_resource(pointOfInterest)
 
                         # Arbitrary, makes sure the resource is in home (Hopefully)
-                        robot.time_before_drop_out = randint(50, 100)
+                        robot.time_to_drop_out = randint(50, 100)
 
                 elif robot.task == nest_maintenance:
 
-                    if robot.carry_resource:
-                        if globals.CNT - robot.payload_carry_time == 200:
-                            robot.transform_resource()
-
-                    # robot is off
-                    if robot.reaching_for_resource and not robot.has_destination:
-                        robot.has_destination = True
-                        robot.destination = robot.backup_resource_pos
-
-                    if not robot.carry_resource and not robot.reaching_for_resource and len(globals.STOCK) > 0:
-                        robot.has_destination = True
-                        robot.reaching_for_resource = True
-                        #! is a new internal state known by all ants
-
-                        robot.reaching_for_resource_label, robot.destination = globals.STOCK.pop(
-                            0)
-                        robot.backup_resource_pos = robot.destination
-
-                        #! is a new internal state known by all ants
-                        #! that for the task allocation assessement it is okay... ? like no matter how I do the task as long as I can assess them ..
-                        #! robot.payload_carry_time = globals.CNT -> wrong place, start the carry time when robot picks up the resource.
-
-                    elif robot.reaching_for_resource:
-                        if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_NEST_PROCESSING and pointOfInterest.index == robot.reaching_for_resource_label:
-                            robot.pickup_resource(pointOfInterest)
-                            robot.payload_carry_time = globals.CNT
-                            robot.reaching_for_resource = False
-                            robot.reaching_for_resource_label = None
-                            robot.backup_resource_pos = None
-
-                    elif not robot.is_on_area(TYPE_HOME):
-                        robot.destination = globals.MARKER_HOME
-                        robot.has_destination = True
-                    elif robot.is_on_area(TYPE_HOME):
-                        # TODO, basic area detection + motor impact
+                    if robot.is_on_area(TYPE_HOME):
                         robot.destination = None
                         robot.has_destination = False
-                        robot.stay_home()
+
+                        if robot.carry_resource:
+                            if globals.CNT - robot.payload_carry_time >= 200:
+                                robot.transform_resource()
+                        elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_NEST_PROCESSING:
+                            robot.pickup_resource(pointOfInterest)
+                            robot.payload_carry_time = globals.CNT
+                    else:
+                        robot.destination = globals.MARKER_HOME
+                        robot.has_destination = True
 
                 elif robot.task == brood_care:
                     if robot.is_on_area(TYPE_BROOD_CHAMBER):
