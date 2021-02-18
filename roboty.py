@@ -88,8 +88,8 @@ class Robot:
         self.R = R
         self.L = L
 
-        # Idle  # Foraging  # Nest maintenance  # Brood care # Patrolling
-        self.TASKS_Q = [0, 0, 0, 0]
+        # Foraging  # Nest maintenance  # Brood care
+        self.TASKS_Q = [0, 0, 0]
 
         self.payload = None
         self.has_destination = False

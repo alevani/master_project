@@ -29,7 +29,7 @@ DECAY10 = (200, 200, 200)
 LEFT_CLICK = 1
 RIGHT_CLICK = 3
 
-idle = 0
+no_task = 0
 resting = 0
 
 
@@ -47,7 +47,7 @@ def add_robot(posx, posy):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, 100))
 
 
 class Visualizator:
@@ -105,8 +105,6 @@ class Visualizator:
                         y_scaled = int(y * 100) + int(globals.H * 100/2)
 
                         resource_value = randint(1, 2)
-                        globals.NEST.resource_need -= resource_value
-
                         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
                             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
@@ -142,6 +140,8 @@ class Visualizator:
                 elif event.key == pygame.K_x:
                     self.DRAW_PATH = not self.DRAW_PATH
                     print("[Display] Toggle Path visualization")
+                elif event.key == pygame.K_r:
+                    globals.NEST.resource_need -= randint(1, 10)
                 elif event.key == pygame.K_y:
                     self.DISPLAY_HANDLER += 1
 

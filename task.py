@@ -25,15 +25,17 @@ class TaskHandler:
                 if feedback(task) < 0:  # Task is in energy surplus
                     robot.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
-                    # robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
-                    robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
+                    #! here, if min the assignment is for EACH ants when a task reach "equilibrium"
+                    #! but if max, some qs of some ants eventually end up with every task to more than 3 of energy and then they are never set to 0 again ..
+                    robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
+                    # robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
                 if robot.TASKS_Q[i] == 3:
                     candidate.append(task)
 
             if candidate != []:
                 if randint(0, 1):
-                    for task in robot.TASKS_Q:
-                        task = 0
+                    for i in range(len(robot.TASKS_Q)):
+                        robot.TASKS_Q[i] = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
                     # when the robot get attributed a new task, let's make sure there's no mixup with the current state
@@ -89,17 +91,10 @@ class TaskHandler:
         # Return the energy demand for task "task" at time "step
         pass
 
-    # As of now, it seems obvious that the demand for the Idle task is 0
-    # as we wish that no ant choose this state over an other?
-    def get_idle_demand(self):
-        return 0
-
 
 def demand(task):
     if task == 1:
         return globals.NEST.resource_need * -1
-    elif task == 0:
-        return 0
     elif task == 2:
         return globals.NEST.resource_stock
     elif task == 3:
@@ -123,25 +118,32 @@ def energy(task, robot):
     # ? maybe .. if the robots know about any last foraging point .. then maybe the energy it can supply is greater?
     #! or .. if you already are on the area for the task .. maybe increase?
     #! based on gordon as well
-    if robot.has_to_work and robot.task == task:  # 0 is resting
-        return 1
-    else:
-        return 0
+
+    #! 1 because you need to assess how much ants currently assigned to the task in any state can supply .. cause if it is grearter than 0 then you might as well don't switch to this task. I guess
+
+    # TODO it is highly okay if we don't variate here as if we do it he proven to be np complet
+    return 1
+    # if robot.has_to_work:  # 0 is resting
+    #     return 1
+    # else:
+    #     return 0
 
 
 # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
 def assigned(task):
+    #! does engaged really means an ant has to be temp or core work?
     return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work]))
 
 
 # # Return the number of ant unassigned to a task at time "step"
 # def unassigned(step):
-#     sum([1 for robot in globals.ROBOTS if robot.task == "Idle"])
+#     sum([1 for robot in globals.ROBOTS if robot.task == 0])
 
 
 # Return the energy supplied to a task "task" at time "step"
 def energy_supplied(task):
-    return sum([energy(task, robot) for robot in globals.ROBOTS])
+    #! write in the thesis that "local feedback" from the paper just means that any robot can ask every robots their current task
+    return sum([energy(task, robot) for robot in globals.ROBOTS if robot.task == task])
 
 
 # Return the energy status of a task "task" at time "step"
