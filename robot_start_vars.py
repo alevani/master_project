@@ -10,7 +10,7 @@ L = 0.095  # distance between wheels in meters
 
 
 BOTTOM_LIGHT_SENSORS_POSITION = [
-    Position(-0.012, 0.05), Position(0.012, 0.05)]  # ! false measurments
+    Position(-0.01, 0.07), Position(0.01, 0.07)]
 
 # Assuming the robot is looking north
 PROXIMITY_SENSORS_POSITION = [

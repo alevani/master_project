@@ -27,57 +27,17 @@ import math
 import sys
 
 # IDEAS
-# ? Thesis concern: If I were to work with real ants, I wouldn't need to dodge other robot as ant can go over each others.. but in real life not the same. just talk about it at some point .. it is part of the constraint
-# ? Thesis: Maybe it's going to be important to retrace the step of the simulation development?
-# ? i don't think so. But maybe about the speed and the improvement?
-#! I know I want to use robot simulated because I want to asses the efficenicy of the allocation system for robots
-#! I don't think I must simulate because what I need is to assess the efficiency
-
-#! there are a lot of problem when converting to point, like lots of things shouldn't require that much convert..
-
-#! How do we induce operating cost of a task with the task allocation model? to be disscussed..
-
-#! implement noise in the sensors? maybe not.. as I want to asses the value of the task allocation
-
-#! as assessed in the paper, an ant is capable to know that a task is in energy deficit or surplus, but not able to quantify it. so following the model, it is not because there's more deficit to a task that more ant should be allocated to it.
-#! but I could trick that to have more ant working on the task that have the more deficit .. I need to assess if this is necessary or not.
-
 # !!!!!! not experiment before all the measurments and the brain completed.
 
 #! maybe re-implement the whole interest level thingy....
 #! https://github.com/alevani/master_project/commit/d7812d9175dfd5a8090e68be942d5bbc83cb0e68
 
 
-# ? Does the model really takes into consideration wheter a task is over assigned or not ..?
-# ? as of now, it seems that no ant takes advantages of switching if the task is in energy surplus
-#! Maybe it's working .. I just need an actual food increase to put it to 0?
-#! as said before, no, cause ants cannot quantify how much a task needs man power or not
-
-# ? now .. do I really need the two bottom sensors? one would be plenty. (no pheromone)
-#! yes -> to stay within an area
-
-#! there is like .. one bug where .. the robot kept going to the nest to the last foraging point ..
-#! even though no resrouces was there .. couldn't reproduce .. ¯\_(ツ)_/¯
-
-
 #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
 #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
-#! I imagine it is going to be interesting to asses how many robot it needs for a set of task to be at an equilibrium
-#! how do I simulate the degradation of resources? maybe as a function of the number of ants + number of ants working to a task?
-#! maybe like .. the more ants there is at broodcaring the quicker the resources will disapear?
 #! could be nice to have something to save a state .. ? and then load back the state for study
 
-#! I will assess the efficiency of the model with the constraint I have, and propose maybe some improvmenet. I have to asses the efficiency with the Lemmas and theroem the group wrote.
-#! they made assumption that I need to verify and discuss
-
-# ? early measurments: if one task can be set to an equilibrium, then all other task will be servred .. because when eq. reached, the robot are reassigned
-#! improvement: Every n step, re assign every robot with the current world state -> my take is that the distribution is going to be better
-#! - maybe the robots could "see" or "reassess" the needs when entering an area or something .. idk
-#! - maybe the gordon idea with the map could be tested as improvement
-#! the paper proposes initial condition (such as no mouvement in task needs for a define amount of time) -> maybe I could propose stress test to relate to real life condition
-#! the fact that a forager when switching to an other task drop its resource is purely arbitrary .. I need to write something about it in the paper
-
-#! if necessary .. instead of hiding the POIs I could build a system that rewrite the list and the indexes. I don't know yet if this would improve performences
+#! ok to retrace what happended it will actually be interesting to be able to visu ..
 ########
 
 ### GLOBALS ###################################################################
@@ -138,11 +98,17 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
-globals.NEST = Nest(-200, -30, -30)
+globals.NEST = Nest(0)
+TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
 
+
+#! robot gather resource (foraging).. then a few of these resource will be transform (brood_caring) and finally waste frmo the transformation will be clean (nest maintenance) ?
+#! we could also imagine a waste task where the robot would take pills from the nest to the waste once transformed by the brood worker.
+#! I think it is important to have task where needs depends on other task.
+#! pas normal: the robot should not wait for a task need to be fulfilled before thinking of re-assignement .. should they?
 
 BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
@@ -207,7 +173,6 @@ globals.ROBOTS.append(R12)
 globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
-TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS, len(globals.ROBOTS))
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(globals.W * 100)):
@@ -235,7 +200,7 @@ home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
 brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
                      3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
 charging_area = Area(Position(-W/2, -H/2+3.4),
-                     0.7, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
+                     1.4, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 AREAS.append(home)
 AREAS.append(brood_chamber)
 AREAS.append(charging_area)
@@ -324,7 +289,9 @@ while True:
                         robot.destination = None
                         robot.has_destination = False
                         if globals.CNT % 50 == 0:
-                            globals.NEST.maintenance += randint(0, 3)
+                            if globals.NEST.resource_stock > 0:
+                                globals.NEST.resource_stock -= 1
+                                globals.NEST.resource_transformed += 1
                     else:
                         robot.destination = globals.MARKER_HOME
                         robot.has_destination = True
@@ -333,8 +300,8 @@ while True:
                     if area_type == TYPE_BROOD_CHAMBER:
                         robot.destination = None
                         robot.has_destination = False
-                        if globals.CNT % 50 == 0:
-                            globals.NEST.brood_care += randint(0, 3)
+                        # if globals.CNT % 50 == 0:
+                        #     globals.NEST.brood_care += randint(0, 3)
                     else:
                         robot.destination = globals.MARKER_BROOD_CHAMBER
                         robot.has_destination = True
@@ -377,6 +344,7 @@ while True:
                 robot.battery_low = True
                 robot.destination = robot.start_position
                 robot.has_destination = True
+
         # Robot wise
         # if globals.DO_RECORD:
         # if globals.CNT % globals.M == 0:
@@ -400,32 +368,32 @@ while True:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
     # Task helper
-    TaskHandler.simulationstep()
-    # if globals.CNT % 10 == 0:
-    #     print(chr(27) + "[2J")
-    #     print(" ******* LIVE STATS *******")
-    #     print("N° | % | State | Task")
-    #     for robot in globals.ROBOTS:
-    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-    #     TaskHandler.print_stats()
-    #     print("Q")
-    #     print(TASKS_Q)
+    if globals.CNT % 10 == 0:
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS *******")
+        print("N° | % | State | Task")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+        TaskHandler.print_stats()
+        print("Q")
+        print(TASKS_Q)
 
-    #     # print to csv file
-    #     # TODO could be nice to also print each robot task and state to see oscillation ?
-    #     txt = str(globals.CNT)+";"
-    #     for i in range(len(TASKS)):
-    #         txt += assigned(i) + ";"
-    #         if i == foraging:
-    #             txt += str(globals.NEST.resources * -1)+";"
-    #         elif i == idle:
-    #             txt += "0;"
-    #         elif i == nest_maintenance:
-    #             txt += str(globals.NEST.maintenance * -1)+";"
-    #         elif i == brood_care:
-    #             txt += str(globals.NEST.brood_care * -1)
-    #     globals.CSV_FILE.write(txt+"\n")
+        # print to csv file
+        # TODO could be nice to also print each robot task and state to see oscillation ?
+        #! problem here .. the assigned right is always 0 but should fluctuate..
+        txt = str(globals.CNT)+";"
+        for i in range(len(TASKS)):
+            txt += assigned(i) + ";"
+            if i == foraging:
+                txt += str(globals.NEST.resource_need)+";"
+            elif i == idle:
+                txt += "0;"
+            elif i == nest_maintenance:
+                txt += str(globals.NEST.resource_stock)+";"
+            elif i == brood_care:
+                txt += str(globals.NEST.resource_transformed)
+        globals.CSV_FILE.write(txt+"\n")
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)

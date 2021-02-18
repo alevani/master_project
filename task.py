@@ -5,14 +5,13 @@ from random import randint
 
 
 class TaskHandler:
-    def __init__(self, nest, TASKS_Q, TASKS, colony_size):
+    def __init__(self, nest, TASKS_Q, TASKS):
         self.nest = nest
         self.TASKS = TASKS
         self.TASKS_Q = TASKS_Q
         self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
                        (0, 0, 255), (125, 125, 125)]
 
-        self.colony_size = colony_size
         self.resting = 0
         self.first_reserve = 1
         self.second_reserve = 2
@@ -65,23 +64,11 @@ class TaskHandler:
 
         robot.color = self.COLORS[robot.task]
 
-    def simulationstep(self):
-        if globals.CNT % 300 == 0:
-            # every N steps, every ant has a likelyhood of 1/2 of increasing its hunger level from 1
-            self.nest.resources -= randint(0, self.colony_size)
-
-        if globals.CNT % 50 == 0:
-            self.nest.maintenance -= randint(0, 10)
-
-        if globals.CNT % 50 == 0:
-            self.nest.brood_care -= randint(0, 10)
-        pass
-
     def print_stats(self):
         print("******* NEST *******")
-        print("Resources: ", self.nest.resources)
-        print("Nest Maintenance: ", self.nest.maintenance)
-        print("Brood Care: ", self.nest.brood_care)
+        print("Resources: ", self.nest.resource_need)
+        print("Nest Maintenance: ", self.nest.resource_stock)
+        print("Brood Care: ", self.nest.resource_transformed)
 
     # such as ..
     def get_hunger_level(self):
@@ -110,17 +97,13 @@ class TaskHandler:
 
 def demand(task):
     if task == 1:
-        # print("["+str(task)+"]: Demand is " + str(TH.get_hunger_level()))
-        return globals.NEST.resources * -1
+        return globals.NEST.resource_need * -1
     elif task == 0:
-        # print("["+str(task)+"]: Demand is " + str(TH.get_idle_demand()))
         return 0
     elif task == 2:
-        return globals.NEST.maintenance * -1
+        return globals.NEST.resource_stock
     elif task == 3:
-        return globals.NEST.brood_care * -1
-    # ask the task handler for task information
-    pass
+        return globals.NEST.resource_transformed
 
 
 # Return the energy an ant "robot" can supply to a task "task" at time "step"

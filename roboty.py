@@ -20,10 +20,11 @@ CoreWorker = 4
 
 
 class Nest:
-    def __init__(self, resources, maintenance, brood_care):
-        self.resources = resources
-        self.maintenance = maintenance
-        self.brood_care = brood_care
+    def __init__(self, resource_need):
+        self.resource_need = resource_need
+        self.resource_stock = 0
+        self.resource_transformed = 0
+        self.resource_waiste = 0
 
 
 class Area:
@@ -149,11 +150,10 @@ class Robot:
         self.payload = None
 
     def compute_resource(self):
-        globals.NEST.resources += self.payload.value
-        globals.POIs[self.payload.index].is_visible = False
-        self.carry_resource = False
-        self.payload = None
+        globals.NEST.resource_need += self.payload.value
+        globals.NEST.resource_stock += self.payload.value
         self.destination = self.last_foraging_point
+        self.drop_resource()
 
     def is_colliding(self, shape):
         return self.collision_box.box.intersects(shape)

@@ -33,13 +33,23 @@ idle = 0
 resting = 0
 
 
+x_a = int((-globals.W/2 + 0.05) * 100)
+x_b = int((-globals.W/2 + 1.35) * 100)
+
+y_a = int((-globals.H/2+3.6 + 0.05)*100)
+y_b = int((-globals.H/2+3.6 + 3)*100)
+
+
 def add_robot(posx, posy):
     from copy import deepcopy
     from roboty import Robot
-    globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx, posy, math.radians(270)),
+
+    posx = randint(x_a, x_b)
+    posy = randint(y_a, y_b)
+    print(posx/100, posy/100)
+
+    globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),
                                 BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, idle, resting, 100))
-    # TODO
-    # TaskHandler.colony_size += 1
 
 
 class Visualizator:
@@ -96,8 +106,11 @@ class Visualizator:
                         x_scaled = int(x * 100) + int(globals.W * 100/2)
                         y_scaled = int(y * 100) + int(globals.H * 100/2)
 
+                        resource_value = randint(1, 2)
+                        globals.NEST.resource_need -= resource_value
+
                         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
-                            Position(x_scaled, y_scaled), 15000, 2, 10, index)
+                            Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
                     x, y = self.unscale(pos[0], pos[1])
                     add_robot(x, y)
@@ -125,8 +138,6 @@ class Visualizator:
                         self.FILE.close()
                     pygame.quit()
                     sys.exit()
-                elif event.key == pygame.K_r:
-                    globals.NEST.resources -= 200
                 elif event.key == pygame.K_d:
                     self.DRAW_DECAY = not self.DRAW_DECAY
                     print("[Display] Toggle pheromone decay visualization")
