@@ -168,6 +168,7 @@ class Visualizator:
         pygame.draw.circle(self.screen, BLACK, (self.scale(0, 0)), 2)
 
     def draw_areas(self, areas):
+
         for area in areas:
             x, y = self.scale(area.position.x, area.position.y)
 

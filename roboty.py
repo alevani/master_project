@@ -90,9 +90,8 @@ class Robot:
         self.payload = None
         self.has_destination = False
         self.area_left = -1
-        self.reaching_for_resource_label = -1
         self.area_right = -1
-        self.reaching_for_resource = False
+        self.time_in_zone = 0
 
         self.position = position
         self.update_bottom_sensor_position(position.x, position.y)
@@ -178,12 +177,11 @@ class Robot:
     def compute_resource(self):
         globals.NEST.resource_need += self.payload.value
         globals.NEST.resource_stock += self.payload.value
-        globals.STOCK.append(
-            [self.payload.index, Position(self.position.x, self.position.y)])
         globals.POIs[self.payload.index].state = RESOURCE_STATE_NEST_PROCESSING
 
         self.destination = self.last_foraging_point
         self.payload.state = RESOURCE_STATE_NEST_PROCESSING
+        self.time_in_zone = 0
         self.drop_resource()
 
     def is_colliding(self, shape):
@@ -262,6 +260,7 @@ class Robot:
 
         self.area_left = 0
         self.area_right = 0
+
         for area in areas:
             if area.box.intersects(box_left):
                 self.area_left = area.type

@@ -196,14 +196,28 @@ TYPE_NEUTRAL = 0
 TYPE_HOME = 1
 TYPE_CHARGING_AREA = 2
 TYPE_BROOD_CHAMBER = 3
+TYPE_WAISTE_DEPOSIT = 4
+TYPE_FORAGING_AREA = 5
+
 home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
-brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 1.6,
+
+brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 3.2,
                      3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
+
 charging_area = Area(Position(-W/2, -H/2+3.4),
                      1.4, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
+
+waiste_deposit = Area(Position(W/2-1.6, -H/2), 1.6,
+                      3.2, TYPE_BROOD_CHAMBER, (240, 188, 91))
+
+foraging_area = Area(Position(-W/2, -H/2), W,
+                     H, TYPE_FORAGING_AREA, (255, 255, 255))
+
+AREAS.append(foraging_area)
 AREAS.append(home)
 AREAS.append(brood_chamber)
 AREAS.append(charging_area)
+AREAS.append(waiste_deposit)
 ###############################################################################
 
 
@@ -263,6 +277,8 @@ while True:
 
         #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
 
+        #! TODO the colony needs in resource should not be based on how much resrouce there's on the field otherwise the gap is just too large..
+
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
             if not robot.has_to_work():
@@ -274,9 +290,23 @@ while True:
             else:
                 if robot.task == idle:
                     robot.go_home()
+
                 elif robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
+
+                    # ? is this slow?
+                    if not robot.carry_resource:
+                        if not robot.is_on_area(TYPE_FORAGING_AREA):
+                            robot.has_destination = True
+                            robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
+                                0, 0)
+                        else:
+                            robot.has_destination = False
+                            robot.destination = None
+
                     if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
+                        robot.has_destination = False
+                        robot.destination = None
                         if robot.time_in_zone == robot.time_to_drop_out:
                             robot.compute_resource()
                         else:
@@ -287,7 +317,8 @@ while True:
                         robot.pickup_resource(pointOfInterest)
 
                         # Arbitrary, makes sure the resource is in home (Hopefully)
-                        robot.time_to_drop_out = randint(50, 100)
+                        #! full speculation .. what if 50 and a robot is pushed out of the area and drop it outside? rip. I mean technically ok.
+                        robot.time_to_drop_out = randint(50, 200)
 
                 elif robot.task == nest_maintenance:
 
@@ -377,16 +408,16 @@ while True:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
     # Task helper
-    # if globals.CNT % 10 == 0:
-    #     print(chr(27) + "[2J")
-    #     print(" ******* LIVE STATS *******")
-    #     print("N° | % | State | Task")
-    #     for robot in globals.ROBOTS:
-    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-    #               " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
-    #     TaskHandler.print_stats()
-    #     print("Q")
-    #     print(TASKS_Q)
+    if globals.CNT % 10 == 0:
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS *******")
+        print("N° | % | State | Task")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+        TaskHandler.print_stats()
+        print("Q")
+        print(TASKS_Q)
 
     #     # print to csv file
     #     # TODO could be nice to also print each robot task and state to see oscillation ?
