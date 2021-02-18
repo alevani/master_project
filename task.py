@@ -5,10 +5,10 @@ from random import randint
 
 
 class TaskHandler:
-    def __init__(self, nest, TASKS_Q, TASKS):
+    def __init__(self, nest, TASKS):
         self.nest = nest
         self.TASKS = TASKS
-        self.TASKS_Q = TASKS_Q
+        #! is Q local to a robot?
         self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
                        (0, 0, 255), (125, 125, 125)]
 
@@ -23,16 +23,16 @@ class TaskHandler:
             candidate = []
             for i, task in enumerate(self.TASKS):
                 if feedback(task) < 0:  # Task is in energy surplus
-                    self.TASKS_Q[i] = 0
+                    robot.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
-                    self.TASKS_Q[i] = min(self.TASKS_Q[i] + 1, 3)
-                    # self.TASKS_Q[i] = max(self.TASKS_Q[i] + 1, 3)
-                if self.TASKS_Q[i] == 3:
+                    # robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
+                    robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
+                if robot.TASKS_Q[i] == 3:
                     candidate.append(task)
 
             if candidate != []:
                 if randint(0, 1):
-                    for task in self.TASKS_Q:
+                    for task in robot.TASKS_Q:
                         task = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]

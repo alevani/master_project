@@ -86,12 +86,6 @@ patrolling = 4
 TASKS_NAME = ['Idle', 'Foraging',
               'Nest maintenance', 'Brood care', 'Patrolling']
 
-TASKS_Q.append(0)  # Idle
-TASKS_Q.append(0)  # Foraging
-TASKS_Q.append(0)  # Nest maintenance
-TASKS_Q.append(0)  # Brood care
-# TASKS_Q.append(0) # Patrolling
-
 TASKS.append(idle)
 TASKS.append(foraging)
 TASKS.append(nest_maintenance)
@@ -99,7 +93,7 @@ TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
 globals.NEST = Nest(0)
-TaskHandler = TaskHandler(globals.NEST, TASKS_Q, TASKS)
+TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
@@ -276,8 +270,8 @@ while True:
         # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase -> no.
 
         #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
-
         #! TODO the colony needs in resource should not be based on how much resrouce there's on the field otherwise the gap is just too large..
+        #! todo finds out why robot stay in foraging even though other task have needs ..
 
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
@@ -411,13 +405,11 @@ while True:
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS *******")
-        print("N° | % | State | Task")
+        print("N° | % | State | Task | Q")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task])
+                  " | "+STATES_NAME[robot.state] + " | "+TASKS_NAME[robot.task] + " | " + str(robot.TASKS_Q))
         TaskHandler.print_stats()
-        print("Q")
-        print(TASKS_Q)
 
     #     # print to csv file
     #     # TODO could be nice to also print each robot task and state to see oscillation ?

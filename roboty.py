@@ -87,6 +87,10 @@ class Robot:
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
+
+        # Idle  # Foraging  # Nest maintenance  # Brood care # Patrolling
+        self.TASKS_Q = [0, 0, 0, 0]
+
         self.payload = None
         self.has_destination = False
         self.area_left = -1
