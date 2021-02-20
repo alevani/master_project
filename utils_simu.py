@@ -105,6 +105,7 @@ class Visualizator:
                         y_scaled = int(y * 100) + int(globals.H * 100/2)
 
                         resource_value = randint(1, 2)
+                        # globals.NEST.resource_need -= resource_value
                         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
                             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
@@ -183,8 +184,8 @@ class Visualizator:
                     color = GREEN
                 elif poi.state == RESOURCE_STATE_NEST_PROCESSING:
                     color = GRAY
-                else:
-                    color = BLUE
+                elif poi.state == RESOURCE_STATE_TRANSFORMED:
+                    color = RED
                 pygame.draw.circle(self.screen, color,
                                    (x, y), self.zoom//2 + 2)
 

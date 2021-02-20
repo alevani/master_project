@@ -27,15 +27,16 @@ class TaskHandler:
                 else:  # Task is in energy deficit
                     #! here, if min the assignment is for EACH ants when a task reach "equilibrium"
                     #! but if max, some qs of some ants eventually end up with every task to more than 3 of energy and then they are never set to 0 again ..
-                    robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
-                    # robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
+                    # robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
+                    robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
                 if robot.TASKS_Q[i] == 3:
                     candidate.append(task)
 
             if candidate != []:
+                #! not supposed to be here but looks like it works better
+                for i in range(len(robot.TASKS_Q)):
+                    robot.TASKS_Q[i] = 0
                 if randint(0, 1):
-                    for i in range(len(robot.TASKS_Q)):
-                        robot.TASKS_Q[i] = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
                     # when the robot get attributed a new task, let's make sure there's no mixup with the current state
@@ -55,14 +56,15 @@ class TaskHandler:
                 robot.rest()
             else:
                 robot.state = self.temp_worker
-        elif robot.state == self.temp_worker:
-            if feedback(robot.task) < 0:
-                robot.state = self.first_reserve
-            else:
-                robot.state = self.core_worker
-        elif robot.state == self.core_worker:
-            if feedback(robot.task) < 0:
-                robot.state = self.temp_worker
+        elif not robot.carry_resource:  # ! if the robot carries a resource, it shouldn't change task until the resource is processed
+            if robot.state == self.temp_worker:
+                if feedback(robot.task) < 0:
+                    robot.state = self.first_reserve
+                else:
+                    robot.state = self.core_worker
+            elif robot.state == self.core_worker:
+                if feedback(robot.task) < 0:
+                    robot.state = self.temp_worker
 
         robot.color = self.COLORS[robot.task]
 
@@ -120,9 +122,10 @@ def energy(task, robot):
     #! based on gordon as well
 
     #! 1 because you need to assess how much ants currently assigned to the task in any state can supply .. cause if it is grearter than 0 then you might as well don't switch to this task. I guess
-
+    # TODO should I have for some instance something that calculate the closest point to an area instead than just having a marker inside the area?
     # TODO it is highly okay if we don't variate here as if we do it he proven to be np complet
-    return 1
+    if robot.has_to_work:
+        return 1
     # if robot.has_to_work:  # 0 is resting
     #     return 1
     # else:

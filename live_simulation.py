@@ -103,49 +103,49 @@ TaskHandler = TaskHandler(globals.NEST, TASKS)
 BASE_BATTERY_LEVEL = 100
 BLACK = (0, 0, 0)
 
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.3, math.radians(0)),
+R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.3, math.radians(0)),
+R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.3, math.radians(
+R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.8, math.radians(
     0)), BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.3, math.radians(0)),
+R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.3, math.radians(0)),
+R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.3, math.radians(0)),
+R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.3, math.radians(0)),
+R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.3, math.radians(0)),
+R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.3, math.radians(0)),
+R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.3, math.radians(0)),
+R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.8, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.3, math.radians(0)),
+R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.8, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.3, math.radians(0)),
+R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.8, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.3, math.radians(0)),
+R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.8, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.3, math.radians(0)),
+R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.8, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
-R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.3, math.radians(0)),
+R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.8, math.radians(0)),
             BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
 
 globals.ROBOTS.append(R1)
@@ -177,8 +177,9 @@ for x in range(int(globals.W * 100)):
 
 
 # Markers
-globals.MARKER_HOME = Position(-W/2 + 1.6, -H/2 + 1.6)
-globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 4, -H/2 + 1.6)
+globals.MARKER_HOME = Position(-W/2 + 1.15, -H/2 + 1.15)
+globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 3.3, -H/2 + 1.15)
+globals.MARKER_WAISTE_AREA = Position(W/2-0.7, -H/2 + 1.15)
 
 # Areas
 AREAS = []
@@ -189,16 +190,16 @@ TYPE_BROOD_CHAMBER = 3
 TYPE_WAISTE_DEPOSIT = 4
 TYPE_FORAGING_AREA = 5
 
-home = Area(Position(-W/2, -H/2), 3.2, 3.2, TYPE_HOME, (133, 147, 255))
+home = Area(Position(-W/2, -H/2), 2.3, 2.3, TYPE_HOME, (133, 147, 255))
 
-brood_chamber = Area(Position(-W/2 + 3.2, -H/2), 3.2,
-                     3.2, TYPE_BROOD_CHAMBER, (224, 153, 255))
+brood_chamber = Area(Position(-W/2 + 2.3, -H/2), 2,
+                     2.3, TYPE_BROOD_CHAMBER, (224, 153, 255))
 
-charging_area = Area(Position(-W/2, -H/2+3.4),
+charging_area = Area(Position(-W/2, -H/2+3.8),
                      1.4, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 
-waiste_deposit = Area(Position(W/2-1.6, -H/2), 1.6,
-                      3.2, TYPE_BROOD_CHAMBER, (240, 188, 91))
+waiste_deposit = Area(Position(W/2-1.4, -H/2), 1.4,
+                      2.3, TYPE_BROOD_CHAMBER, (240, 188, 91))
 
 foraging_area = Area(Position(-W/2, -H/2), W,
                      H, TYPE_FORAGING_AREA, (255, 255, 255))
@@ -285,6 +286,10 @@ while True:
                 elif robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
 
+                    if robot.carry_resource and not robot.has_destination:
+                        robot.destination = globals.MARKER_HOME
+                        robot.has_destination = True
+
                     # ? is this slow?
                     if not robot.carry_resource:
                         if not robot.is_on_area(TYPE_FORAGING_AREA):
@@ -298,7 +303,7 @@ while True:
                     if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
                         robot.has_destination = False
                         robot.destination = None
-                        if robot.time_in_zone == robot.time_to_drop_out:
+                        if robot.time_in_zone >= robot.time_to_drop_out:
                             robot.compute_resource()
                         else:
                             robot.time_in_zone += 1
@@ -312,17 +317,31 @@ while True:
                         #! if that's a problem, put marker down in 0,0 and make sure the ants goes to the marker, drop at a rando point, then go back to foraging
                         robot.time_to_drop_out = randint(50, 150)
 
-                # TODO depose the payload in broodchamber after a while
                 # TODO waste cleaner will take the broodchamber processed payload after prossed.
                 elif robot.task == nest_maintenance:
 
-                    if robot.is_on_area(TYPE_HOME):
+                    if robot.is_on_area(TYPE_BROOD_CHAMBER) and robot.carry_resource and robot.payload_carry_time == 0:
+                        #! sometimes this happen even though it did not enter the area
+                        #! sometimes the resource vanishes
+                        robot.destination = None
+                        robot.has_destination = False
+                        if robot.time_in_zone >= robot.time_to_drop_out:
+                            robot.transform_resource()
+                        else:
+                            robot.time_in_zone += 1
+
+                    elif robot.is_on_area(TYPE_HOME):
                         robot.destination = None
                         robot.has_destination = False
 
                         if robot.carry_resource:
                             if globals.CNT - robot.payload_carry_time >= 200:
-                                robot.transform_resource()
+                                robot.has_destination = True
+                                robot.destination = globals.MARKER_BROOD_CHAMBER
+                                robot.time_to_drop_out = randint(50, 100)
+                                robot.time_in_zone = 0
+                                robot.payload_carry_time = 0
+
                         elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_NEST_PROCESSING:
                             robot.pickup_resource(pointOfInterest)
                             robot.payload_carry_time = globals.CNT
@@ -331,14 +350,23 @@ while True:
                         robot.has_destination = True
 
                 elif robot.task == brood_care:
-                    if robot.is_on_area(TYPE_BROOD_CHAMBER):
-                        robot.destination = None
-                        robot.has_destination = False
-                        # if globals.CNT % 50 == 0:
-                        #     globals.NEST.brood_care += randint(0, 3)
+
+                    if robot.carry_resource:
+                        if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
+                            robot.drop_resource()
+                            robot.destination = None
+                            robot.has_destination = False
                     else:
-                        robot.destination = globals.MARKER_BROOD_CHAMBER
-                        robot.has_destination = True
+                        if robot.is_on_area(TYPE_BROOD_CHAMBER):
+                            robot.destination = None
+                            robot.has_destination = False
+                            if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_TRANSFORMED:
+                                robot.pickup_resource(pointOfInterest)
+                                robot.has_destination = True
+                                robot.destination = globals.MARKER_WAISTE_AREA
+                        else:
+                            robot.destination = globals.MARKER_BROOD_CHAMBER
+                            robot.has_destination = True
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
         if robot.is_on_area(TYPE_CHARGING_AREA):

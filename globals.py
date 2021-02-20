@@ -1,8 +1,8 @@
 ROBOTS = []
 # H = 10
 # W = 14
-H = 10
-W = 14
+H = 7
+W = 10
 CNT = 0
 M = 2
 
@@ -11,7 +11,7 @@ M = 2
 POIs = []
 
 DRAW_POIS = []
-ZOOM = 1
+ZOOM = 1.5
 
 ROBOT_SIZE = ZOOM * 11.25
 
@@ -23,4 +23,5 @@ PHEROMONES_MAP = [[]]
 CSV_FILE = None
 
 MARKER_HOME = None
+MARKER_WAISTE_AREA = None
 MARKER_BROOD_CHAMBER = None

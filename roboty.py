@@ -170,6 +170,8 @@ class Robot:
             int(globals.H * 100/2)
         globals.PHEROMONES_MAP[x][y] = self.payload
         self.payload = None
+        self.time_to_drop_out = 0
+        self.time_in_zone = 0
 
     def transform_resource(self):
         globals.NEST.resource_stock -= self.payload.value
