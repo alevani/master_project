@@ -173,6 +173,12 @@ class Robot:
         self.time_to_drop_out = 0
         self.time_in_zone = 0
 
+    def trash_resource(self):
+        globals.NEST.resource_transformed -= self.payload.value
+        globals.POIs[self.payload.index].state = RESOURCE_STATE_WAISTE
+        self.payload.state = RESOURCE_STATE_WAISTE
+        self.drop_resource()
+
     def transform_resource(self):
         globals.NEST.resource_stock -= self.payload.value
         globals.NEST.resource_transformed += self.payload.value

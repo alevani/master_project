@@ -186,6 +186,9 @@ class Visualizator:
                     color = GRAY
                 elif poi.state == RESOURCE_STATE_TRANSFORMED:
                     color = RED
+                elif poi.state == RESOURCE_STATE_WAISTE:
+                    color = BLUE
+
                 pygame.draw.circle(self.screen, color,
                                    (x, y), self.zoom//2 + 2)
 

@@ -34,9 +34,11 @@ class TaskHandler:
 
             if candidate != []:
                 #! not supposed to be here but looks like it works better
-                for i in range(len(robot.TASKS_Q)):
-                    robot.TASKS_Q[i] = 0
+                # for i in range(len(robot.TASKS_Q)):
+                #     robot.TASKS_Q[i] = 0
                 if randint(0, 1):
+                    for i in range(len(robot.TASKS_Q)):
+                        robot.TASKS_Q[i] = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
                     # when the robot get attributed a new task, let's make sure there's no mixup with the current state
@@ -124,12 +126,11 @@ def energy(task, robot):
     #! 1 because you need to assess how much ants currently assigned to the task in any state can supply .. cause if it is grearter than 0 then you might as well don't switch to this task. I guess
     # TODO should I have for some instance something that calculate the closest point to an area instead than just having a marker inside the area?
     # TODO it is highly okay if we don't variate here as if we do it he proven to be np complet
+    #! should not count robot that are dead
     if robot.has_to_work:
         return 1
-    # if robot.has_to_work:  # 0 is resting
-    #     return 1
-    # else:
-    #     return 0
+    else:
+        return 0
 
 
 # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)

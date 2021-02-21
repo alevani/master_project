@@ -179,7 +179,7 @@ for x in range(int(globals.W * 100)):
 # Markers
 globals.MARKER_HOME = Position(-W/2 + 1.15, -H/2 + 1.15)
 globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 3.3, -H/2 + 1.15)
-globals.MARKER_WAISTE_AREA = Position(W/2-0.7, -H/2 + 1.15)
+globals.MARKER_WAISTE_AREA = Position(W/2-0.7, H/2 - 0.7)
 
 # Areas
 AREAS = []
@@ -198,8 +198,8 @@ brood_chamber = Area(Position(-W/2 + 2.3, -H/2), 2,
 charging_area = Area(Position(-W/2, -H/2+3.8),
                      1.4, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 
-waiste_deposit = Area(Position(W/2-1.4, -H/2), 1.4,
-                      2.3, TYPE_BROOD_CHAMBER, (240, 188, 91))
+waiste_deposit = Area(Position(W/2-1.4, H/2-1.4), 1.4,
+                      1.4, TYPE_WAISTE_DEPOSIT, (240, 188, 91))
 
 foraging_area = Area(Position(-W/2, -H/2), W,
                      H, TYPE_FORAGING_AREA, (255, 255, 255))
@@ -269,7 +269,7 @@ while True:
         #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
         #! TODO the colony needs in resource should not be based on how much resrouce there's on the field otherwise the gap is just too large..
         #! todo finds out why robot stay in foraging even though other task have needs ..
-
+        #!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
         #! would probably make everything slower but .. should I implement a system that if within range then I get closer to a food supply? maybe no ... how would I make the diff ..
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
@@ -353,14 +353,22 @@ while True:
 
                     if robot.carry_resource:
                         if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
-                            robot.drop_resource()
                             robot.destination = None
                             robot.has_destination = False
+                            if robot.time_in_zone >= robot.time_to_drop_out:
+                                robot.trash_resource()
+                            else:
+                                robot.time_in_zone += 1
+                        else:
+                            robot.destination = globals.MARKER_WAISTE_AREA
+                            robot.has_destination = True
                     else:
                         if robot.is_on_area(TYPE_BROOD_CHAMBER):
                             robot.destination = None
                             robot.has_destination = False
                             if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_TRANSFORMED:
+                                robot.time_to_drop_out = 50
+                                robot.time_in_zone = 0
                                 robot.pickup_resource(pointOfInterest)
                                 robot.has_destination = True
                                 robot.destination = globals.MARKER_WAISTE_AREA
