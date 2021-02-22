@@ -11,7 +11,10 @@ from TaskHandler import assigned
 from Position import Position
 from pygame.locals import *
 from copy import deepcopy
+
+from Robot import add_robot
 from Robot import Robot
+
 from time import sleep
 from Area import Area
 from Nest import Nest
@@ -167,7 +170,6 @@ globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
 
-ACT = False
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -237,6 +239,9 @@ for _ in range(2000):
         # globals.NEST.resource_need -= resource_value
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
+
+for _ in range(85):
+    add_robot()
 ###############################################################################
 
 
@@ -270,6 +275,7 @@ def get_proximity_sensors_values(robot_rays, robot):
     return values
 
 
+ACT = True
 while True:
     globals.CNT += 1
 
@@ -444,7 +450,7 @@ while True:
                                       for o in deepcopy(globals.POIs)])
 
     #! to delete
-    if globals.CNT % 500 == 0:
+    if globals.CNT % 10 == 0:
         globals.NEST.resource_need -= 9
 
     # Task helper

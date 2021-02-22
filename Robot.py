@@ -40,7 +40,7 @@ y_a = int((H/2 - 3.1)*100)
 y_b = int((H/2 - 0.1)*100)
 
 
-def add_robot(posx, posy):
+def add_robot():
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),

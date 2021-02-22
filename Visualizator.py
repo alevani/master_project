@@ -105,7 +105,7 @@ class Visualizator:
                             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
                     x, y = self.unscale(pos[0], pos[1])
-                    add_robot(x, y)
+                    add_robot()
 
             elif event.type == QUIT:
                 pygame.quit()
