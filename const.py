@@ -42,6 +42,10 @@ H = 7
 W = 10
 
 
+def dist(p, q):
+    return math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))
+
+
 resting = 0
 first_reserve = 1
 second_reserve = 2

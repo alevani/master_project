@@ -24,6 +24,7 @@ from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_WAISTE
 from const import SIMULATION_TIMESTEP
 from const import ROBOT_TIMESTEP
+from const import dist
 from const import W
 from const import H
 from const import R
@@ -215,13 +216,13 @@ AREAS.append(waiste_deposit)
 
 #! to move in the robot
 def get_proximity_sensors_values(robot_rays, robot):
-    values = []
+    values = [10, 10, 10, 10, 10]
 
     # Wall detection
     for index, ray in enumerate(robot_rays):
         point = WORLD.intersection(ray)
-        values.append(math.dist((point.x, point.y),
-                                (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
+        values.append(dist((point.x, point.y),
+                           (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
     # Robot detection
     for r in globals.ROBOTS:
@@ -236,7 +237,7 @@ def get_proximity_sensors_values(robot_rays, robot):
                     if r.is_sensing(ray):
                         p1, p2 = nearest_points(r.get_collision_box(), Point(
                             robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                        values[index] = math.dist(
+                        values[index] = dist(
                             (p1.x, p1.y), (p2.x, p2.y))
 
     return values

@@ -19,6 +19,7 @@ from const import ROBOT_TIMESTEP
 from const import core_worker
 from const import temp_worker
 from const import BLACK
+from const import dist
 from const import R
 from const import W
 from const import H
@@ -99,7 +100,7 @@ class Robot:
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
     def in_range(self, position):
-        return True if math.dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
+        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def rest(self):
         self.destination = None
@@ -321,6 +322,7 @@ class Robot:
 
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
+                # print(x, y)
                 if pheromones_map[x][y] != 0:
                     return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
 
@@ -331,6 +333,7 @@ class Robot:
 
         for x in range(right_x - 2, right_x + 2):
             for y in range(right_y - 2, right_y + 2):
+                # print(x, y)
                 if pheromones_map[x][y] != 0:
                     return (0, pheromones_map[x][y].type), pheromones_map[x][y]
 
@@ -444,7 +447,7 @@ class Robot:
         # Angle is good, let's move toward the point
         else:
             # print("FFFFFF FORWARD FFFFFF")
-            d = math.dist((self.position.x, self.position.y), (dest.x, dest.y))
+            d = dist((self.position.x, self.position.y), (dest.x, dest.y))
 
             # As long as we are more than 1cm away
             if d > 0.02:

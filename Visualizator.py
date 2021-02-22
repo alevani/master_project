@@ -3,18 +3,24 @@ from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
 from pygame.locals import *
 from Robot import add_robot
+from Position import Position
 from random import randint
 from math import cos, sin
 from numpy import sqrt
 from time import sleep
 
-
+from const import RESOURCE_STATE_NEST_PROCESSING
+from const import RESOURCE_STATE_TRANSFORMED
+from const import RESOURCE_STATE_FORAGING
+from const import RESOURCE_STATE_WAISTE
 from const import WHITE
 from const import BLACK
 from const import GREEN
 from const import BLUE
 from const import GRAY
 from const import RED
+from const import W
+from const import H
 
 import globals
 import pygame
