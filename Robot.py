@@ -70,7 +70,6 @@ class Robot:
         self.TASKS_Q = [0, 0, 0]
 
         self.payload = None
-        self.has_destination = False
         self.area_left = -1
         self.area_right = -1
         self.time_in_zone = 0
@@ -106,7 +105,6 @@ class Robot:
 
     def rest(self):
         self.destination = None
-        self.has_destination = False
         if self.carry_resource:
             self.drop_resource()
 
@@ -131,7 +129,6 @@ class Robot:
             self.soft_turn_right()
 
     def pickup_resource(self, POI):
-        self.has_destination = True
         self.destination = globals.MARKER_HOME
         self.last_foraging_point = self.position
         self.carry_resource = True
@@ -219,7 +216,6 @@ class Robot:
         # set the robot's destination to its charging area
         self.last_foraging_point = None
         self.destination = self.start_position
-        self.has_destination = True
 
     def rotate_bottom_sensors(self, x, y, a):
         for pos in self.bottom_sensors:
@@ -241,6 +237,9 @@ class Robot:
 
     def has_to_work(self):
         return self.state == core_worker or self.state == temp_worker
+
+    def has_destination(self):
+        return True if self.destination != None else False
 
     def sense_area(self, areas):
         box_left = Point(
@@ -464,14 +463,13 @@ class Robot:
                 self.forward(left_speed, right_speed)
 
             else:
-                self.has_destination = False
                 self.destination = None
 
     # Navigation controller
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        if self.has_destination:
+        if self.has_destination():
             self.goto(self.destination, robot_prox_sensors_values)
         else:
             if self.is_avoiding:

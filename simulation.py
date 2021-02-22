@@ -268,7 +268,7 @@ while True:
         # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
             if not robot.has_to_work():
-                if not robot.has_destination:
+                if not robot.has_destination():
                     if robot.carry_resource:
                         robot.drop_resource()
                     robot.go_home()
@@ -280,22 +280,18 @@ while True:
                 elif robot.task == foraging:
                     # if I arrived home and I do carry a resource, unload it.
 
-                    if robot.carry_resource and not robot.has_destination:
+                    if robot.carry_resource and not robot.has_destination():
                         robot.destination = globals.MARKER_HOME
-                        robot.has_destination = True
 
                     # ? is this slow?
                     if not robot.carry_resource:
                         if not robot.is_on_area(TYPE_FORAGING_AREA):
-                            robot.has_destination = True
                             robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
                                 0, 0)
                         else:
-                            robot.has_destination = False
                             robot.destination = None
 
                     if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
-                        robot.has_destination = False
                         robot.destination = None
                         if robot.time_in_zone >= robot.time_to_drop_out:
                             robot.compute_resource()
@@ -318,7 +314,6 @@ while True:
                         #! sometimes this happen even though it did not enter the area
                         #! sometimes the resource vanishes
                         robot.destination = None
-                        robot.has_destination = False
                         if robot.time_in_zone >= robot.time_to_drop_out:
                             robot.transform_resource()
                         else:
@@ -326,11 +321,9 @@ while True:
 
                     elif robot.is_on_area(TYPE_HOME):
                         robot.destination = None
-                        robot.has_destination = False
 
                         if robot.carry_resource:
                             if globals.CNT - robot.payload_carry_time >= 200:
-                                robot.has_destination = True
                                 robot.destination = globals.MARKER_BROOD_CHAMBER
                                 robot.time_to_drop_out = randint(50, 100)
                                 robot.time_in_zone = 0
@@ -342,34 +335,28 @@ while True:
                     else:
                         if robot.destination != globals.MARKER_BROOD_CHAMBER:
                             robot.destination = globals.MARKER_HOME
-                            robot.has_destination = True
 
                 elif robot.task == brood_care:
 
                     if robot.carry_resource:
                         if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
                             robot.destination = None
-                            robot.has_destination = False
                             if robot.time_in_zone >= robot.time_to_drop_out:
                                 robot.trash_resource()
                             else:
                                 robot.time_in_zone += 1
                         else:
                             robot.destination = globals.MARKER_WAISTE_AREA
-                            robot.has_destination = True
                     else:
                         if robot.is_on_area(TYPE_BROOD_CHAMBER):
                             robot.destination = None
-                            robot.has_destination = False
                             if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_TRANSFORMED:
                                 robot.time_to_drop_out = 50
                                 robot.time_in_zone = 0
                                 robot.pickup_resource(pointOfInterest)
-                                robot.has_destination = True
                                 robot.destination = globals.MARKER_WAISTE_AREA
                         else:
                             robot.destination = globals.MARKER_BROOD_CHAMBER
-                            robot.has_destination = True
 
         # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
         if robot.is_on_area(TYPE_CHARGING_AREA):
@@ -385,7 +372,6 @@ while True:
                         robot.destination = globals.MARKER_HOME
                     else:
                         robot.destination = None
-                        robot.has_destination = False
 
         robot.step(robot_prox_sensors_values)
         # ###################################
@@ -407,7 +393,6 @@ while True:
                 # Robot's start position is its charging block
                 robot.battery_low = True
                 robot.destination = robot.start_position
-                robot.has_destination = True
 
         # Robot wise
         # if globals.DO_RECORD:
