@@ -25,8 +25,10 @@ class TaskHandler:
                 if feedback(task) < 0:  # Task is in energy surplus
                     robot.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
-                    #! here, if min the assignment is for EACH ants when a task reach "equilibrium"
+                    # if not robot.TASKS_Q[i] + 1 > 3:
+                    #     robot.TASKS_Q[i] += 1
                     #! but if max, some qs of some ants eventually end up with every task to more than 3 of energy and then they are never set to 0 again ..
+                    #! here, if min the assignment is for EACH ants when a task reach "equilibrium"
                     # robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
                     robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
                 if robot.TASKS_Q[i] == 3:
@@ -127,7 +129,7 @@ def energy(task, robot):
     # TODO should I have for some instance something that calculate the closest point to an area instead than just having a marker inside the area?
     # TODO it is highly okay if we don't variate here as if we do it he proven to be np complet
     #! should not count robot that are dead
-    if robot.has_to_work:
+    if robot.has_to_work():
         return 1
     else:
         return 0
@@ -136,7 +138,7 @@ def energy(task, robot):
 # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
 def assigned(task):
     #! does engaged really means an ant has to be temp or core work?
-    return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work]))
+    return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]))
 
 
 # # Return the number of ant unassigned to a task at time "step"
