@@ -18,8 +18,8 @@ import sys
 import json
 from copy import deepcopy
 
-from utils import Position
-from utils import distance
+from utils_simu import Position
+from utils_simu import distance
 
 from time import time_ns
 from time import sleep

@@ -1,17 +1,18 @@
-import pygame
-from pygame.locals import *
-import math
-from math import cos, sin
+from math import atan, cos, sin, pi, radians
 from shapely.geometry.point import Point
-from utils import Position
-import sys
 from roboty import PointOfInterest
+from robot_start_vars import *
+from pygame.locals import *
+from random import randint
+from math import cos, sin
+from numpy import sqrt
 from time import sleep
+import globals
+import pygame
+import math
+import sys
 import json
 import os
-from random import randint
-import globals
-from robot_start_vars import *
 
 WHITE = (255, 255, 255)
 LIGHT_BLACK = (130, 130, 130)
@@ -33,11 +34,11 @@ no_task = 0
 resting = 0
 
 
-x_a = int((-globals.W/2 + 0.1) * 100)
-x_b = int((-globals.W/2 + 1.35) * 100)
+x_a = int((-W/2 + 0.1) * 100)
+x_b = int((-W/2 + 1.35) * 100)
 
-y_a = int((-globals.H/2+3.6 + 0.05)*100)
-y_b = int((-globals.H/2+3.6 + 3)*100)
+y_a = int((-H/2+3.6 + 0.05)*100)
+y_b = int((-H/2+3.6 + 3)*100)
 
 
 def add_robot(posx, posy):
@@ -48,6 +49,20 @@ def add_robot(posx, posy):
     posy = randint(y_a, y_b)
     globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),
                                 BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, 100))
+
+
+def distance(s, x, y):
+    return sqrt((s.x-x)**2+(s.y-y)**2)
+
+
+class Position:
+    def __init__(self, x, y, theta=None):
+        self.x = x
+        self.y = y
+        self.theta = theta
+
+    def __repr__(self):
+        return "({}, {}, {})".format(self.x, self.y, self.theta)
 
 
 class Visualizator:
@@ -101,8 +116,8 @@ class Visualizator:
                             Position(x, y), 15000, 2, 10))
 
                         # ? why did I divide by two ..aaaa
-                        x_scaled = int(x * 100) + int(globals.W * 100/2)
-                        y_scaled = int(y * 100) + int(globals.H * 100/2)
+                        x_scaled = int(x * 100) + int(W * 100/2)
+                        y_scaled = int(y * 100) + int(H * 100/2)
 
                         resource_value = randint(1, 2)
                         # globals.NEST.resource_need -= resource_value

@@ -1,6 +1,6 @@
-# TODO move some of the globals here, as long as they are const.
-from utils import Position
+from utils_simu import Position
 import math
+
 # Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
 ROBOT_TIMESTEP = 1
 SIMULATION_TIMESTEP = .01
@@ -9,6 +9,7 @@ R = 0.02  # radius of wheels in meters
 L = 0.095  # distance between wheels in meters
 
 
+# Assuming the robot is looking north
 BOTTOM_LIGHT_SENSORS_POSITION = [
     Position(-0.01, 0.07), Position(0.01, 0.07)]
 
@@ -20,7 +21,12 @@ PROXIMITY_SENSORS_POSITION = [
 ]
 
 
+# State in which a point of interest can end up in
 RESOURCE_STATE_FORAGING = 0
 RESOURCE_STATE_NEST_PROCESSING = 1
 RESOURCE_STATE_TRANSFORMED = 2
 RESOURCE_STATE_WAISTE = 3
+
+# Height and Width of the arena
+H = 7
+W = 10

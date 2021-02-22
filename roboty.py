@@ -2,9 +2,9 @@ from shapely.geometry import LinearRing, LineString, Point, Polygon
 from numpy import sin, cos, pi, sqrt, zeros
 from shapely.geometry.point import Point
 from shapely.affinity import rotate
-from utils import distance
+from utils_simu import distance
+from utils_simu import Position
 from random import randint
-from utils import Position
 from random import random
 from copy import deepcopy
 from robot_start_vars import *
@@ -165,9 +165,9 @@ class Robot:
     def drop_resource(self):
         self.carry_resource = False
         x = int(self.position.x * 100) + \
-            int(globals.W * 100/2)
+            int(W * 100/2)
         y = int(self.position.y * 100) + \
-            int(globals.H * 100/2)
+            int(H * 100/2)
         globals.PHEROMONES_MAP[x][y] = self.payload
         self.payload = None
         self.time_to_drop_out = 0
@@ -341,8 +341,8 @@ class Robot:
             self.is_avoiding = False
 
     def get_bottom_sensors_state(self, pheromones_map):
-        left_x = int(self.bottom_sensors[0].x * 100) + int(globals.W * 100/2)
-        left_y = int(self.bottom_sensors[0].y * 100) + int(globals.H * 100/2)
+        left_x = int(self.bottom_sensors[0].x * 100) + int(W * 100/2)
+        left_y = int(self.bottom_sensors[0].y * 100) + int(H * 100/2)
 
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
@@ -350,9 +350,9 @@ class Robot:
                     return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
 
         right_x = int(self.bottom_sensors[1].x *
-                      100) + int(globals.W * 100/2)
+                      100) + int(W * 100/2)
         right_y = int(self.bottom_sensors[1].y *
-                      100) + int(globals.H * 100/2)
+                      100) + int(H * 100/2)
 
         for x in range(right_x - 2, right_x + 2):
             for y in range(right_y - 2, right_y + 2):

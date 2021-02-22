@@ -8,7 +8,6 @@ class TaskHandler:
     def __init__(self, nest, TASKS):
         self.nest = nest
         self.TASKS = TASKS
-        #! is Q local to a robot?
         self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
                        (0, 0, 255), (125, 125, 125)]
 
@@ -25,24 +24,16 @@ class TaskHandler:
                 if feedback(task) < 0:  # Task is in energy surplus
                     robot.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
-                    # if not robot.TASKS_Q[i] + 1 > 3:
-                    #     robot.TASKS_Q[i] += 1
-                    #! but if max, some qs of some ants eventually end up with every task to more than 3 of energy and then they are never set to 0 again ..
-                    #! here, if min the assignment is for EACH ants when a task reach "equilibrium"
-                    # robot.TASKS_Q[i] = min(robot.TASKS_Q[i] + 1, 3)
                     robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
                 if robot.TASKS_Q[i] == 3:
                     candidate.append(task)
-
             if candidate != []:
-                #! not supposed to be here but looks like it works better
-                # for i in range(len(robot.TASKS_Q)):
-                #     robot.TASKS_Q[i] = 0
                 if randint(0, 1):
                     for i in range(len(robot.TASKS_Q)):
                         robot.TASKS_Q[i] = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
+
                     # when the robot get attributed a new task, let's make sure there's no mixup with the current state
                     robot.rest()
                     robot.state = self.temp_worker
@@ -77,25 +68,6 @@ class TaskHandler:
         print("Resources: ", self.nest.resource_need)
         print("Nest Maintenance: ", self.nest.resource_stock)
         print("Brood Care: ", self.nest.resource_transformed)
-
-    # such as ..
-    def get_hunger_level(self):
-
-        # Determined by external characteristics. Since we are working with robots, the demand will be when a robot has less than
-        # FOOD_TRESHOLD energy
-
-        # Now one can do two things: Either the demand increase depending on how many robots are below the treshold
-        # or if the total "battery level" is below a treshold -> which would lead or more ants seeking for food the
-        # closer energy in the the mass of robots gets closer to 0
-
-        # as of now.. it is the first one. Which means, the more robots that are hungry, the higher the demand is (undependently of their hungerness)
-        # return sum([1 for robot in globals.ROBOTS if robot.hunger_level > globals.FOOD_TRESHOLD])
-        pass
-
-    def get_nest_maintenance_status(self):
-        # TODO let's start with get_hunger .. one task at a time
-        # Return the energy demand for task "task" at time "step
-        pass
 
 
 def demand(task):
@@ -140,13 +112,9 @@ def assigned(task):
     #! does engaged really means an ant has to be temp or core work?
     return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]))
 
-
-# # Return the number of ant unassigned to a task at time "step"
-# def unassigned(step):
-#     sum([1 for robot in globals.ROBOTS if robot.task == 0])
-
-
 # Return the energy supplied to a task "task" at time "step"
+
+
 def energy_supplied(task):
     #! write in the thesis that "local feedback" from the paper just means that any robot can ask every robots their current task
     return sum([energy(task, robot) for robot in globals.ROBOTS if robot.task == task])

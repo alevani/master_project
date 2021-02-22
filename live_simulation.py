@@ -5,11 +5,11 @@ from shapely.ops import nearest_points
 from shapely.affinity import rotate
 from utils_simu import Visualizator
 from roboty import PointOfInterest
+from utils_simu import distance
 from robot_start_vars import *
 from world import decay_check
 from task import TaskHandler
 from pygame.locals import *
-from utils import distance
 from task import assigned
 from copy import deepcopy
 from roboty import Robot
@@ -27,27 +27,14 @@ import math
 import sys
 
 # IDEAS
-# !!!!!! not experiment before all the measurments and the brain completed.
-
-#! maybe re-implement the whole interest level thingy....
-#! https://github.com/alevani/master_project/commit/d7812d9175dfd5a8090e68be942d5bbc83cb0e68
-
-
 #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
 #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
 #! could be nice to have something to save a state .. ? and then load back the state for study
-
-#! ok to retrace what happended it will actually be interesting to be able to visu ..
 ########
 
 ### GLOBALS ###################################################################
 
 # WORLD
-# TODO Redo measurements of the robot's sensors' position
-
-W = globals.W
-H = globals.H
-
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
 # PYGAME
@@ -165,9 +152,9 @@ globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
-for x in range(int(globals.W * 100)):
+for x in range(int(W * 100)):
     inner = []
-    for y in range(int(globals.H * 100)):
+    for y in range(int(H * 100)):
         inner.append(0)
     globals.PHEROMONES_MAP.append(inner)
 

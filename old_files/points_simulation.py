@@ -4,10 +4,11 @@ from time import sleep
 import math
 from random import randint
 from utils_simu import Visualizator
-from utils import Position
+from utils_simu import Position
 import json
 from roboty import PointOfInterest
 from pygame.locals import *
+from robot_start_vars import *
 import globals
 
 with open('points.json', 'r') as f:
@@ -22,7 +23,7 @@ GRAY = (100, 100, 100)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
-VISUALIZER = Visualizator(globals.W, globals.H, 0, None)
+VISUALIZER = Visualizator(W, H, 0, None)
 NBPOINTS = int(CNT) / int(M)
 
 ###############################################################################
