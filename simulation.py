@@ -1,3 +1,4 @@
+from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
@@ -166,12 +167,15 @@ globals.ROBOTS.append(R13)
 globals.ROBOTS.append(R14)
 globals.ROBOTS.append(R15)
 
+ACT = False
+
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
     inner = []
     for y in range(int(H * 100)):
         inner.append(0)
     globals.PHEROMONES_MAP.append(inner)
+
 
 # Markers
 globals.MARKER_HOME = Position(-W/2 + 1.15, -H/2 + 1.15)
@@ -206,6 +210,33 @@ AREAS.append(home)
 AREAS.append(brood_chamber)
 AREAS.append(charging_area)
 AREAS.append(waiste_deposit)
+
+
+def is_point_on_area(x, y):
+    box = Point(x, y).buffer(0.01)
+    for area in AREAS[1:]:  # Disregard the foraging area as it is the entire map
+        if area.box.intersects(box):
+            return True
+    return False
+
+
+for _ in range(2000):
+    x = uniform(-W/2+0.01, W/2-0.01)
+    y = uniform(-H/2+0.01, H/2-0.01)
+
+    if not is_point_on_area(x, y):
+        index = len(globals.POIs)
+        globals.POIs.append(PointOfInterest(
+            Position(x, y), 15000, 2, 10))
+
+        # ? why did I divide by two ..aaaa
+        x_scaled = int(x * 100) + int(W * 100/2)
+        y_scaled = int(y * 100) + int(H * 100/2)
+
+        resource_value = randint(1, 2)
+        # globals.NEST.resource_need -= resource_value
+        globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
+            Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 ###############################################################################
 
 
@@ -242,8 +273,9 @@ def get_proximity_sensors_values(robot_rays, robot):
 while True:
     globals.CNT += 1
 
-    VISUALIZER.draw_arena()
-    VISUALIZER.draw_areas(AREAS)
+    if ACT:
+        VISUALIZER.draw_arena()
+        VISUALIZER.draw_areas(AREAS)
 
     for robot in globals.ROBOTS:
 
@@ -375,11 +407,12 @@ while True:
 
         collided = robot.is_colliding(WORLD)
 
-        DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
-            robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
+        if ACT:
+            DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
+                robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
-        VISUALIZER.draw(robot.position, robot.color, globals.CNT,
-                        robot.path, robot.get_collision_box_coordinate(), robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
+            VISUALIZER.draw(robot.position, robot.color, globals.CNT,
+                            robot.path, robot.get_collision_box_coordinate(), robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
         if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
@@ -400,8 +433,9 @@ while True:
             print("Robot {} collided, position reseted".format(robot.number))
             robot.reset()
 
-    VISUALIZER.pygame_event_manager(pygame.event.get())
-    VISUALIZER.draw_poi(globals.POIs)
+    if ACT:
+        VISUALIZER.pygame_event_manager(pygame.event.get())
+        VISUALIZER.draw_poi(globals.POIs)
 
     # World wise
     if globals.DO_RECORD:
@@ -438,5 +472,6 @@ while True:
                 txt += str(globals.NEST.resource_transformed)
         globals.CSV_FILE.write(txt+"\n")
 
-    pygame .display.flip()  # render drawing
-    fpsClock.tick(fps)
+    if ACT:
+        pygame .display.flip()  # render drawing
+        fpsClock.tick(fps)
