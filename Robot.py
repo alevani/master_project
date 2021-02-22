@@ -1,15 +1,15 @@
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from numpy import sin, cos, pi, sqrt, zeros
 from shapely.geometry.point import Point
-from robot_start_vars import core_worker
-from robot_start_vars import temp_worker
 from CollisionBox import CollisionBox
 from shapely.affinity import rotate
-from robot_start_vars import *
 from Position import Position
+from const import core_worker
+from const import temp_worker
 from random import randint
 from random import random
 from copy import deepcopy
+from const import *
 import globals
 import shapely
 import math

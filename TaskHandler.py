@@ -1,8 +1,8 @@
-from robot_start_vars import second_reserve
-from robot_start_vars import first_reserve
-from robot_start_vars import core_worker
-from robot_start_vars import temp_worker
-from robot_start_vars import resting
+from const import second_reserve
+from const import first_reserve
+from const import core_worker
+from const import temp_worker
+from const import resting
 from random import randint
 from random import random
 import threading

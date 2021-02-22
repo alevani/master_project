@@ -1,4 +1,4 @@
-from robot_start_vars import RESOURCE_STATE_FORAGING
+from const import RESOURCE_STATE_FORAGING
 
 
 class PointOfInterest:

@@ -7,7 +7,6 @@ from Visualizator import Visualizator
 from shapely.affinity import rotate
 from TaskHandler import TaskHandler
 from TaskHandler import assigned
-from robot_start_vars import *
 from pygame.locals import *
 from copy import deepcopy
 from Robot import Robot
@@ -15,6 +14,7 @@ from time import sleep
 from Area import Area
 from Nest import Nest
 from random import *
+from const import *
 import numpy as np
 import threading
 import shapely

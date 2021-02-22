@@ -1,7 +1,7 @@
 from math import atan, cos, sin, pi, radians
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
-from robot_start_vars import *
+from const import *
 from pygame.locals import *
 from Robot import add_robot
 from random import randint
