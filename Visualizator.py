@@ -43,6 +43,9 @@ resting = 0
 
 
 class Visualizator:
+
+    ''' PyGame wrapper designed to draw experimental-related arena content'''
+
     def __init__(self, W, H, decay, FILE):
         pygame.display.set_caption(
             'Simulation of task allocation in ant colonies')

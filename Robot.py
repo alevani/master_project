@@ -31,9 +31,11 @@ import math
 
 OUT_RANGE = 10000
 
+# X start and end borns for add_robot
 x_a = int((-W/2 + 0.1) * 100)
 x_b = int((-W/2 + 1.35) * 100)
 
+# Y start and end borns for add_robot
 y_a = int((-H/2+3.6 + 0.05)*100)
 y_b = int((-H/2+3.6 + 3)*100)
 
@@ -322,7 +324,6 @@ class Robot:
 
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
-                # print(x, y)
                 if pheromones_map[x][y] != 0:
                     return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
 
@@ -333,7 +334,6 @@ class Robot:
 
         for x in range(right_x - 2, right_x + 2):
             for y in range(right_y - 2, right_y + 2):
-                # print(x, y)
                 if pheromones_map[x][y] != 0:
                     return (0, pheromones_map[x][y].type), pheromones_map[x][y]
 
@@ -374,14 +374,14 @@ class Robot:
     def is_on_area(self, area):
         return True if self.area_left == area or self.area_right == area else False
 
-    #! from https://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
-    def angle_trunc(self, a):
+    # from https://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
+    def _angle_trunc(self, a):
         while a < 0.0:
             a += pi * 2
         return a
 
     def find_relative_angle(self, start, dest):
-        return self.angle_trunc(math.atan2((dest.y-start.y), (dest.x-start.x)))
+        return self._angle_trunc(math.atan2((dest.y-start.y), (dest.x-start.x)))
 
     # Make the robot move to a given position
     #

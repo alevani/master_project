@@ -24,6 +24,7 @@ from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_WAISTE
 from const import SIMULATION_TIMESTEP
 from const import ROBOT_TIMESTEP
+from const import BLACK
 from const import dist
 from const import W
 from const import H
@@ -90,20 +91,12 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
-globals.NEST = Nest(0)
+globals.NEST = Nest(-50)
 TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
-
-
-#! robot gather resource (foraging).. then a few of these resource will be transform (brood_caring) and finally waste frmo the transformation will be clean (nest maintenance) ?
-#! we could also imagine a waste task where the robot would take pills from the nest to the waste once transformed by the brood worker.
-#! I think it is important to have task where needs depends on other task.
-#! pas normal: the robot should not wait for a task need to be fulfilled before thinking of re-assignement .. should they?
-
 BASE_BATTERY_LEVEL = 100
-BLACK = (0, 0, 0)
 
 R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.8, math.radians(0)),
            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
@@ -173,11 +166,6 @@ for x in range(int(W * 100)):
         inner.append(0)
     globals.PHEROMONES_MAP.append(inner)
 
-
-# Contains robot's pheromone (if used)
-# PHEROMONES_PATH = []
-
-
 # Markers
 globals.MARKER_HOME = Position(-W/2 + 1.15, -H/2 + 1.15)
 globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 3.3, -H/2 + 1.15)
@@ -212,11 +200,11 @@ AREAS.append(brood_chamber)
 AREAS.append(charging_area)
 AREAS.append(waiste_deposit)
 ###############################################################################
+#! the number of remaining dots and the value of the taskhandler does not match up. I suspect some points are wrongly moved or deduced..
 
 
-#! to move in the robot
 def get_proximity_sensors_values(robot_rays, robot):
-    values = [10, 10, 10, 10, 10]
+    values = []
 
     # Wall detection
     for index, ray in enumerate(robot_rays):
@@ -226,13 +214,14 @@ def get_proximity_sensors_values(robot_rays, robot):
 
     # Robot detection
     for r in globals.ROBOTS:
-        #! What I add here only serves the purpose to make the program faster
-        #! should not be reproduce into a real life setup
-        #! but does not affect how accurate to real life the setup currently is
 
         # Don't check ourselves
         if r.number != robot.number:
+
+            # in range is used to reduce the amount of robot the robot as to compare.
             if robot.in_range(r.position):
+
+                # "If one of my rays can sense you, get the distance"
                 for index, ray in enumerate(robot_rays):
                     if r.is_sensing(ray):
                         p1, p2 = nearest_points(r.get_collision_box(), Point(
@@ -245,9 +234,10 @@ def get_proximity_sensors_values(robot_rays, robot):
 
 while True:
     globals.CNT += 1
+
     VISUALIZER.draw_arena()
     VISUALIZER.draw_areas(AREAS)
-    # VISUALIZER.draw_decay(PHEROMONES_PATH)
+
     for robot in globals.ROBOTS:
 
         if robot.battery_level <= 0:
@@ -350,8 +340,9 @@ while True:
                             robot.pickup_resource(pointOfInterest)
                             robot.payload_carry_time = globals.CNT
                     else:
-                        robot.destination = globals.MARKER_HOME
-                        robot.has_destination = True
+                        if robot.destination != globals.MARKER_BROOD_CHAMBER:
+                            robot.destination = globals.MARKER_HOME
+                            robot.has_destination = True
 
                 elif robot.task == brood_care:
 
@@ -412,9 +403,8 @@ while True:
         if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
             robot.battery_level -= randint(0, 4)
             if robot.battery_level < 25:
+
                 # Robot's start position is its charging block
-                #! below is making a good point
-                # TODO if that happens, I should probably change the task of the robot so an other one can take over -> yes, but let's think about that later shall we.
                 robot.battery_low = True
                 robot.destination = robot.start_position
                 robot.has_destination = True
@@ -425,8 +415,6 @@ while True:
         #     robot.path.append(robot.position.__dict__)
 
         if collided:
-            #! sometimes a lot of robot that are not even in the same area collide in the same time
-            #! I need to figure out why.
             print("Robot {} collided, position reseted".format(robot.number))
             robot.reset()
 
@@ -434,13 +422,17 @@ while True:
     VISUALIZER.pygame_event_manager(pygame.event.get())
     VISUALIZER.draw_poi(globals.POIs)
 
-    # ? I don't think that the decay is fully necessary. if it is not, then delete and re assess the need of making POIs invisible instead of deleting
     # decay_check()
+
     # World wise
     if globals.DO_RECORD:
         if globals.CNT % globals.M == 0:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
+    #! to delete
+    if globals.CNT % 3000 == 0:
+        globals.NEST.resource_need -= 50
+
     # Task helper
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
@@ -453,21 +445,19 @@ while True:
                   " | " + str(robot.TASKS_Q))
         TaskHandler.print_stats()
 
-    #     # print to csv file
-    #     # TODO could be nice to also print each robot task and state to see oscillation ?
-    #     #! problem here .. the assigned right is always 0 but should fluctuate..
-    #     txt = str(globals.CNT)+";"
-    #     for i in range(len(TASKS)):
-    #         txt += assigned(i) + ";"
-    #         if i == foraging:
-    #             txt += str(globals.NEST.resource_need)+";"
-    #         elif i == idle:
-    #             txt += "0;"
-    #         elif i == nest_maintenance:
-    #             txt += str(globals.NEST.resource_stock)+";"
-    #         elif i == brood_care:
-    #             txt += str(globals.NEST.resource_transformed)
-    #     globals.CSV_FILE.write(txt+"\n")
+        # print to csv file
+        # TODO could be nice to also print each robot task and state to see oscillation ?
+        #! problem here .. the assigned right is always 0 but should fluctuate..
+        txt = str(globals.CNT)+";"
+        for i in range(1, len(TASKS) + 1):
+            txt += assigned(i) + ";"
+            if i == foraging:
+                txt += str(globals.NEST.resource_need * -1)+";"
+            elif i == nest_maintenance:
+                txt += str(globals.NEST.resource_stock)+";"
+            elif i == brood_care:
+                txt += str(globals.NEST.resource_transformed)
+        globals.CSV_FILE.write(txt+"\n")
 
     pygame .display.flip()  # render drawing
     fpsClock.tick(fps)
