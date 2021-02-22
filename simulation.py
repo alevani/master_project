@@ -450,8 +450,8 @@ while True:
                                       for o in deepcopy(globals.POIs)])
 
     #! to delete
-    if globals.CNT % 10 == 0:
-        globals.NEST.resource_need -= 9
+    if globals.CNT % 500 == 0:
+        globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
