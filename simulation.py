@@ -155,16 +155,16 @@ globals.ROBOTS.append(R2)
 globals.ROBOTS.append(R3)
 globals.ROBOTS.append(R4)
 globals.ROBOTS.append(R5)
-# globals.ROBOTS.append(R6)
-# globals.ROBOTS.append(R7)
-# globals.ROBOTS.append(R8)
-# globals.ROBOTS.append(R9)
-# globals.ROBOTS.append(R10)
-# globals.ROBOTS.append(R11)
-# globals.ROBOTS.append(R12)
-# globals.ROBOTS.append(R13)
-# globals.ROBOTS.append(R14)
-# globals.ROBOTS.append(R15)
+globals.ROBOTS.append(R6)
+globals.ROBOTS.append(R7)
+globals.ROBOTS.append(R8)
+globals.ROBOTS.append(R9)
+globals.ROBOTS.append(R10)
+globals.ROBOTS.append(R11)
+globals.ROBOTS.append(R12)
+globals.ROBOTS.append(R13)
+globals.ROBOTS.append(R14)
+globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -426,7 +426,6 @@ while True:
 
         # print to csv file
         # TODO could be nice to also print each robot task and state to see oscillation ?
-        #! problem here .. the assigned right is always 0 but should fluctuate..
         txt = str(globals.CNT)+";"
         for i in range(1, len(TASKS) + 1):
             txt += assigned(i) + ";"

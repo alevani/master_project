@@ -39,10 +39,9 @@ class TaskHandler:
                         robot.TASKS_Q[i] = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
-
-                    # when the robot get attributed a new task, let's make sure there's no mixup with the current state
                     robot.rest()
                     robot.state = self.temp_worker
+
         elif robot.state == self.first_reserve:
             if feedback(robot.task) < 0:
                 robot.state = self.resting
@@ -57,7 +56,8 @@ class TaskHandler:
                 robot.rest()
             else:
                 robot.state = self.temp_worker
-        elif not robot.carry_resource:  # ! if the robot carries a resource, it shouldn't change task until the resource is processed
+        # As long as the robot holds a resource, do not change its task.
+        elif not robot.carry_resource:
             if robot.state == self.temp_worker:
                 if feedback(robot.task) < 0:
                     robot.state = self.first_reserve
@@ -87,27 +87,7 @@ def demand(task):
 
 # Return the energy an ant "robot" can supply to a task "task" at time "step"
 def energy(task, robot):
-    # Energy is based on ant characteristic to achieve a task.
-    # Our simulation is a homogeneous system, meaning that no robots have better characteristics than others
-    # The robot cannot sense their long-range environment, but maybe, for task such as food, we could sense the short
-    # environment and say "if I sense food then the energy I can provide is higher"
-
-    # The paper says it could also be impacted by previous experience .. maybe the robot can have a short memory
-    # That would say "ho .. I was close to food 10 timestep ago.. it is likely that I still have food nearby"
-
-    # As of now.. the energy is 1. Meaning that each robot can perform anytask as good as any other
-
-    #! but the energy will depend of the task
-    #! what does "engaged means .. because if the robot is in second worker or so it will not work .."
-    # ? maybe .. if the robots know about any last foraging point .. then maybe the energy it can supply is greater?
-    #! or .. if you already are on the area for the task .. maybe increase?
-    #! based on gordon as well
-
-    #! 1 because you need to assess how much ants currently assigned to the task in any state can supply .. cause if it is grearter than 0 then you might as well don't switch to this task. I guess
-    # TODO should I have for some instance something that calculate the closest point to an area instead than just having a marker inside the area?
-    # TODO it is highly okay if we don't variate here as if we do it he proven to be np complet
-    #! should not count robot that are dead
-    if robot.has_to_work():
+    if robot.has_to_work() and robot.battery_level > 0:
         return 1
     else:
         return 0
@@ -115,14 +95,13 @@ def energy(task, robot):
 
 # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
 def assigned(task):
-    #! does engaged really means an ant has to be temp or core work?
+    # ? does engaged really means an ant has to be temp or core work?
     return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]))
 
 # Return the energy supplied to a task "task" at time "step"
 
 
 def energy_supplied(task):
-    #! write in the thesis that "local feedback" from the paper just means that any robot can ask every robots their current task
     return sum([energy(task, robot) for robot in globals.ROBOTS if robot.task == task])
 
 

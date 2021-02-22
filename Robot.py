@@ -111,8 +111,7 @@ class Robot:
             self.drop_resource()
 
     def reset(self):
-        #! should I clear the payload and maybe the task assignement and all?
-        #! make it sound like it's a brand new robot
+        # ? should I clear the payload and maybe the task assignement and all?
         position = self.start_position
         self.position = position
         self.proximity_sensors = deepcopy(self.proximity_sensors_backup)
@@ -135,8 +134,6 @@ class Robot:
         self.payload = POI
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
-#! something is off there .. also maybe assigning the POI object to the robot is maybe not necessary .. it makes sense but maybe I can just assign the index to the POIs array?
-#! would it be less .. more .. energy ?
     def drop_resource(self):
         self.carry_resource = False
         x = int(self.position.x * 100) + \
@@ -388,15 +385,6 @@ class Robot:
     # this means that the robot does not go blindly forward
     def goto(self, dest, proximity_sensor_values):
 
-        # the simple algorithm would be to
-        # the closer the obstacle is ..
-        # the more the robot will be impacted
-        # I am going to try to use only left most and right most for the moment
-
-        # Obstacle range is 0.04 .. but I feel like that's already to close to act on
-        # so I will use 0.1 as an arbitraty try value
-        # That says .. above .1 .. disregard the obstacle
-
         top = proximity_sensor_values[1]
         left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else OUT_RANGE
         right_most = proximity_sensor_values[2] if proximity_sensor_values[2] < 0.1 else OUT_RANGE
@@ -404,9 +392,7 @@ class Robot:
         left_most = left_most if left_most != 0 else 0.01
         right_most = right_most if right_most != 0 else 0.01
 
-        #! 0.1 / math.sqrt(x) variates between 0.3 and 1
-        # print("print (left,right) sensor value (cm)")
-        # print(left_most, right_most)
+        # 0.1 / math.sqrt(x) variates between 0.3 and 1
         left_wheel_velocity_diff = 0.1 / math.sqrt(left_most)
         right_wheel_velocity_diff = 0.1 / math.sqrt(right_most)
 
@@ -415,22 +401,20 @@ class Robot:
         diff = abs(dest_angle - self.position.theta)
 
         if diff > math.radians(5):
-            # print("RRRRR ROTATING RRRRR")
 
-            # Determine if the robot should rather turn left or right
             s = 1
+            # Determine if the robot should rather turn left or right
             if (self.position.theta - dest_angle) % 360 >= math.radians(180):
                 s = -1
 
             #! maybe the velo diff has to be proportional to 0.2 and 0.5
             #! maybe I should make sure speed < 1 here,,,
-            # Let's assume our robot will move alway clockwise
+
+            # Speed down when approaching goal angle
             if diff < math.radians(10):
-                # Try at .. If I get close enough to destination, reduce speed so I don't miss it.
                 left_speed = 0.2 * s
                 right_speed = -0.2 * s
             else:
-                # Othewise full throttle
                 left_speed = 0.5 * s
                 right_speed = -0.5 * s
 
@@ -438,30 +422,22 @@ class Robot:
             if top < 0.05:
                 left_speed -= 3  # ! yikes
 
-            # print("right - left")
-            # print(min(right_speed + right_wheel_velocity_diff, 1),
-            #       min(left_speed + left_wheel_velocity_diff, 1))
             self.rotate(min(left_speed + left_wheel_velocity_diff, 1),
                         min(right_speed + right_wheel_velocity_diff, 1))
 
-        # Angle is good, let's move toward the point
+        # If angle dest reached, move forward
         else:
-            # print("FFFFFF FORWARD FFFFFF")
             d = dist((self.position.x, self.position.y), (dest.x, dest.y))
 
-            # As long as we are more than 1cm away
+            # Speeds down the robot when approaching goal position
             if d > 0.02:
 
                 if top < 0.05:
-                    # and left_most == OUT_RANGE and right_most == OUT_RANGE:
-                    # print("WITHIN TOP RANGE")
-                    # should that be random
+                    # ? should that be random
                     right_wheel_velocity_diff = 2
 
                 left_speed = 1 - right_wheel_velocity_diff
                 right_speed = 1 - left_wheel_velocity_diff
-                # print("right - left")
-                # print(right_speed, left_speed)
                 self.forward(left_speed, right_speed)
 
             else:
