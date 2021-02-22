@@ -1,5 +1,15 @@
-from utils_simu import Position
+from Position import Position
+from random import randint
+from copy import deepcopy
 import math
+
+WHITE = (255, 255, 255)
+LIGHT_BLACK = (130, 130, 130)
+GRAY = (200, 200, 200)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 125, 0)
 
 # Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
 ROBOT_TIMESTEP = 1
@@ -30,3 +40,14 @@ RESOURCE_STATE_WAISTE = 3
 # Height and Width of the arena
 H = 7
 W = 10
+
+
+def distance(s, x, y):
+    return math.sqrt((s.x-x)**2+(s.y-y)**2)
+
+
+resting = 0
+first_reserve = 1
+second_reserve = 2
+temp_worker = 3
+core_worker = 4
