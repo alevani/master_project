@@ -92,6 +92,8 @@ class Robot:
         self.is_avoiding_cnt = 0
         self.NB_STEP_TO_AVOID = 15
 
+        self.saved_destination = None
+
         self.position = position
         self.start_position = position
         self.draw_information = []

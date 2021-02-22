@@ -46,6 +46,11 @@ import sys
 #! could be nice to have something to save a state .. ? and then load back the state for study
 
 # TODO would be nice to be able to disable the visualisation very easily
+
+#!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
+#! would probably make everything slower but .. should I implement a system that if within range then I get closer to a food supply? maybe no ... how would I make the diff ..
+
+#! the number of remaining dots and the value of the taskhandler does not match up. I suspect some points are wrongly moved or deduced..
 ########
 
 ### GLOBALS ###################################################################
@@ -200,7 +205,6 @@ AREAS.append(brood_chamber)
 AREAS.append(charging_area)
 AREAS.append(waiste_deposit)
 ###############################################################################
-#! the number of remaining dots and the value of the taskhandler does not match up. I suspect some points are wrongly moved or deduced..
 
 
 def get_proximity_sensors_values(robot_rays, robot):
@@ -240,6 +244,7 @@ while True:
 
     for robot in globals.ROBOTS:
 
+        # If the robot is out of power, don't process it
         if robot.battery_level <= 0:
             break
 
@@ -252,38 +257,28 @@ while True:
             globals.PHEROMONES_MAP)
 
         TaskHandler.assign_task(robot)
-        robot.stop()
 
+        robot.stop()
         robot.sense_area(AREAS)
 
-        #! I have witnessed something unusual ... the robots were all in the chargin area and they could not get out of it .. like if I had implemented them to stay in but no :|
-        # TODO this is due to calling goto charching area everytime when wandering, which is quite nice to keep them in an area
-        # ? but I don't get why they would've been blocked in the CHARGING zone .. try to analyze the code pleaase -> no.
-
-        #!OBSERVATION TASK: when one task when all robot go to resting even though like brood care is -9, then when I hit R, the robot who was resting but brood caring goes back to work .. why? he shouldn't have stopped in the first place
-        #! TODO the colony needs in resource should not be based on how much resrouce there's on the field otherwise the gap is just too large..
-        #! todo finds out why robot stay in foraging even though other task have needs ..
-        #!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
-        #! would probably make everything slower but .. should I implement a system that if within range then I get closer to a food supply? maybe no ... how would I make the diff ..
-        # if the robot does not have to work .. let it rest in its charging area.
         if not robot.battery_low:
+            # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
                 if not robot.has_destination():
                     if robot.carry_resource:
                         robot.drop_resource()
                     robot.go_home()
+
             # the robot has to be active
             else:
                 if robot.task == no_task:
                     robot.go_home()
 
                 elif robot.task == foraging:
-                    # if I arrived home and I do carry a resource, unload it.
 
                     if robot.carry_resource and not robot.has_destination():
                         robot.destination = globals.MARKER_HOME
 
-                    # ? is this slow?
                     if not robot.carry_resource:
                         if not robot.is_on_area(TYPE_FORAGING_AREA):
                             robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
@@ -291,6 +286,7 @@ while True:
                         else:
                             robot.destination = None
 
+                    # if I arrived home and I do carry a resource, unload it.
                     if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
                         robot.destination = None
                         if robot.time_in_zone >= robot.time_to_drop_out:
@@ -299,19 +295,15 @@ while True:
                             robot.time_in_zone += 1
 
                     # else if I find a resource on the ground, and I am not already carrying a resource
-                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_FORAGING:
+                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and not robot.carry_resource and pointOfInterest.state == RESOURCE_STATE_FORAGING:
                         robot.pickup_resource(pointOfInterest)
 
                         # Arbitrary, makes sure the resource is in home (Hopefully)
-                        #! full speculation .. what if 50 and a robot is pushed out of the area and drop it outside? rip. I mean technically ok.
-                        #! if that's a problem, put marker down in 0,0 and make sure the ants goes to the marker, drop at a rando point, then go back to foraging
                         robot.time_to_drop_out = randint(50, 150)
 
-                # TODO waste cleaner will take the broodchamber processed payload after prossed.
                 elif robot.task == nest_maintenance:
 
                     if robot.is_on_area(TYPE_BROOD_CHAMBER) and robot.carry_resource and robot.payload_carry_time == 0:
-                        #! sometimes this happen even though it did not enter the area
                         #! sometimes the resource vanishes
                         robot.destination = None
                         if robot.time_in_zone >= robot.time_to_drop_out:
@@ -358,25 +350,24 @@ while True:
                         else:
                             robot.destination = globals.MARKER_BROOD_CHAMBER
 
-        # if the robot intends to go back to its station to charge. The robot can charge even though it is not battery_low
         if robot.is_on_area(TYPE_CHARGING_AREA):
             if robot.destination == robot.start_position or robot.battery_low:
-                # charge its battery level up to 100
+
                 if globals.CNT % 5 == 0 and robot.battery_level < 100:
                     robot.battery_level += 2
 
                 if robot.battery_level >= 100:
-                    # As the robot can be interrupted in its task while charging .. we need to make sure he gets back to it
                     robot.battery_low = False
+
                     if robot.carry_resource:
-                        robot.destination = globals.MARKER_HOME
+                        #! potential bug generator, if anything goes wrong look at it
+                        robot.destination = robot.saved_destination
                     else:
                         robot.destination = None
 
         robot.step(robot_prox_sensors_values)
         # ###################################
 
-        # check collision with arena walls
         collided = robot.is_colliding(WORLD)
 
         DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
@@ -392,6 +383,7 @@ while True:
 
                 # Robot's start position is its charging block
                 robot.battery_low = True
+                robot.saved_destination = robot.destination
                 robot.destination = robot.start_position
 
         # Robot wise
@@ -403,11 +395,8 @@ while True:
             print("Robot {} collided, position reseted".format(robot.number))
             robot.reset()
 
-    # sleep(0.2)
     VISUALIZER.pygame_event_manager(pygame.event.get())
     VISUALIZER.draw_poi(globals.POIs)
-
-    # decay_check()
 
     # World wise
     if globals.DO_RECORD:
