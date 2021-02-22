@@ -33,11 +33,11 @@ OUT_RANGE = 10000
 
 # X start and end borns for add_robot
 x_a = int((-W/2 + 0.1) * 100)
-x_b = int((-W/2 + 1.35) * 100)
+x_b = int((-W/2 + 1.30) * 100)
 
 # Y start and end borns for add_robot
-y_a = int((-H/2+3.6 + 0.05)*100)
-y_b = int((-H/2+3.6 + 3)*100)
+y_a = int((H/2 - 3.1)*100)
+y_b = int((H/2 - 0.1)*100)
 
 
 def add_robot(posx, posy):
@@ -131,8 +131,6 @@ class Robot:
             self.soft_turn_right()
 
     def pickup_resource(self, POI):
-        self.destination = globals.MARKER_HOME
-        self.last_foraging_point = self.position
         self.carry_resource = True
         self.payload = POI
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
@@ -436,6 +434,7 @@ class Robot:
                 left_speed = 0.5 * s
                 right_speed = -0.5 * s
 
+            # ? should left or right be random?
             if top < 0.05:
                 left_speed -= 3  # ! yikes
 
@@ -456,6 +455,7 @@ class Robot:
                 if top < 0.05:
                     # and left_most == OUT_RANGE and right_most == OUT_RANGE:
                     # print("WITHIN TOP RANGE")
+                    # should that be random
                     right_wheel_velocity_diff = 2
 
                 left_speed = 1 - right_wheel_velocity_diff
@@ -466,6 +466,7 @@ class Robot:
 
             else:
                 self.destination = None
+                self.last_foraging_point = None
 
     # Navigation controller
     def step(self, robot_prox_sensors_values):

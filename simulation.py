@@ -45,12 +45,14 @@ import sys
 #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
 #! could be nice to have something to save a state .. ? and then load back the state for study
 
-# TODO would be nice to be able to disable the visualisation very easily
 
 #!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
 #! would probably make everything slower but .. should I implement a system that if within range then I get closer to a food supply? maybe no ... how would I make the diff ..
 
 #! the number of remaining dots and the value of the taskhandler does not match up. I suspect some points are wrongly moved or deduced..
+
+# TODO would be nice to be able to disable the visualisation very easily
+# TODO have a function that spread n foraging point on the map and outside the areas.
 ########
 
 ### GLOBALS ###################################################################
@@ -96,7 +98,7 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
-globals.NEST = Nest(-50)
+globals.NEST = Nest(-0)
 TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
@@ -153,16 +155,16 @@ globals.ROBOTS.append(R2)
 globals.ROBOTS.append(R3)
 globals.ROBOTS.append(R4)
 globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
+# globals.ROBOTS.append(R6)
+# globals.ROBOTS.append(R7)
+# globals.ROBOTS.append(R8)
+# globals.ROBOTS.append(R9)
+# globals.ROBOTS.append(R10)
+# globals.ROBOTS.append(R11)
+# globals.ROBOTS.append(R12)
+# globals.ROBOTS.append(R13)
+# globals.ROBOTS.append(R14)
+# globals.ROBOTS.append(R15)
 
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -223,6 +225,7 @@ def get_proximity_sensors_values(robot_rays, robot):
         if r.number != robot.number:
 
             # in range is used to reduce the amount of robot the robot as to compare.
+            # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
             if robot.in_range(r.position):
 
                 # "If one of my rays can sense you, get the distance"
@@ -284,7 +287,7 @@ while True:
                             robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
                                 0, 0)
                         else:
-                            robot.destination = None
+                            robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
 
                     # if I arrived home and I do carry a resource, unload it.
                     if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
@@ -297,6 +300,8 @@ while True:
                     # else if I find a resource on the ground, and I am not already carrying a resource
                     elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and not robot.carry_resource and pointOfInterest.state == RESOURCE_STATE_FORAGING:
                         robot.pickup_resource(pointOfInterest)
+                        robot.destination = globals.MARKER_HOME
+                        robot.last_foraging_point = robot.position
 
                         # Arbitrary, makes sure the resource is in home (Hopefully)
                         robot.time_to_drop_out = randint(50, 150)
