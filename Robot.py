@@ -4,12 +4,26 @@ from shapely.geometry.point import Point
 from CollisionBox import CollisionBox
 from shapely.affinity import rotate
 from Position import Position
-from const import core_worker
-from const import temp_worker
 from random import randint
 from random import random
 from copy import deepcopy
-from const import *
+
+from const import BOTTOM_LIGHT_SENSORS_POSITION
+from const import PROXIMITY_SENSORS_POSITION
+from const import RESOURCE_STATE_WAISTE
+from const import RESOURCE_STATE_NEST_PROCESSING
+from const import RESOURCE_STATE_FORAGING
+from const import RESOURCE_STATE_TRANSFORMED
+from const import SIMULATION_TIMESTEP
+from const import ROBOT_TIMESTEP
+from const import core_worker
+from const import temp_worker
+from const import BLACK
+from const import R
+from const import W
+from const import H
+from const import L
+
 import globals
 import shapely
 import math
@@ -85,7 +99,7 @@ class Robot:
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
     def in_range(self, position):
-        return True if distance(position, self.position.x, self.position.y) <= 0.12 else False
+        return True if math.dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def rest(self):
         self.destination = None
@@ -430,7 +444,8 @@ class Robot:
         # Angle is good, let's move toward the point
         else:
             # print("FFFFFF FORWARD FFFFFF")
-            d = distance(self.position, dest.x, dest.y)
+            d = math.dist((self.position.x, self.position.y), (dest.x, dest.y))
+
             # As long as we are more than 1cm away
             if d > 0.02:
 

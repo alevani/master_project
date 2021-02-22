@@ -1,13 +1,21 @@
 from math import atan, cos, sin, pi, radians
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
-from const import *
 from pygame.locals import *
 from Robot import add_robot
 from random import randint
 from math import cos, sin
 from numpy import sqrt
 from time import sleep
+
+
+from const import WHITE
+from const import BLACK
+from const import GREEN
+from const import BLUE
+from const import GRAY
+from const import RED
+
 import globals
 import pygame
 import math

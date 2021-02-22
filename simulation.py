@@ -7,6 +7,7 @@ from Visualizator import Visualizator
 from shapely.affinity import rotate
 from TaskHandler import TaskHandler
 from TaskHandler import assigned
+from Position import Position
 from pygame.locals import *
 from copy import deepcopy
 from Robot import Robot
@@ -14,7 +15,20 @@ from time import sleep
 from Area import Area
 from Nest import Nest
 from random import *
-from const import *
+
+from const import RESOURCE_STATE_NEST_PROCESSING
+from const import BOTTOM_LIGHT_SENSORS_POSITION
+from const import PROXIMITY_SENSORS_POSITION
+from const import RESOURCE_STATE_TRANSFORMED
+from const import RESOURCE_STATE_FORAGING
+from const import RESOURCE_STATE_WAISTE
+from const import SIMULATION_TIMESTEP
+from const import ROBOT_TIMESTEP
+from const import W
+from const import H
+from const import R
+from const import L
+
 import numpy as np
 import threading
 import shapely
@@ -28,6 +42,8 @@ import sys
 #! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
 #! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
 #! could be nice to have something to save a state .. ? and then load back the state for study
+
+# TODO would be nice to be able to disable the visualisation very easily
 ########
 
 ### GLOBALS ###################################################################
@@ -37,11 +53,11 @@ WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
 # PYGAME
 if globals.DO_RECORD:
-    FILE = open("points.json", "w")
+    FILE = open("record.json", "w")
 else:
     FILE = None
 
-globals.CSV_FILE = open("stats.csv", "w")
+globals.CSV_FILE = open("stats/stats.csv", "w")
 
 DECAY = 750
 VISUALIZER = Visualizator(W, H, DECAY, FILE)
@@ -203,8 +219,9 @@ def get_proximity_sensors_values(robot_rays, robot):
 
     # Wall detection
     for index, ray in enumerate(robot_rays):
-        values.append(distance(WORLD.intersection(ray),
-                               robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+        point = WORLD.intersection(ray)
+        values.append(math.dist((point.x, point.y),
+                                (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
     # Robot detection
     for r in globals.ROBOTS:
@@ -219,7 +236,8 @@ def get_proximity_sensors_values(robot_rays, robot):
                     if r.is_sensing(ray):
                         p1, p2 = nearest_points(r.get_collision_box(), Point(
                             robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                        values[index] = distance(p1, p2.x, p2.y)
+                        values[index] = math.dist(
+                            (p1.x, p1.y), (p2.x, p2.y))
 
     return values
 
@@ -425,7 +443,7 @@ while True:
     # Task helper
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
-        print(" ******* LIVE STATS *******")
+        print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
         print("N° | % | State | Task | Q")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +

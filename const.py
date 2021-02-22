@@ -42,10 +42,6 @@ H = 7
 W = 10
 
 
-def distance(s, x, y):
-    return math.sqrt((s.x-x)**2+(s.y-y)**2)
-
-
 resting = 0
 first_reserve = 1
 second_reserve = 2
