@@ -408,9 +408,10 @@ while True:
         if globals.CNT % globals.M == 0:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
+
     #! to delete
-    if globals.CNT % 3000 == 0:
-        globals.NEST.resource_need -= 50
+    if globals.CNT % 500 == 0:
+        globals.NEST.resource_need -= 9
 
     # Task helper
     if globals.CNT % 10 == 0:
