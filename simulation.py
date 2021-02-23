@@ -213,7 +213,7 @@ AREAS.append(waiste_deposit)
 
 def is_point_on_area(x, y):
     box = Point(x, y).buffer(0.01)
-    for area in AREAS[1:]:  # Disregard the foraging area as it is the entire map
+    for area in AREAS[1:]:  # Disregards the foraging area as it is the entire map
         if area.box.intersects(box):
             return True
     return False
@@ -232,7 +232,6 @@ for _ in range(2000):
         y_scaled = int(y * 100) + int(H/2 * 100)
 
         resource_value = randint(1, 2)
-        # globals.NEST.resource_need -= resource_value
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 

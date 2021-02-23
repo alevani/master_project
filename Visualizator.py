@@ -102,11 +102,9 @@ class Visualizator:
                             y_scaled = int(y * 100) + int(H/2 * 100)
 
                             resource_value = randint(1, 2)
-                            # globals.NEST.resource_need -= resource_value
                             globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
                                 Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
-                    x, y = self.unscale(pos[0], pos[1])
                     add_robot()
 
             elif event.type == QUIT:
