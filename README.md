@@ -1,4 +1,4 @@
-# master_project
+# Ant-Inspired Task Allocation Implementation.
 Ant-Inspired Task Allocation Model Within a Swarm of Homogeneous Simulated Robotic-Agents
 
 ## What can be observe
