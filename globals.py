@@ -13,7 +13,6 @@ ROBOT_SIZE = ZOOM * 11.25
 
 NEST = None
 
-DO_RECORD = False
 PHEROMONES_MAP = []
 
 CSV_FILE = None

@@ -80,12 +80,6 @@ for opt, arg in opts:
 # WORLD
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
-# PYGAME
-if globals.DO_RECORD:
-    FILE = open("record.json", "w")
-else:
-    FILE = None
-
 globals.CSV_FILE = open("stats/stats.csv", "w")
 
 
@@ -386,7 +380,6 @@ while True:
                     robot.destination = robot.start_position
 
         # Robot wise
-        # if globals.DO_RECORD:
         if do_record_trail:
             if globals.CNT % globals.M == 0:
                 robot.path.append(robot.position.__dict__)
@@ -398,12 +391,6 @@ while True:
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
-
-    # World wise
-    if globals.DO_RECORD:
-        if globals.CNT % globals.M == 0:
-            globals.DRAW_POIS.append([o.encode()
-                                      for o in deepcopy(globals.POIs)])
 
     # ? to delete
     if globals.CNT % 500 == 0:

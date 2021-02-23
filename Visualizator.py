@@ -50,7 +50,7 @@ class Visualizator:
 
     ''' PyGame wrapper designed to draw experimental-related arena content'''
 
-    def __init__(self, W, H, decay, FILE):
+    def __init__(self, W, H, decay):
         pygame.display.set_caption(
             'Simulation of task allocation in ant colonies')
         pygame.font.init()
@@ -58,7 +58,6 @@ class Visualizator:
         self.font_robot_number = pygame.font.Font(
             pygame.font.get_default_font(), 12)
         self.zoom = globals.ZOOM
-        self.FILE = FILE
         self.arena_width, self.arena_height = int(
             W * 100 * self.zoom), int(H * 100 * self.zoom)
 
@@ -121,13 +120,6 @@ class Visualizator:
 
                 elif event.key == pygame.K_q:
                     globals.CSV_FILE.close()
-                    if globals.DO_RECORD:
-                        self.FILE.write(json.dumps([globals.CNT, globals.M]))
-                        self.FILE.write("\n"+json.dumps(globals.DRAW_POIS))
-                        for robot in globals.ROBOTS:
-                            self.FILE.write(
-                                "\n" + json.dumps(robot.path))
-                        self.FILE.close()
                     pygame.quit()
                     sys.exit()
                 elif event.key == pygame.K_d:
