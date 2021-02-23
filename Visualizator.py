@@ -13,6 +13,10 @@ from const import RESOURCE_STATE_NEST_PROCESSING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_WAISTE
+from const import X_lower_bound
+from const import X_upper_bound
+from const import Y_lower_bound
+from const import Y_upper_bound
 from const import WHITE
 from const import BLACK
 from const import GREEN
@@ -81,27 +85,26 @@ class Visualizator:
                 pos = pygame.mouse.get_pos()
                 if event.button == 1:
 
-                    #! This will fail if out of boundaries
-                    # TODO make sure it stays in boundaries
                     n = randint(1, 50)
-
                     for _ in range(n):
                         x = randint(pos[0] - 100, pos[0] + 100)
                         y = randint(pos[1] - 100, pos[1] + 100)
-
-                        index = len(globals.POIs)
                         x, y = self.unscale(x, y)
 
-                        globals.POIs.append(PointOfInterest(
-                            Position(x, y), 15000, 2, 10))
+                        if x > X_lower_bound and x < X_upper_bound and y > Y_lower_bound and y < Y_upper_bound:
 
-                        x_scaled = int(x * 100) + int(W/2 * 100)
-                        y_scaled = int(y * 100) + int(H/2 * 100)
+                            index = len(globals.POIs)
 
-                        resource_value = randint(1, 2)
-                        # globals.NEST.resource_need -= resource_value
-                        globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
-                            Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
+                            globals.POIs.append(PointOfInterest(
+                                Position(x, y), 15000, 2, 10))
+
+                            x_scaled = int(x * 100) + int(W/2 * 100)
+                            y_scaled = int(y * 100) + int(H/2 * 100)
+
+                            resource_value = randint(1, 2)
+                            # globals.NEST.resource_need -= resource_value
+                            globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
+                                Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
                     x, y = self.unscale(pos[0], pos[1])
                     add_robot()

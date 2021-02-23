@@ -41,6 +41,12 @@ RESOURCE_STATE_WAISTE = 3
 H = 7
 W = 10
 
+# Boundaries for random generation
+X_lower_bound = -W/2+0.01
+X_upper_bound = W/2-0.01
+Y_lower_bound = -H/2+0.01
+Y_upper_bound = H/2-0.01
+
 
 def dist(p, q):
     return math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))

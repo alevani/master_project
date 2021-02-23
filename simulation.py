@@ -28,6 +28,10 @@ from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_WAISTE
 from const import SIMULATION_TIMESTEP
 from const import ROBOT_TIMESTEP
+from const import X_lower_bound
+from const import X_upper_bound
+from const import Y_lower_bound
+from const import Y_upper_bound
 from const import BLACK
 from const import dist
 from const import W
@@ -216,8 +220,8 @@ def is_point_on_area(x, y):
 
 
 for _ in range(2000):
-    x = uniform(-W/2+0.01, W/2-0.01)
-    y = uniform(-H/2+0.01, H/2-0.01)
+    x = uniform(X_lower_bound, X_upper_bound)
+    y = uniform(Y_lower_bound, Y_upper_bound)
 
     if not is_point_on_area(x, y):
         index = len(globals.POIs)
@@ -343,7 +347,6 @@ while True:
                 elif robot.task == nest_maintenance:
 
                     if robot.is_on_area(TYPE_BROOD_CHAMBER) and robot.carry_resource and robot.payload_carry_time == 0:
-                        #! sometimes the resource vanishes
                         robot.destination = None
                         if robot.time_in_zone >= robot.time_to_drop_out:
                             robot.transform_resource()
@@ -399,7 +402,6 @@ while True:
                     robot.battery_low = False
 
                     if robot.carry_resource:
-                        #! potential bug generator, if anything goes wrong look at it
                         robot.destination = robot.saved_destination
                     else:
                         robot.destination = None
@@ -445,7 +447,7 @@ while True:
             globals.DRAW_POIS.append([o.encode()
                                       for o in deepcopy(globals.POIs)])
 
-    #! to delete
+    # ? to delete
     if globals.CNT % 500 == 0:
         globals.NEST.resource_need -= 10
 
