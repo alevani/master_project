@@ -74,6 +74,7 @@ class TaskHandler:
         print("Resources: ", self.nest.resource_need)
         print("Nest Maintenance: ", self.nest.resource_stock)
         print("Brood Care: ", self.nest.resource_transformed)
+        print("Total: ", self.nest.total)
 
 
 def demand(task):
@@ -95,7 +96,6 @@ def energy(task, robot):
 
 # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
 def assigned(task):
-    # ? does engaged really means an ant has to be temp or core work?
     return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]))
 
 # Return the energy supplied to a task "task" at time "step"

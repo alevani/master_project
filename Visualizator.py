@@ -95,9 +95,8 @@ class Visualizator:
                         globals.POIs.append(PointOfInterest(
                             Position(x, y), 15000, 2, 10))
 
-                        # ? why did I divide by two ..aaaa
-                        x_scaled = int(x * 100) + int(W * 100/2)
-                        y_scaled = int(y * 100) + int(H * 100/2)
+                        x_scaled = int(x * 100) + int(W/2 * 100)
+                        y_scaled = int(y * 100) + int(H/2 * 100)
 
                         resource_value = randint(1, 2)
                         # globals.NEST.resource_need -= resource_value

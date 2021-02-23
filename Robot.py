@@ -111,7 +111,6 @@ class Robot:
             self.drop_resource()
 
     def reset(self):
-        # ? should I clear the payload and maybe the task assignement and all?
         position = self.start_position
         self.position = position
         self.proximity_sensors = deepcopy(self.proximity_sensors_backup)
@@ -147,6 +146,7 @@ class Robot:
 
     def trash_resource(self):
         globals.NEST.resource_transformed -= self.payload.value
+        globals.NEST.total += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_WAISTE
         self.payload.state = RESOURCE_STATE_WAISTE
         self.drop_resource()

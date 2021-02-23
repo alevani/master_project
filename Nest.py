@@ -4,3 +4,4 @@ class Nest:
         self.resource_stock = 0
         self.resource_transformed = 0
         self.resource_waiste = 0
+        self.total = 0

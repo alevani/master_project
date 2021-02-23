@@ -45,17 +45,8 @@ import math
 import sys
 
 # IDEAS
-#! it could be interesting to implement a comm system that would tell the other forager a robot encounter where is your foraging point
-#! it could be interesting for a forager to live a trail on the ground and for another forager to follow it (increase the chances of food encountering) -> how good or how bad is it to do it?
-#! could be nice to have something to save a state .. ? and then load back the state for study
-
-
 #!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
-#! would probably make everything slower but .. should I implement a system that if within range then I get closer to a food supply? maybe no ... how would I make the diff ..
-
-#! the number of remaining dots and the value of the taskhandler does not match up. I suspect some points are wrongly moved or deduced..
-
-# TODO for live stats, I have to close the file each time I write in it.
+# TODO how is it possible that the peak of each task is higher than the previous? they should be about the same as the payload value is substract and re-added to the next task.
 ########
 
 ### GLOBALS ###################################################################
@@ -71,7 +62,7 @@ else:
 
 globals.CSV_FILE = open("stats/stats.csv", "w")
 
-ACT = False
+ACT = True
 
 DECAY = 750
 if ACT:
@@ -233,17 +224,16 @@ for _ in range(2000):
         globals.POIs.append(PointOfInterest(
             Position(x, y), 15000, 2, 10))
 
-        # ? why did I divide by two ..aaaa
-        x_scaled = int(x * 100) + int(W * 100/2)
-        y_scaled = int(y * 100) + int(H * 100/2)
+        x_scaled = int(x * 100) + int(W/2 * 100)
+        y_scaled = int(y * 100) + int(H/2 * 100)
 
         resource_value = randint(1, 2)
         # globals.NEST.resource_need -= resource_value
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
-for _ in range(35):
-    add_robot()
+# for _ in range(35):
+#     add_robot()
 ###############################################################################
 
 
@@ -269,6 +259,11 @@ def get_proximity_sensors_values(robot_rays, robot):
                 # "If one of my rays can sense you, get the distance"
                 for index, ray in enumerate(robot_rays):
                     if r.is_sensing(ray):
+
+                        # ? TEST: if I don't have any last_foraging_point, maybe the robot that I am sensing has one?
+                        if r.last_foraging_point != None and robot.last_foraging_point == None:
+                            robot.last_foraging_point = r.last_foraging_point
+
                         p1, p2 = nearest_points(r.get_collision_box(), Point(
                             robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
                         values[index] = dist(
