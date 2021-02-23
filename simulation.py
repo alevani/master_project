@@ -21,29 +21,24 @@ from Nest import Nest
 from random import *
 
 from const import RESOURCE_STATE_NEST_PROCESSING
-from const import BOTTOM_LIGHT_SENSORS_POSITION
-from const import PROXIMITY_SENSORS_POSITION
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_WAISTE
-from const import SIMULATION_TIMESTEP
-from const import ROBOT_TIMESTEP
 from const import X_lower_bound
 from const import X_upper_bound
 from const import Y_lower_bound
 from const import Y_upper_bound
-from const import BLACK
 from const import dist
 from const import W
 from const import H
-from const import R
-from const import L
+
 
 import numpy as np
 import threading
 import shapely
 import globals
 import pygame
+import getopt
 import json
 import math
 import sys
@@ -54,6 +49,33 @@ import sys
 ########
 
 ### GLOBALS ###################################################################
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:")
+except getopt.GetoptError:
+    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail>')
+    sys.exit(2)
+
+nb_robot = 0
+nb_point = 0
+ACT = None
+battery_effects = None
+do_record_trail = None
+
+for opt, arg in opts:
+    if opt == "-h":
+        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail>')
+        sys.exit(2)
+
+    if opt == "-r":
+        nb_robot = int(arg)
+    elif opt == "-p":
+        nb_point = int(arg)
+    elif opt == "-s":
+        ACT = True if arg == "True" else False
+    elif opt == "-b":
+        battery_effects = True if arg == "True" else False
+    elif opt == "-t":
+        do_record_trail = True if arg == "True" else False
 
 # WORLD
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
@@ -66,7 +88,6 @@ else:
 
 globals.CSV_FILE = open("stats/stats.csv", "w")
 
-ACT = True
 
 DECAY = 750
 if ACT:
@@ -104,70 +125,6 @@ TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
-BASE_BATTERY_LEVEL = 100
-
-R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.2+3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R2 = Robot(2, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.4 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R3 = Robot(3, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+0.6 + 3.8, math.radians(
-    0)), BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R4 = Robot(4, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+0.8 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R5 = Robot(5, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R6 = Robot(6, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.2 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R7 = Robot(7, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.4 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R8 = Robot(8, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+1.6 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R9 = Robot(9, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+1.8 + 3.8, math.radians(0)),
-           BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R10 = Robot(10, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2 + 3.8, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R11 = Robot(11, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.2 + 3.8, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R12 = Robot(12, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.4 + 3.8, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R13 = Robot(13, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+2.6 + 3.8, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R14 = Robot(14, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.4, -H/2+2.8 + 3.8, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-R15 = Robot(15, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-W/2+0.2, -H/2+3 + 3.8, math.radians(0)),
-            BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, BASE_BATTERY_LEVEL)
-
-globals.ROBOTS.append(R1)
-globals.ROBOTS.append(R2)
-globals.ROBOTS.append(R3)
-globals.ROBOTS.append(R4)
-globals.ROBOTS.append(R5)
-globals.ROBOTS.append(R6)
-globals.ROBOTS.append(R7)
-globals.ROBOTS.append(R8)
-globals.ROBOTS.append(R9)
-globals.ROBOTS.append(R10)
-globals.ROBOTS.append(R11)
-globals.ROBOTS.append(R12)
-globals.ROBOTS.append(R13)
-globals.ROBOTS.append(R14)
-globals.ROBOTS.append(R15)
-
-
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
     inner = []
@@ -219,7 +176,7 @@ def is_point_on_area(x, y):
     return False
 
 
-for _ in range(2000):
+for _ in range(nb_point):
     x = uniform(X_lower_bound, X_upper_bound)
     y = uniform(Y_lower_bound, Y_upper_bound)
 
@@ -235,8 +192,8 @@ for _ in range(2000):
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
-# for _ in range(35):
-#     add_robot()
+for _ in range(nb_robot):
+    add_robot()
 ###############################################################################
 
 
@@ -417,20 +374,22 @@ while True:
             VISUALIZER.draw(robot.position, robot.color, globals.CNT,
                             robot.path, robot.get_collision_box_coordinate(), robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
-        # # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
-        # if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
-        #     robot.battery_level -= randint(0, 4)
-        #     if robot.battery_level < 25:
+        # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
+        if battery_effects:
+            if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
+                robot.battery_level -= randint(0, 4)
+                if robot.battery_level < 25:
 
-        #         # Robot's start position is its charging block
-        #         robot.battery_low = True
-        #         robot.saved_destination = robot.destination
-        #         robot.destination = robot.start_position
+                    # Robot's start position is its charging block
+                    robot.battery_low = True
+                    robot.saved_destination = robot.destination
+                    robot.destination = robot.start_position
 
         # Robot wise
         # if globals.DO_RECORD:
-        # if globals.CNT % globals.M == 0:
-        #     robot.path.append(robot.position.__dict__)
+        if do_record_trail:
+            if globals.CNT % globals.M == 0:
+                robot.path.append(robot.position.__dict__)
 
         if collided:
             print("Robot {} collided, position reseted".format(robot.number))
