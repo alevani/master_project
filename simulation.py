@@ -24,10 +24,13 @@ from const import RESOURCE_STATE_NEST_PROCESSING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_WAISTE
+from const import MARKER_BROOD_CHAMBER
+from const import MARKER_WAISTE_AREA
 from const import X_lower_bound
 from const import X_upper_bound
 from const import Y_lower_bound
 from const import Y_upper_bound
+from const import MARKER_HOME
 from const import dist
 from const import W
 from const import H
@@ -82,10 +85,8 @@ WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
 globals.CSV_FILE = open("stats/stats.csv", "w")
 
-
-DECAY = 750
 if ACT:
-    VISUALIZER = Visualizator(W, H, DECAY, FILE)
+    VISUALIZER = Visualizator()
     pygame.init()
     fps = 60
     fpsClock = pygame.time.Clock()
@@ -112,7 +113,6 @@ TASKS_NAME = ['Foraging',
 TASKS.append(foraging)
 TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
-# TASKS.append(patrolling)
 
 globals.NEST = Nest(-50)
 TaskHandler = TaskHandler(globals.NEST, TASKS)
@@ -126,11 +126,6 @@ for x in range(int(W * 100)):
         inner.append(0)
     globals.PHEROMONES_MAP.append(inner)
 
-
-# Markers
-globals.MARKER_HOME = Position(-W/2 + 1.15, -H/2 + 1.15)
-globals.MARKER_BROOD_CHAMBER = Position(-W/2 + 3.3, -H/2 + 1.15)
-globals.MARKER_WAISTE_AREA = Position(W/2-0.7, H/2 - 0.7)
 
 # Areas
 AREAS = []
@@ -268,7 +263,7 @@ while True:
                 elif robot.task == foraging:
 
                     if robot.carry_resource and not robot.has_destination():
-                        robot.destination = globals.MARKER_HOME
+                        robot.destination = MARKER_HOME
 
                     if not robot.carry_resource:
                         if not robot.is_on_area(TYPE_FORAGING_AREA):
@@ -288,7 +283,7 @@ while True:
                     # else if I find a resource on the ground, and I am not already carrying a resource
                     elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and not robot.carry_resource and pointOfInterest.state == RESOURCE_STATE_FORAGING:
                         robot.pickup_resource(pointOfInterest)
-                        robot.destination = globals.MARKER_HOME
+                        robot.destination = MARKER_HOME
                         robot.last_foraging_point = robot.position
 
                         # Arbitrary, makes sure the resource is in home (Hopefully)
@@ -308,7 +303,7 @@ while True:
 
                         if robot.carry_resource:
                             if globals.CNT - robot.payload_carry_time >= 200:
-                                robot.destination = globals.MARKER_BROOD_CHAMBER
+                                robot.destination = MARKER_BROOD_CHAMBER
                                 robot.time_to_drop_out = randint(50, 100)
                                 robot.time_in_zone = 0
                                 robot.payload_carry_time = 0
@@ -317,8 +312,8 @@ while True:
                             robot.pickup_resource(pointOfInterest)
                             robot.payload_carry_time = globals.CNT
                     else:
-                        if robot.destination != globals.MARKER_BROOD_CHAMBER:
-                            robot.destination = globals.MARKER_HOME
+                        if robot.destination != MARKER_BROOD_CHAMBER:
+                            robot.destination = MARKER_HOME
 
                 elif robot.task == brood_care:
 
@@ -330,7 +325,7 @@ while True:
                             else:
                                 robot.time_in_zone += 1
                         else:
-                            robot.destination = globals.MARKER_WAISTE_AREA
+                            robot.destination = MARKER_WAISTE_AREA
                     else:
                         if robot.is_on_area(TYPE_BROOD_CHAMBER):
                             robot.destination = None
@@ -338,9 +333,9 @@ while True:
                                 robot.time_to_drop_out = 50
                                 robot.time_in_zone = 0
                                 robot.pickup_resource(pointOfInterest)
-                                robot.destination = globals.MARKER_WAISTE_AREA
+                                robot.destination = MARKER_WAISTE_AREA
                         else:
-                            robot.destination = globals.MARKER_BROOD_CHAMBER
+                            robot.destination = MARKER_BROOD_CHAMBER
 
         if robot.is_on_area(TYPE_CHARGING_AREA):
             if robot.destination == robot.start_position or robot.battery_low:

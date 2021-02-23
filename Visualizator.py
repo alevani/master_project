@@ -50,7 +50,7 @@ class Visualizator:
 
     ''' PyGame wrapper designed to draw experimental-related arena content'''
 
-    def __init__(self, W, H, decay):
+    def __init__(self):
         pygame.display.set_caption(
             'Simulation of task allocation in ant colonies')
         pygame.font.init()
@@ -68,8 +68,6 @@ class Visualizator:
 
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.robot_size = globals.ROBOT_SIZE
-
-        self.DECAY = decay
 
         self.DISPLAY_HANDLER = 0
         self.DRAW_BOX = False
