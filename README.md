@@ -12,6 +12,16 @@ Ant-Inspired Task Allocation Model Within a Swarm of Homogeneous Simulated Robot
 -t = Record robot's path
 ```
 
+## In-pygame command shorcut
+```
+q -> Quit the simulation
+y -> Shows sensors and collision box
+r -> Increments resrouce's needs by a random number
+x -> if -t = True, show where each robot have been during the simulation
+right-click -> add a robot to the simulation
+left-click -> spread a random number of point in a 100x100 area around the position of the click
+```
+
 Current status: [Video link](https://www.youtube.com/watch?v=HpS3zuJ1a9I)
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/HpS3zuJ1a9I/0.jpg)](https://www.youtube.com/watch?v=HpS3zuJ1a9I)
 
