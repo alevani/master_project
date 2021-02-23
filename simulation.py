@@ -55,8 +55,7 @@ import sys
 
 #! the number of remaining dots and the value of the taskhandler does not match up. I suspect some points are wrongly moved or deduced..
 
-# TODO would be nice to be able to disable the visualisation very easily
-# TODO have a function that spread n foraging point on the map and outside the areas.
+# TODO for live stats, I have to close the file each time I write in it.
 ########
 
 ### GLOBALS ###################################################################
@@ -72,11 +71,14 @@ else:
 
 globals.CSV_FILE = open("stats/stats.csv", "w")
 
+ACT = False
+
 DECAY = 750
-VISUALIZER = Visualizator(W, H, DECAY, FILE)
-pygame.init()
-fps = 60
-fpsClock = pygame.time.Clock()
+if ACT:
+    VISUALIZER = Visualizator(W, H, DECAY, FILE)
+    pygame.init()
+    fps = 60
+    fpsClock = pygame.time.Clock()
 ###############################################################################
 
 ### Task allocation #########################################################
@@ -102,7 +104,7 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 # TASKS.append(patrolling)
 
-globals.NEST = Nest(-0)
+globals.NEST = Nest(-50)
 TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
@@ -240,7 +242,7 @@ for _ in range(2000):
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
-for _ in range(85):
+for _ in range(35):
     add_robot()
 ###############################################################################
 
@@ -275,7 +277,6 @@ def get_proximity_sensors_values(robot_rays, robot):
     return values
 
 
-ACT = True
 while True:
     globals.CNT += 1
 
@@ -420,15 +421,15 @@ while True:
             VISUALIZER.draw(robot.position, robot.color, globals.CNT,
                             robot.path, robot.get_collision_box_coordinate(), robot.prox_sensors_state, DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
-        # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
-        if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
-            robot.battery_level -= randint(0, 4)
-            if robot.battery_level < 25:
+        # # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
+        # if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
+        #     robot.battery_level -= randint(0, 4)
+        #     if robot.battery_level < 25:
 
-                # Robot's start position is its charging block
-                robot.battery_low = True
-                robot.saved_destination = robot.destination
-                robot.destination = robot.start_position
+        #         # Robot's start position is its charging block
+        #         robot.battery_low = True
+        #         robot.saved_destination = robot.destination
+        #         robot.destination = robot.start_position
 
         # Robot wise
         # if globals.DO_RECORD:
@@ -451,7 +452,7 @@ while True:
 
     #! to delete
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 5
+        globals.NEST.resource_need -= 10
 
     # Task helper
     if globals.CNT % 10 == 0:

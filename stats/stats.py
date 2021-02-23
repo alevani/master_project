@@ -24,15 +24,12 @@ for line in file:
 
     foraging_need.append(arr[3])
     foraging_assigned.append(arr[1])
-    foraging_unassigned.append(arr[2])
 
     nest_maintenance_need.append(arr[6])
     nest_maintenance_assigned.append(arr[4])
-    nest_maintenance_unassigned.append(arr[5])
 
     brood_care_need.append(arr[9])
     brood_care_assigned.append(arr[7])
-    brood_care_unassigned.append(arr[8])
 
 
 fig, ax = plt.subplots()
@@ -47,8 +44,6 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 fig, foraging_plot = plt.subplots()
 foraging_plot.plot(step, foraging_assigned, label="Robot assigned to the task")
-foraging_plot.plot(step, foraging_unassigned,
-                   label="Robot not assigned to the task")
 foraging_plot.plot(step, foraging_need, label="Resource need")
 foraging_plot.set(xlabel='simulation step', ylabel='value')
 foraging_plot.grid()
@@ -59,8 +54,6 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 fig, nest_maintenance = plt.subplots()
 nest_maintenance.plot(step, nest_maintenance_assigned,
                       label="Robot assigned to the task")
-nest_maintenance.plot(step, nest_maintenance_unassigned,
-                      label="Robot not assigned to the task")
 nest_maintenance.plot(step, nest_maintenance_need,
                       label="Resource need")
 nest_maintenance.set(xlabel='simulation step', ylabel='value')
@@ -71,8 +64,6 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 fig, brood_care = plt.subplots()
 brood_care.plot(step, brood_care_assigned, label="Robot assigned to the task")
-brood_care.plot(step, brood_care_unassigned,
-                label="Robot not assigned to the task")
 brood_care.plot(step, brood_care_need, label="Resource need")
 brood_care.set(xlabel='simulation step', ylabel='value')
 brood_care.grid()
