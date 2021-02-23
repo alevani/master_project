@@ -23,16 +23,16 @@ for line in file:
     step.append(arr[0])
 
     foraging_need.append(arr[3])
-    foraging_assigned.append(arr[2])
-    foraging_unassigned.append(arr[1])
+    foraging_assigned.append(arr[1])
+    foraging_unassigned.append(arr[2])
 
     nest_maintenance_need.append(arr[6])
-    nest_maintenance_assigned.append(arr[5])
-    nest_maintenance_unassigned.append(arr[4])
+    nest_maintenance_assigned.append(arr[4])
+    nest_maintenance_unassigned.append(arr[5])
 
     brood_care_need.append(arr[9])
-    brood_care_assigned.append(arr[8])
-    brood_care_unassigned.append(arr[7])
+    brood_care_assigned.append(arr[7])
+    brood_care_unassigned.append(arr[8])
 
 
 fig, ax = plt.subplots()
