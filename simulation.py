@@ -462,8 +462,7 @@ while True:
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+STATES_NAME[robot.state] +
-                  " | "+TASKS_NAME[robot.task - 1] +
-                  " | " + str(robot.TASKS_Q))
+                  " | "+TASKS_NAME[robot.task - 1])
         TaskHandler.print_stats()
 
         # print to csv file
