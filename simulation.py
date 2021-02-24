@@ -53,9 +53,9 @@ import sys
 
 ### GLOBALS ###################################################################
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:")
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:")
 except getopt.GetoptError:
-    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail>')
+    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation')
     sys.exit(2)
 
 nb_robot = 0
@@ -63,10 +63,11 @@ nb_point = 0
 ACT = None
 battery_effects = None
 do_record_trail = None
+do_avoid = None
 
 for opt, arg in opts:
     if opt == "-h":
-        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail>')
+        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation')
         sys.exit(2)
 
     if opt == "-r":
@@ -79,6 +80,8 @@ for opt, arg in opts:
         battery_effects = True if arg == "True" else False
     elif opt == "-t":
         do_record_trail = True if arg == "True" else False
+    elif opt == "-a":
+        do_avoid = True if arg == "True" else False
 
 # WORLD
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
@@ -136,10 +139,10 @@ TYPE_BROOD_CHAMBER = 3
 TYPE_WAISTE_DEPOSIT = 4
 TYPE_FORAGING_AREA = 5
 
-home = Area(Position(-W/2, -H/2), 2.3, 2.3, TYPE_HOME, (133, 147, 255))
+home = Area(Position(0 - 2.1, -H/2), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 
-brood_chamber = Area(Position(-W/2 + 2.3, -H/2), 2,
-                     2.3, TYPE_BROOD_CHAMBER, (224, 153, 255))
+brood_chamber = Area(Position(0 - 0.7, -H/2), 1.4,
+                     1.4, TYPE_BROOD_CHAMBER, (224, 153, 255))
 
 charging_area = Area(Position(-W/2, -H/2+3.8),
                      1.4, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
@@ -182,7 +185,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 for _ in range(nb_robot):
-    add_robot()
+    add_robot(do_avoid)
 ###############################################################################
 
 
@@ -196,27 +199,29 @@ def get_proximity_sensors_values(robot_rays, robot):
                            (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
     # Robot detection
-    for r in globals.ROBOTS:
+    if do_avoid:
+        for r in globals.ROBOTS:
 
-        # Don't check ourselves
-        if r.number != robot.number:
+            # Don't check ourselves
+            if r.number != robot.number:
 
-            # in range is used to reduce the amount of robot the robot as to compare.
-            # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
-            if robot.in_range(r.position):
+                # in range is used to reduce the amount of robot the robot as to compare.
+                # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
+                if robot.in_range(r.position):
 
-                # "If one of my rays can sense you, get the distance"
-                for index, ray in enumerate(robot_rays):
-                    if r.is_sensing(ray):
+                    # "If one of my rays can sense you, get the distance"
+                    for index, ray in enumerate(robot_rays):
+                        if r.is_sensing(ray):
 
-                        # ? TEST: if I don't have any last_foraging_point, maybe the robot that I am sensing has one?
-                        if r.last_foraging_point != None and robot.last_foraging_point == None:
-                            robot.last_foraging_point = r.last_foraging_point
+                            # ? TEST: if I don't have any last_foraging_point, maybe the robot that I am sensing has one?
+                            # TODO delete if I choose to say "no communication within the robot what-so-ever"
+                            if r.last_foraging_point != None and robot.last_foraging_point == None:
+                                robot.last_foraging_point = r.last_foraging_point
 
-                        p1, p2 = nearest_points(r.get_collision_box(), Point(
-                            robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                        values[index] = dist(
-                            (p1.x, p1.y), (p2.x, p2.y))
+                            p1, p2 = nearest_points(r.get_collision_box(), Point(
+                                robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+                            values[index] = dist(
+                                (p1.x, p1.y), (p2.x, p2.y))
 
     return values
 

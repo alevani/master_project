@@ -60,6 +60,6 @@ core_worker = 4
 
 
 # Markers
-MARKER_HOME = Position(-W/2 + 1.15, -H/2 + 1.15)
-MARKER_BROOD_CHAMBER = Position(-W/2 + 3.3, -H/2 + 1.15)
+MARKER_BROOD_CHAMBER = Position(0, -H/2 + 0.7)
+MARKER_HOME = Position(0 - 1.4, -H/2 + 0.7)
 MARKER_WAISTE_AREA = Position(W/2-0.7, H/2 - 0.7)

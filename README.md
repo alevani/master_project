@@ -7,13 +7,15 @@ Throughout the simulation, Forager will collect resource from the outside world 
 
 ## How to: Line command
 ```
-> python simulation.py -r 15 -p 20 -s True -b True -t False
+> python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation>
+> python simulation.py -r 50 -p 1000 -s True -b False -t False -a True
 
 -r = Number of simulated robot
 -p = Number of randomly generated resource
 -s = Show visualisation
 -b = Active battery effects
 -t = Record robot's path
+-a = specifies if the robot should avoid one another
 ```
 
 ## In-pygame command shorcut

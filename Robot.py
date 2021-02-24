@@ -40,16 +40,17 @@ y_a = int((H/2 - 3.1)*100)
 y_b = int((H/2 - 0.1)*100)
 
 
-def add_robot():
+def add_robot(do_avoid):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100, do_avoid))
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level, do_avoid):
         self.number = number
+        self.do_avoid = do_avoid
         self.last_foraging_point = None
         self.color = color
         self.task = task
@@ -385,16 +386,17 @@ class Robot:
     # this means that the robot does not go blindly forward
     def goto(self, dest, proximity_sensor_values):
 
-        top = proximity_sensor_values[1]
-        left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else OUT_RANGE
-        right_most = proximity_sensor_values[2] if proximity_sensor_values[2] < 0.1 else OUT_RANGE
+        if self.do_avoid:
+            top = proximity_sensor_values[1]
+            left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else OUT_RANGE
+            right_most = proximity_sensor_values[2] if proximity_sensor_values[2] < 0.1 else OUT_RANGE
 
-        left_most = left_most if left_most != 0 else 0.01
-        right_most = right_most if right_most != 0 else 0.01
+            left_most = left_most if left_most != 0 else 0.01
+            right_most = right_most if right_most != 0 else 0.01
 
-        # 0.1 / math.sqrt(x) variates between 0.3 and 1
-        left_wheel_velocity_diff = 0.1 / math.sqrt(left_most)
-        right_wheel_velocity_diff = 0.1 / math.sqrt(right_most)
+            # 0.1 / math.sqrt(x) variates between 0.3 and 1
+            left_wheel_velocity_diff = 0.1 / math.sqrt(left_most)
+            right_wheel_velocity_diff = 0.1 / math.sqrt(right_most)
 
         # First orientate the robot
         dest_angle = self.find_relative_angle(self.position, dest)
@@ -418,12 +420,15 @@ class Robot:
                 left_speed = 0.5 * s
                 right_speed = -0.5 * s
 
-            # ? should left or right be random?
-            if top < 0.05:
-                left_speed -= 3  # ! yikes
+            if self.do_avoid:
+                # ? should left or right be random?
+                if top < 0.05:
+                    left_speed -= 3  # ! yikes
 
-            self.rotate(min(left_speed + left_wheel_velocity_diff, 1),
-                        min(right_speed + right_wheel_velocity_diff, 1))
+                self.rotate(min(left_speed + left_wheel_velocity_diff, 1),
+                            min(right_speed + right_wheel_velocity_diff, 1))
+            else:
+                self.rotate(left_speed, right_speed)
 
         # If angle dest reached, move forward
         else:
@@ -431,13 +436,16 @@ class Robot:
 
             # Speeds down the robot when approaching goal position
             if d > 0.02:
+                if self.do_avoid:
+                    if top < 0.05:
+                        # ? should that be random
+                        right_wheel_velocity_diff = 2
 
-                if top < 0.05:
-                    # ? should that be random
-                    right_wheel_velocity_diff = 2
-
-                left_speed = 1 - right_wheel_velocity_diff
-                right_speed = 1 - left_wheel_velocity_diff
+                    left_speed = 1 - right_wheel_velocity_diff
+                    right_speed = 1 - left_wheel_velocity_diff
+                else:
+                    left_speed = 1
+                    right_speed = 1
                 self.forward(left_speed, right_speed)
 
             else:
