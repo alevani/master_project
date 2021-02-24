@@ -52,6 +52,14 @@ def dist(p, q):
     return math.sqrt(sum((px - qx) ** 2.0 for px, qx in zip(p, q)))
 
 
+scaleup_width = int(W/2 * 100)
+scaleup_height = int(H/2 * 100)
+
+
+def scaleup(x, y):
+    return int(x * 100) + scaleup_width, int(y * 100) + scaleup_height
+
+
 resting = 0
 first_reserve = 1
 second_reserve = 2

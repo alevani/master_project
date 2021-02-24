@@ -18,6 +18,7 @@ from const import SIMULATION_TIMESTEP
 from const import ROBOT_TIMESTEP
 from const import core_worker
 from const import temp_worker
+from const import scaleup
 from const import BLACK
 from const import dist
 from const import R
@@ -132,15 +133,40 @@ class Robot:
     def pickup_resource(self, POI):
         self.carry_resource = True
         self.payload = POI
+        if globals.PHEROMONES_MAP[POI.position.x][POI.position.y] == 0:
+            import sys
+            from time import sleep
+            print("there was no resource at the specified pick up zone")
+            sys.exit()
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
+    #! quand je bouge je ne met pas a jour la position de mon payload.
+
+    def _find_next_possible_drop_out_pos(self, x, y):
+        for nx in range(x-2, x+2):
+            for ny in range(y-2, y+2):
+                if globals.PHEROMONES_MAP[nx][ny] == 0:
+                    return nx, ny
+        import sys
+        print("no drop out zone found")
+        sys.exit()
+
+    def _update_payload_position(self):
+        globals.POIs[self.payload.index].position.x = self.position.x
+        globals.POIs[self.payload.index].position.y = self.position.y
 
     def drop_resource(self):
         self.carry_resource = False
-        x = int(self.position.x * 100) + \
-            int(W * 100/2)
-        y = int(self.position.y * 100) + \
-            int(H * 100/2)
+        x, y = scaleup(self.position.x, self.position.y)
+
+        if globals.PHEROMONES_MAP[x][y] != 0:
+            x, y = self._find_next_possible_drop_out_pos(x, y)
+
+        self.payload.position.x = x
+        self.payload.position.y = y
+        self._update_payload_position()
+
         globals.PHEROMONES_MAP[x][y] = self.payload
+
         self.payload = None
         self.time_to_drop_out = 0
         self.time_in_zone = 0
@@ -316,18 +342,16 @@ class Robot:
             self.is_avoiding = False
 
     def get_bottom_sensors_state(self, pheromones_map):
-        left_x = int(self.bottom_sensors[0].x * 100) + int(W * 100/2)
-        left_y = int(self.bottom_sensors[0].y * 100) + int(H * 100/2)
+        left_x, left_y = scaleup(
+            self.bottom_sensors[0].x, self.bottom_sensors[0].y)
 
         for x in range(left_x - 2, left_x + 2):
             for y in range(left_y - 2, left_y + 2):
                 if pheromones_map[x][y] != 0:
                     return (pheromones_map[x][y].type, 0), pheromones_map[x][y]
 
-        right_x = int(self.bottom_sensors[1].x *
-                      100) + int(W * 100/2)
-        right_y = int(self.bottom_sensors[1].y *
-                      100) + int(H * 100/2)
+        right_x, right_y = scaleup(
+            self.bottom_sensors[1].x, self.bottom_sensors[1].y)
 
         for x in range(right_x - 2, right_x + 2):
             for y in range(right_y - 2, right_y + 2):
@@ -405,6 +429,7 @@ class Robot:
         if diff > math.radians(5):
 
             s = 1
+            #! sometimes turn in the wrong direction.
             # Determine if the robot should rather turn left or right
             if (self.position.theta - dest_angle) % 360 >= math.radians(180):
                 s = -1
@@ -483,5 +508,4 @@ class Robot:
 
         # if the robot carries a resource, update the resource's position according to the robot's movement
         if self.carry_resource:
-            globals.POIs[self.payload.index].position.x = self.position.x
-            globals.POIs[self.payload.index].position.y = self.position.y
+            self._update_payload_position()

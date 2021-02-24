@@ -102,6 +102,7 @@ class Visualizator:
                             globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
                                 Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
                 else:
+                    #! this will crash as the "do_avoid" is not taken into consideration.
                     add_robot()
 
             elif event.type == QUIT:

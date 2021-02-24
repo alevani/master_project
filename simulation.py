@@ -31,6 +31,7 @@ from const import X_upper_bound
 from const import Y_lower_bound
 from const import Y_upper_bound
 from const import MARKER_HOME
+from const import scaleup
 from const import dist
 from const import W
 from const import H
@@ -49,6 +50,8 @@ import sys
 # IDEAS
 #!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
 # TODO how is it possible that the peak of each task is higher than the previous? they should be about the same as the payload value is substract and re-added to the next task.
+
+#! sometimes some task end up being negative .. should be impossible (but for foraging)
 ########
 
 ### GLOBALS ###################################################################
@@ -177,8 +180,7 @@ for _ in range(nb_point):
         globals.POIs.append(PointOfInterest(
             Position(x, y), 15000, 2, 10))
 
-        x_scaled = int(x * 100) + int(W/2 * 100)
-        y_scaled = int(y * 100) + int(H/2 * 100)
+        x_scaled, y_scaled = scaleup(x, y)
 
         resource_value = randint(1, 2)
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
@@ -392,9 +394,9 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
 
-    # ? to delete
-    if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 10
+    # # ? to delete
+    # if globals.CNT % 500 == 0:
+    #     globals.NEST.resource_need -= 10
 
     # Task helper
     if globals.CNT % 10 == 0:
