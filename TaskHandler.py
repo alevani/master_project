@@ -56,16 +56,17 @@ class TaskHandler:
                 robot.rest()
             else:
                 robot.state = self.temp_worker
-        # As long as the robot holds a resource, do not change its task.
-        elif not robot.carry_resource:
-            if robot.state == self.temp_worker:
-                if feedback(robot.task) < 0:
+
+        elif robot.state == self.temp_worker:
+            if feedback(robot.task) < 0:
+                # As long as the robot holds a resource, do not change its task.
+                if not robot.carry_resource:
                     robot.state = self.first_reserve
-                else:
-                    robot.state = self.core_worker
-            elif robot.state == self.core_worker:
-                if feedback(robot.task) < 0:
-                    robot.state = self.temp_worker
+            else:
+                robot.state = self.core_worker
+        elif robot.state == self.core_worker:
+            if feedback(robot.task) < 0:
+                robot.state = self.temp_worker
 
         robot.color = self.COLORS[robot.task]
 

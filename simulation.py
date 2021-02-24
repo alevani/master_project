@@ -117,7 +117,7 @@ TASKS.append(foraging)
 TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 
-globals.NEST = Nest(-50)
+globals.NEST = Nest(-30)
 TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
@@ -175,11 +175,12 @@ for _ in range(nb_point):
     if not is_point_on_area(x, y):
         index = len(globals.POIs)
         globals.POIs.append(PointOfInterest(
-            Position(x, y), 15000, 2, 10))
+            Position(x, y), 15000, 2, "s"))
 
         x_scaled, y_scaled = scaleup(x, y)
 
-        resource_value = randint(1, 2)
+        # resource_value = randint(1, 2)
+        resource_value = 1  # if random, then it biases the need for a task
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
@@ -393,7 +394,7 @@ while True:
 
     # # ? to delete
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 10
+        globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
