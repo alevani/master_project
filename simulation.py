@@ -7,7 +7,6 @@ from shapely.ops import nearest_points
 from Visualizator import Visualizator
 from shapely.affinity import rotate
 from TaskHandler import TaskHandler
-from TaskHandler import assigned
 from Position import Position
 from pygame.locals import *
 from copy import deepcopy
@@ -116,9 +115,6 @@ TASKS_NAME = ['Foraging',
 TASKS.append(foraging)
 TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
-
-globals.NEST = Nest(-30)
-TaskHandler = TaskHandler(globals.NEST, TASKS)
 #############################################################################
 
 ### Start's variables #########################################################
@@ -134,7 +130,6 @@ for x in range(int(W * 100)):
 AREAS = []
 TYPE_NEUTRAL = 0
 TYPE_HOME = 1
-TYPE_CHARGING_AREA = 2
 TYPE_BROOD_CHAMBER = 3
 TYPE_WAISTE_DEPOSIT = 4
 TYPE_FORAGING_AREA = 5
@@ -143,9 +138,6 @@ home = Area(Position(0 - 2.1, -H/2), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 
 brood_chamber = Area(Position(0 - 0.7, -H/2), 1.4,
                      1.4, TYPE_BROOD_CHAMBER, (224, 153, 255))
-
-charging_area = Area(Position(-W/2, -H/2+3.8),
-                     1.4, 3.2, TYPE_CHARGING_AREA, (168, 255, 153))
 
 waiste_deposit = Area(Position(W/2-1.4, H/2-1.4), 1.4,
                       1.4, TYPE_WAISTE_DEPOSIT, (240, 188, 91))
@@ -156,7 +148,6 @@ foraging_area = Area(Position(-W/2, -H/2), W,
 AREAS.append(foraging_area)
 AREAS.append(home)
 AREAS.append(brood_chamber)
-AREAS.append(charging_area)
 AREAS.append(waiste_deposit)
 
 
@@ -186,6 +177,9 @@ for _ in range(nb_point):
 
 for _ in range(nb_robot):
     add_robot(do_avoid)
+
+globals.NEST = Nest(-30)
+TaskHandler = TaskHandler(TASKS)
 ###############################################################################
 
 
@@ -247,18 +241,34 @@ while True:
         robot_bottom_sensor_states, pointOfInterest = robot.get_bottom_sensors_state(
             globals.PHEROMONES_MAP)
 
-        TaskHandler.assign_task(robot)
-
         robot.stop()
         robot.sense_area(AREAS)
 
+        robot.time_to_task_report += 1
+        if robot.time_to_task_report % 300 == 0:
+            robot.has_to_report = True
+
         if not robot.battery_low:
+
+            if robot.has_to_report and not robot.carry_resource:
+                if robot.is_on_area(TYPE_HOME):
+                    robot.destination = None
+                    TaskHandler.assign_task(robot)
+                    globals.NEST.report(
+                        robot.number, robot.task, robot.has_to_work(), robot.battery_level)
+
+                    robot.has_to_report = False
+                    robot.time_to_task_report = 0
+                else:
+                    robot.destination = MARKER_HOME
+
             # if the robot does not have to work .. let it rest in its charging area.
-            if not robot.has_to_work():
+            elif not robot.has_to_work():
                 if not robot.has_destination():
                     if robot.carry_resource:
                         robot.drop_resource()
                     robot.go_home()
+                    robot.has_to_report = True
 
             # the robot has to be active
             else:
@@ -342,7 +352,7 @@ while True:
                         else:
                             robot.destination = MARKER_BROOD_CHAMBER
 
-        if robot.is_on_area(TYPE_CHARGING_AREA):
+        if robot.is_on_area(TYPE_HOME):
             if robot.destination == robot.start_position or robot.battery_low:
 
                 if globals.CNT % 5 == 0 and robot.battery_level < 100:
@@ -370,7 +380,7 @@ while True:
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
         if battery_effects:
-            if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_CHARGING_AREA):
+            if globals.CNT % 100 == 0 and not robot.is_on_area(TYPE_HOME):
                 robot.battery_level -= randint(0, 4)
                 if robot.battery_level < 25:
 
@@ -397,28 +407,28 @@ while True:
         globals.NEST.resource_need -= 5
 
     # Task helper
-    if globals.CNT % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q")
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] +
-                  " | "+TASKS_NAME[robot.task - 1])
-        TaskHandler.print_stats()
+    # if globals.CNT % 10 == 0:
+    #     print(chr(27) + "[2J")
+    #     print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
+    #     print("N° | % | State | Task | Q")
+    #     for robot in globals.ROBOTS:
+    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+    #               " | "+STATES_NAME[robot.state] +
+    #               " | "+TASKS_NAME[robot.task - 1])
+    #     TaskHandler.print_stats()
 
-        # print to csv file
-        # TODO could be nice to also print each robot task and state to see oscillation ?
-        txt = str(globals.CNT)+";"
-        for i in range(1, len(TASKS) + 1):
-            txt += assigned(i) + ";"
-            if i == foraging:
-                txt += str(globals.NEST.resource_need * -1)+";"
-            elif i == nest_maintenance:
-                txt += str(globals.NEST.resource_stock)+";"
-            elif i == brood_care:
-                txt += str(globals.NEST.resource_transformed)
-        globals.CSV_FILE.write(txt+"\n")
+    #     # print to csv file
+    #     # TODO could be nice to also print each robot task and state to see oscillation ?
+    #     txt = str(globals.CNT)+";"
+    #     for i in range(1, len(TASKS) + 1):
+    #         txt += TaskHandler.assigned(i) + ";"
+    #         if i == foraging:
+    #             txt += str(globals.NEST.resource_need * -1)+";"
+    #         elif i == nest_maintenance:
+    #             txt += str(globals.NEST.resource_stock)+";"
+    #         elif i == brood_care:
+    #             txt += str(globals.NEST.resource_transformed)
+    #     globals.CSV_FILE.write(txt+"\n")
 
     if ACT:
         pygame .display.flip()  # render drawing

@@ -10,7 +10,7 @@ class Nest:
         self.resource_waiste = 0
         self.total = 0
         self.robot_task_status = [RobotTaskStatus(
-            i + 1, 0, False) for i in range(len(globals.ROBOTS) - 1)]
+            i + 1, 0, False, 100) for i in range(len(globals.ROBOTS))]
 
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.
@@ -22,4 +22,4 @@ class Nest:
                                1].battery_level = robot_battery_level
 
     def energy(self, task):
-        return [1 for robot in self.robot_task_status if robot.task == task and robot.has_to_work and robot.battery_level > 0]
+        return sum([1 for robot in self.robot_task_status if robot.task == task and robot.has_to_work and robot.battery_level > 0])

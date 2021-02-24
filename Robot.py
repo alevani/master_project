@@ -33,18 +33,19 @@ import math
 OUT_RANGE = 10000
 
 # X start and end borns for add_robot
-x_a = int((-W/2 + 0.1) * 100)
-x_b = int((-W/2 + 1.30) * 100)
+x_a = int((-2.0) * 100)
+x_b = int((-0.8) * 100)
 
 # Y start and end borns for add_robot
-y_a = int((H/2 - 3.1)*100)
-y_b = int((H/2 - 0.1)*100)
+y_a = int((-H/2 + 0.1)*100)
+y_b = int((-H/2 + 1.3)*100)
 
 
 def add_robot(do_avoid):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
-    globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(0)),
+    postheta = randint(0, 360)
+    globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
                                 BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100, do_avoid))
 
 
@@ -70,6 +71,8 @@ class Robot:
 
         # Foraging  # Nest maintenance  # Brood care
         self.TASKS_Q = [0, 0, 0]
+        self.has_to_report = False
+        self.time_to_task_report = 0
 
         self.payload = None
         self.area_left = -1
