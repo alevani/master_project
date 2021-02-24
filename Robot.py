@@ -139,7 +139,6 @@ class Robot:
             print("there was no resource at the specified pick up zone")
             sys.exit()
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
-    #! quand je bouge je ne met pas a jour la position de mon payload.
 
     def _find_next_possible_drop_out_pos(self, x, y):
         for nx in range(x-2, x+2):

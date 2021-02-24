@@ -49,9 +49,6 @@ import sys
 
 # IDEAS
 #!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
-# TODO how is it possible that the peak of each task is higher than the previous? they should be about the same as the payload value is substract and re-added to the next task.
-
-#! sometimes some task end up being negative .. should be impossible (but for foraging)
 ########
 
 ### GLOBALS ###################################################################
@@ -395,8 +392,8 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     # # ? to delete
-    # if globals.CNT % 500 == 0:
-    #     globals.NEST.resource_need -= 10
+    if globals.CNT % 500 == 0:
+        globals.NEST.resource_need -= 10
 
     # Task helper
     if globals.CNT % 10 == 0:
