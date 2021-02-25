@@ -245,10 +245,13 @@ while True:
         robot.sense_area(AREAS)
 
         robot.time_to_task_report += 1
-        if robot.time_to_task_report % 300 == 0:
+        if robot.time_to_task_report % 600 == 0:
             robot.has_to_report = True
 
         if not robot.battery_low:
+
+            if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
+                robot.has_to_report = True
 
             if robot.has_to_report and not robot.carry_resource:
                 if robot.is_on_area(TYPE_HOME):
@@ -263,12 +266,11 @@ while True:
                     robot.destination = MARKER_HOME
 
             # if the robot does not have to work .. let it rest in its charging area.
-            elif not robot.has_to_work():
+            if not robot.has_to_work():
                 if not robot.has_destination():
                     if robot.carry_resource:
                         robot.drop_resource()
                     robot.go_home()
-                    robot.has_to_report = True
 
             # the robot has to be active
             else:
@@ -407,15 +409,16 @@ while True:
         globals.NEST.resource_need -= 5
 
     # Task helper
-    # if globals.CNT % 10 == 0:
-    #     print(chr(27) + "[2J")
-    #     print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-    #     print("N° | % | State | Task | Q")
-    #     for robot in globals.ROBOTS:
-    #         print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-    #               " | "+STATES_NAME[robot.state] +
-    #               " | "+TASKS_NAME[robot.task - 1])
-    #     TaskHandler.print_stats()
+    if globals.CNT % 10 == 0:
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
+        print("N° | % | State | Task | Q | Timestep since last report")
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] +
+                  " | "+TASKS_NAME[robot.task - 1] +
+                  " | "+str(robot.time_to_task_report))
+        TaskHandler.print_stats()
 
     #     # print to csv file
     #     # TODO could be nice to also print each robot task and state to see oscillation ?
