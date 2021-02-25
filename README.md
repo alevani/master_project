@@ -9,6 +9,11 @@ Throughout the simulation, Forager will collect resource from the outside world 
 The knowledge about a task or a need are not shared within the robot anymore. Instead, the nest serves as an information center where ant report their current task and ask for
 a new assignment under specific conditions. This is to ensure the simulation lays in the decentralized / distributed swarm robot paradigm.
 
+Conditions for ant task report:
+- The ant is currently not carrying a resource (clear sign of an ant currently active in its assigned task)
+- AND the ant is on the area `TYPE_HOME`
+- The ant has not report its task since `600? simulation timestep
+
 ## How to: Line command
 ```
 > python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation>
