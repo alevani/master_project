@@ -38,8 +38,8 @@ x_a = int((-2.0) * 100)
 x_b = int((-0.8) * 100)
 
 # Y start and end borns for add_robot
-y_a = int((-H/2 + 0.1)*100)
-y_b = int((-H/2 + 1.3)*100)
+y_a = int((-H/2 + 0.1 + .5)*100)
+y_b = int((-H/2 + 1.3 + .5)*100)
 
 
 def add_robot(do_avoid):

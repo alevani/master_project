@@ -134,9 +134,9 @@ TYPE_BROOD_CHAMBER = 3
 TYPE_WAISTE_DEPOSIT = 4
 TYPE_FORAGING_AREA = 5
 
-home = Area(Position(0 - 2.1, -H/2), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
+home = Area(Position(0 - 2.1, -H/2+0.5), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 
-brood_chamber = Area(Position(0 - 0.7, -H/2), 1.4,
+brood_chamber = Area(Position(0 - 0.7, -H/2+0.5), 1.4,
                      1.4, TYPE_BROOD_CHAMBER, (224, 153, 255))
 
 waiste_deposit = Area(Position(W/2-1.4, H/2-1.4), 1.4,
