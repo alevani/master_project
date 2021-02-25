@@ -7,7 +7,7 @@ Throughout the simulation, Forager will collect resource from the outside world 
 
 ### Communication
 The knowledge about a task or a need are not shared within the robot anymore. Instead, the nest serves as an information center where ant report their current task and ask for
-a new assignment under specific conditions.
+a new assignment under specific conditions. This is to ensure the simulation lays in the decentralized / distributed swarm robot paradigm.
 
 ## How to: Line command
 ```
