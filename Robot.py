@@ -1,35 +1,21 @@
-from shapely.geometry import LinearRing, LineString, Point, Polygon
-from numpy import sin, cos, pi, sqrt, zeros
-from shapely.geometry.point import Point
-from CollisionBox import CollisionBox
-from shapely.affinity import rotate
-from Position import Position
-from random import randint
-from random import random
+import math
 from copy import deepcopy
+from random import randint, random
 
-from const import BOTTOM_LIGHT_SENSORS_POSITION
-from const import PROXIMITY_SENSORS_POSITION
-from const import RESOURCE_STATE_WAISTE
-from const import RESOURCE_STATE_NEST_PROCESSING
-from const import RESOURCE_STATE_FORAGING
-from const import RESOURCE_STATE_TRANSFORMED
-from const import SIMULATION_TIMESTEP
-from const import ROBOT_TIMESTEP
-from const import MARKER_HOME
-from const import core_worker
-from const import temp_worker
-from const import scaleup
-from const import BLACK
-from const import dist
-from const import R
-from const import W
-from const import H
-from const import L
+import shapely
+from numpy import cos, pi, sin, sqrt, zeros
+from shapely.affinity import rotate
+from shapely.geometry import LinearRing, LineString, Point, Polygon
+from shapely.geometry.point import Point
 
 import globals
-import shapely
-import math
+from CollisionBox import CollisionBox
+from const import (BLACK, BOTTOM_LIGHT_SENSORS_POSITION, MARKER_HOME,
+                   PROXIMITY_SENSORS_POSITION, RESOURCE_STATE_FORAGING,
+                   RESOURCE_STATE_NEST_PROCESSING, RESOURCE_STATE_TRANSFORMED,
+                   RESOURCE_STATE_WAISTE, ROBOT_TIMESTEP, SIMULATION_TIMESTEP,
+                   H, L, R, W, core_worker, dist, scaleup, temp_worker)
+from Position import Position
 
 OUT_RANGE = 10000
 
@@ -449,9 +435,11 @@ class Robot:
                 right_speed = -0.5 * s
 
             if self.do_avoid:
-                # ? should left or right be random?
                 if top < 0.05:
-                    left_speed -= 3  # ! yikes
+                    if randint(0, 1):
+                        left_speed -= 3  # ! yikes
+                    else:
+                        right_speed -= 3  # ! yikes
 
                 self.rotate(min(left_speed + left_wheel_velocity_diff, 1),
                             min(right_speed + right_wheel_velocity_diff, 1))
@@ -467,7 +455,10 @@ class Robot:
                 if self.do_avoid:
                     if top < 0.05:
                         # ? should that be random
-                        right_wheel_velocity_diff = 2
+                        if randint(0, 1):
+                            right_wheel_velocity_diff = 2
+                        else:
+                            left_wheel_velocity_diff = 2
 
                     left_speed = 1 - right_wheel_velocity_diff
                     right_speed = 1 - left_wheel_velocity_diff
