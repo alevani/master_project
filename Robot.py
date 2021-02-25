@@ -145,8 +145,8 @@ class Robot:
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
     def _find_next_possible_drop_out_pos(self, x, y):
-        for nx in range(x-2, x+2):
-            for ny in range(y-2, y+2):
+        for nx in range(x-4, x+4):
+            for ny in range(y-4, y+4):
                 if globals.PHEROMONES_MAP[nx][ny] == 0:
                     return nx, ny
         import sys
@@ -161,7 +161,8 @@ class Robot:
         self.carry_resource = False
         x, y = scaleup(self.position.x, self.position.y)
 
-        if globals.PHEROMONES_MAP[x][y] != 0:
+        # not RESOURCE_STATE_WAISTE because we don't care of stacking fully processed resources.
+        if globals.PHEROMONES_MAP[x][y] != 0 and not self.payload.state == RESOURCE_STATE_WAISTE:
             x, y = self._find_next_possible_drop_out_pos(x, y)
 
         self.payload.position.x = x
