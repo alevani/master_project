@@ -47,7 +47,6 @@ import math
 import sys
 
 # IDEAS
-#!when on same x axis, the robot struggle to be correctly aligned so it turns and aligns .. forward.. turns and aligns .. and so on
 ########
 
 ### GLOBALS ###################################################################
@@ -177,6 +176,29 @@ for _ in range(nb_point):
 
 for _ in range(nb_robot):
     add_robot(do_avoid)
+
+# Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
+ROBOT_TIMESTEP = 1
+SIMULATION_TIMESTEP = .01
+
+R = 0.02  # radius of wheels in meters
+L = 0.095  # distance between wheels in meters
+
+
+# Assuming the robot is looking north
+BOTTOM_LIGHT_SENSORS_POSITION = [
+    Position(-0.01, 0.07), Position(0.01, 0.07)]
+
+# Assuming the robot is looking north
+PROXIMITY_SENSORS_POSITION = [
+    Position(-0.05,   0.06, math.radians(130)),
+    Position(0, 0.0778, math.radians(90)),
+    Position(0.05,   0.06, math.radians(50))
+]
+
+# R1 = Robot(1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(-3, 0, math.radians(8)),
+#            (0, 0, 0), deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, no_task, resting, 100, True)
+# globals.ROBOTS.append(R1)
 
 globals.NEST = Nest(-30)
 TaskHandler = TaskHandler(TASKS)

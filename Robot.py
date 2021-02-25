@@ -433,9 +433,8 @@ class Robot:
         if diff > math.radians(5):
 
             s = 1
-            #! sometimes turn in the wrong direction.
             # Determine if the robot should rather turn left or right
-            if (self.position.theta - dest_angle) % 360 >= math.radians(180):
+            if ((self.position.theta - dest_angle) % math.radians(360)) >= math.radians(180):
                 s = -1
 
             #! maybe the velo diff has to be proportional to 0.2 and 0.5
