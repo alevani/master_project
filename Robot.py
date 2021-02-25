@@ -16,6 +16,7 @@ from const import RESOURCE_STATE_FORAGING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import SIMULATION_TIMESTEP
 from const import ROBOT_TIMESTEP
+from const import MARKER_HOME
 from const import core_worker
 from const import temp_worker
 from const import scaleup
@@ -238,7 +239,7 @@ class Robot:
             pos.x = point.x
             pos.y = point.y
 
-    def go_home(self):
+    def go_start_position(self):
         # set the robot's destination to its charging area
         self.last_foraging_point = None
         self.destination = self.start_position
@@ -483,7 +484,9 @@ class Robot:
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        if self.has_destination():
+        if self.has_to_report and not self.carry_resource:
+            self.goto(MARKER_HOME, robot_prox_sensors_values)
+        elif self.has_destination():
             self.goto(self.destination, robot_prox_sensors_values)
         else:
             if self.is_avoiding:

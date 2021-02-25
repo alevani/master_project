@@ -246,6 +246,7 @@ while True:
 
         robot.time_to_task_report += 1
         if robot.time_to_task_report % 600 == 0:
+            robot.time_to_task_report = 599  # ! maybe useless
             robot.has_to_report = True
 
         if not robot.battery_low:
@@ -253,7 +254,15 @@ while True:
             if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
                 robot.has_to_report = True
 
-            if robot.has_to_report and not robot.carry_resource:
+            #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
+            #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
+
+            """
+            J'ai envie que: tu report tous les 600 steps (sauf si tu es actif à la tâche)
+            J'ai envie que tu report quand tu es à la maison
+            """
+
+            if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
                     TaskHandler.assign_task(robot)
@@ -262,20 +271,18 @@ while True:
 
                     robot.has_to_report = False
                     robot.time_to_task_report = 0
-                else:
-                    robot.destination = MARKER_HOME
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
                 if not robot.has_destination():
                     if robot.carry_resource:
                         robot.drop_resource()
-                    robot.go_home()
+                    robot.go_start_position()
 
             # the robot has to be active
             else:
                 if robot.task == no_task:
-                    robot.go_home()
+                    robot.go_start_position()
 
                 elif robot.task == foraging:
 
@@ -284,8 +291,9 @@ while True:
 
                     if not robot.carry_resource:
                         if not robot.is_on_area(TYPE_FORAGING_AREA):
-                            robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
-                                0, 0)
+                            # robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
+                            #     0, 0)
+                            robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
                         else:
                             robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
 
@@ -412,26 +420,27 @@ while True:
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report")
+        print("N° | % | State | Task | Q | Timestep since last report | Has to report")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
-                  " | "+str(robot.time_to_task_report))
+                  " | "+str(robot.time_to_task_report) +
+                  " | " + ("True" if robot.has_to_report else "False"))
         TaskHandler.print_stats()
 
-    #     # print to csv file
-    #     # TODO could be nice to also print each robot task and state to see oscillation ?
-    #     txt = str(globals.CNT)+";"
-    #     for i in range(1, len(TASKS) + 1):
-    #         txt += TaskHandler.assigned(i) + ";"
-    #         if i == foraging:
-    #             txt += str(globals.NEST.resource_need * -1)+";"
-    #         elif i == nest_maintenance:
-    #             txt += str(globals.NEST.resource_stock)+";"
-    #         elif i == brood_care:
-    #             txt += str(globals.NEST.resource_transformed)
-    #     globals.CSV_FILE.write(txt+"\n")
+        # print to csv file
+        # TODO could be nice to also print each robot task and state to see oscillation ?
+        txt = str(globals.CNT)+";"
+        for i in range(1, len(TASKS) + 1):
+            txt += TaskHandler.assigned(i) + ";"
+            if i == foraging:
+                txt += str(globals.NEST.resource_need * -1)+";"
+            elif i == nest_maintenance:
+                txt += str(globals.NEST.resource_stock)+";"
+            elif i == brood_care:
+                txt += str(globals.NEST.resource_transformed)
+        globals.CSV_FILE.write(txt+"\n")
 
     if ACT:
         pygame .display.flip()  # render drawing
