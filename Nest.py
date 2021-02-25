@@ -9,8 +9,9 @@ class Nest:
         self.resource_transformed = 0
         self.resource_waiste = 0
         self.total = 0
-        self.robot_task_status = [RobotTaskStatus(
-            i + 1, 0, False, 100) for i in range(len(globals.ROBOTS))]
+        self.robot_task_status = []
+        # self.robot_task_status = [RobotTaskStatus(
+        #     i + 1, 0, False, 100) for i in range(len(globals.ROBOTS))]
 
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.

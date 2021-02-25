@@ -2,7 +2,10 @@ from math import atan, cos, sin, pi, radians
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
 from pygame.locals import *
+
+from Robot import delete_robot
 from Robot import add_robot
+
 from Position import Position
 from random import randint
 from math import cos, sin
@@ -80,8 +83,8 @@ class Visualizator:
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if event.button == 1:
 
+                if event.button == 1:
                     n = randint(1, 50)
                     for _ in range(n):
                         x = randint(pos[0] - 100, pos[0] + 100)
@@ -101,9 +104,10 @@ class Visualizator:
                             resource_value = randint(1, 2)
                             globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
                                 Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
-                else:
-                    #! this will crash as the "do_avoid" is not taken into consideration.
+                elif event.button == 3 or event.button == 7:
                     add_robot()
+                else:
+                    delete_robot()
 
             elif event.type == QUIT:
                 pygame.quit()

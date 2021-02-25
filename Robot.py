@@ -2,6 +2,8 @@ import math
 from copy import deepcopy
 from random import randint, random
 
+from RobotTaskStatus import RobotTaskStatus
+
 import shapely
 from numpy import cos, pi, sin, sqrt, zeros
 from shapely.affinity import rotate
@@ -28,18 +30,24 @@ y_a = int((-H/2 + 0.1 + .5)*100)
 y_b = int((-H/2 + 1.3 + .5)*100)
 
 
-def add_robot(do_avoid):
+def add_robot():
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     postheta = randint(0, 360)
-    globals.ROBOTS.append(Robot(len(globals.ROBOTS) + 1, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100, do_avoid))
+    num = len(globals.ROBOTS) + 1
+    globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100))
+    globals.NEST.robot_task_status.append(RobotTaskStatus(num, 0, False, 100))
+
+
+def delete_robot():
+    globals.ROBOTS.pop()
+    globals.NEST.robot_task_status.pop()
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level, do_avoid):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level):
         self.number = number
-        self.do_avoid = do_avoid
         self.last_foraging_point = None
         self.color = color
         self.task = task
@@ -400,7 +408,7 @@ class Robot:
     # this means that the robot does not go blindly forward
     def goto(self, dest, proximity_sensor_values):
 
-        if self.do_avoid:
+        if globals.do_avoid:
             top = proximity_sensor_values[1]
             left_most = proximity_sensor_values[0] if proximity_sensor_values[0] < 0.1 else OUT_RANGE
             right_most = proximity_sensor_values[2] if proximity_sensor_values[2] < 0.1 else OUT_RANGE
@@ -434,7 +442,7 @@ class Robot:
                 left_speed = 0.5 * s
                 right_speed = -0.5 * s
 
-            if self.do_avoid:
+            if globals.do_avoid:
                 if top < 0.05:
                     if randint(0, 1):
                         left_speed -= 3  # ! yikes
@@ -452,7 +460,7 @@ class Robot:
 
             # Speeds down the robot when approaching goal position
             if d > 0.02:
-                if self.do_avoid:
+                if globals.do_avoid:
                     if top < 0.05:
                         # ? should that be random
                         if randint(0, 1):

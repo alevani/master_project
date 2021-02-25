@@ -62,7 +62,6 @@ nb_point = 0
 ACT = None
 battery_effects = None
 do_record_trail = None
-do_avoid = None
 
 for opt, arg in opts:
     if opt == "-h":
@@ -80,7 +79,7 @@ for opt, arg in opts:
     elif opt == "-t":
         do_record_trail = True if arg == "True" else False
     elif opt == "-a":
-        do_avoid = True if arg == "True" else False
+        globals.do_avoid = True if arg == "True" else False
 
 # WORLD
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
@@ -175,10 +174,11 @@ for _ in range(nb_point):
         globals.PHEROMONES_MAP[x_scaled][y_scaled] = PointOfInterest(
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
-for _ in range(nb_robot):
-    add_robot(do_avoid)
 
 globals.NEST = Nest(-30)
+for _ in range(nb_robot):
+    add_robot()
+
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
 ###############################################################################
@@ -194,7 +194,7 @@ def get_proximity_sensors_values(robot_rays, robot):
                            (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
     # Robot detection
-    if do_avoid:
+    if globals.do_avoid:
         for r in globals.ROBOTS:
 
             # Don't check ourselves
@@ -267,8 +267,10 @@ while True:
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
-                    # TaskHandler.assign_task(robot)
-                    GreedyTaskHandler.assign_task(robot)
+
+                    TaskHandler.assign_task(robot)
+                    # GreedyTaskHandler.assign_task(robot)
+
                     globals.NEST.report(
                         robot.number, robot.task, robot.has_to_work(), robot.battery_level)
 

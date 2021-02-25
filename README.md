@@ -34,8 +34,9 @@ y -> Shows sensors and collision box
 r -> Increments resrouce's needs by a random number
 x -> if -t = True, show where each robot have been during the simulation
 p -> Pause the simulation
-right-click -> add a robot to the simulation (NOT SUPPORTED ATM)
+right-click or click 7 -> add a robot to the simulation
 left-click -> spread a random number of point in a 100x100 area around the position of the click
+click 6 -> Remove a robot from the simulation
 ```
 
 Current status: [Video link](https://www.youtube.com/watch?v=HpS3zuJ1a9I)
