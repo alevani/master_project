@@ -1,5 +1,6 @@
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
+from GreedyTaskHandler import GreedyTaskHandler
 from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
@@ -179,6 +180,7 @@ for _ in range(nb_robot):
 
 globals.NEST = Nest(-30)
 TaskHandler = TaskHandler(TASKS)
+GreedyTaskHandler = GreedyTaskHandler(TASKS)
 ###############################################################################
 
 
@@ -265,7 +267,8 @@ while True:
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
-                    TaskHandler.assign_task(robot)
+                    # TaskHandler.assign_task(robot)
+                    GreedyTaskHandler.assign_task(robot)
                     globals.NEST.report(
                         robot.number, robot.task, robot.has_to_work(), robot.battery_level)
 
