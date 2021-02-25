@@ -5,6 +5,10 @@ Ant-Inspired Task Allocation Model Within a Swarm of Homogeneous Simulated Robot
 The robot are dispatch from a starting point in an Arena. Their task is selected following the Task allocation model proposed in this paper: https://ssr.seas.harvard.edu/files/ssr/files/disc14-cornejo.pdf.
 Throughout the simulation, Forager will collect resource from the outside world and gather them in the home area (blue). Then, nest maintenance will process the resource and move it to the brood-caring area (pink) for it to e picked up and move to the waiste area (orange).
 
+### Communication
+The knowledge about a task or a need are not shared within the robot anymore. Instead, the nest serves as an information center where ant report their current task and ask for
+a new assignment under specific conditions.
+
 ## How to: Line command
 ```
 > python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation>
