@@ -12,7 +12,7 @@ a new assignment under specific conditions. This is to ensure the simulation lay
 Conditions for ant task report:
 - The ant is currently not carrying a resource (clear sign of an ant currently active in its assigned task)
 - AND the ant is on the area `TYPE_HOME`
-- The ant has not report its task since `600? simulation timestep
+- The ant has not report its task since `600` simulation timestep
 
 ## How to: Line command
 ```
