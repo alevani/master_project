@@ -17,3 +17,5 @@ PHEROMONES_MAP = []
 
 CSV_FILE = None
 do_avoid = True
+
+total_dist = 0

@@ -75,6 +75,8 @@ class TaskHandler:
         print("Nest Maintenance: ", globals.NEST.resource_stock)
         print("Brood Care: ", globals.NEST.resource_transformed)
         print("Total: ", globals.NEST.total)
+        #! not really its place.
+        print("Total distance: " + str(int(globals.total_dist))+" cm")
 
     def demand(self, task):
         if task == 1:

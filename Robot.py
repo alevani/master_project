@@ -322,6 +322,8 @@ class Robot:
             theta += omega * self.SIMULATION_TIMESTEP
             theta = theta % math.radians(360)
 
+        globals.total_dist += dist((self.position.x, self.position.y), (x, y))
+
         self.update_proximity_sensor_position(
             x - self.position.x, y - self.position.y, theta-self.position.theta)
         self.rotate_proximity_sensors(x, y, theta-self.position.theta)
