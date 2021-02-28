@@ -435,7 +435,7 @@ while True:
         TaskHandler.print_stats()
 
         # print to csv file
-        # TODO could be nice to also print each robot task and state to see oscillation ?
+        # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
         for i in range(1, len(TASKS) + 1):
             txt += TaskHandler.assigned(i) + ";"
