@@ -49,7 +49,7 @@ import sys
 
 # IDEAS
 ########
-
+# ? MVC Refactor
 ### GLOBALS ###################################################################
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:")

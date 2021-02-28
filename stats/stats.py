@@ -13,6 +13,8 @@ nest_maintenance_need = []
 nest_maintenance_assigned = []
 nest_maintenance_unassigned = []
 
+not_working_robot = []
+
 brood_care_need = []
 brood_care_assigned = []
 brood_care_unassigned = []
@@ -25,11 +27,15 @@ for line in file:
     foraging_need.append(arr[3])
     foraging_assigned.append(arr[1])
 
+    not_working_robot.append(arr[2])
+
     nest_maintenance_need.append(arr[6])
     nest_maintenance_assigned.append(arr[4])
+    not_working_robot[len(not_working_robot) - 1] += arr[5]
 
     brood_care_need.append(arr[9])
     brood_care_assigned.append(arr[7])
+    not_working_robot[len(not_working_robot) - 1] += arr[8]
 
 
 fig, ax = plt.subplots()
@@ -71,5 +77,9 @@ brood_care.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+
+fig, task_rep = plt.subplots()
+task_rep.stackplot(step, foraging_assigned,
+                   nest_maintenance_assigned, brood_care_assigned, not_working_robot)
 
 plt.show()
