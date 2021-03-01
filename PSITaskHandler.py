@@ -2,9 +2,23 @@
 # ? +- X .. ? + or - ? sweat_smile
 # ? is self.w updated in eq7?
 # ? wasn't it a story about robot are distributed among the task in a uniform way?
-# ? what if eq7 yields to go task -= 1 but task is already 1
 # what is the init task of a robot
 # what is the init w of a robot (the task's demand?)
+
+#! Have I misunderstood something and when the paper says e.g. "dlower" it referes to a calcule of distance?
+#! I think yes, so when for a calcule you have to return d_lower e.g. then you have to calculate the dist from x to it
+
+
+"""
+Code heavily inspired from the received code of the author of the paper
+"""
+
+"""
+apparently everytime the task demand changes it recalculate calculateTh_fixed. why?
+
+-> I think it is because they remove some tasks at some point which means they have
+   to recalculate the tresh. (I do not need it)
+"""
 
 
 class PSITaskHandler:
@@ -15,8 +29,11 @@ class PSITaskHandler:
         self.th_values = [int(0.3 * self.Xmax), int(0.6 * self.Xmax)]
         self.delta = 1
         self.phi_base = 0.3
-        self.lower_margin = 0
-        self.upper_margin = 0
+
+        # ? do these numbers have to be coherent with how high my task demand can go?
+        self.lower_margin = 3
+        self.upper_margin = 3
+
         self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
                        (0, 0, 255), (125, 125, 125)]
 
@@ -56,13 +73,67 @@ class PSITaskHandler:
         else:
             r.x += 0
 
-    def eq7(self, r):
-        if r.x > self.th_values[r.task] + self.upper_margin:
+
+"""
+void change_x(int i, float a) {
+	if ((robot[i].x + a) >= MIN_X && (robot[i].x + a) <= MAX_X )
+		robot[i].x += a;
+}
+
+eq 6
+	float hdist,ldist;
+
+	// Have I misunderstood something and when the paper says e.g. "dlower" it referes to a calcule of distance?
+	// I think yes, so when for a calcule you have to return d_lower e.g. then you have to calculate the dist from x to it
+	ldist = robot[i].x - robot[i].x_low;
+	hdist = robot[i].x_high - robot[i].x;
+	if (robot[i].x_high == MAX_X)
+		hdist *= 2;
+	if (robot[i].x_low == MIN_X)
+		ldist *= 2;
+
+	if (hdist > ldist)
+		change_x(i,robot[i].delta);
+	else if (hdist < ldist)
+		change_x(i,-robot[i].delta);
+	else
+	 	//change_x(i,-robot[i].delta+2*robot[i].delta*(float)rand()/(float)RAND_MAX);
+		/*if(rand()%2<1)
+			change_x(i,robot[i].delta);
+		else 	change_x(i,-robot[i].delta);*/
+	 	change_x(i,-robot[i].delta+2*robot[i].delta*(float)rand()/(float)RAND_MAX);
+
+    // a bit of random change
+    change_x(i,-RANODM_CHANGE+2*RANODM_CHANGE*(float)rand()/(float)RAND_MAX);
+
+
+    if (robot[i].x <= MIN_X) {
+        robot[i].x = MIN_X + 1;
+        robot[i].x_low = MIN_X;
+    }
+    if (robot[i].x >= MAX_X) {
+        robot[i].x = MAX_X - 1;
+        robot[i].x_high = MAX_X;
+    }
+    if (robot[i].x < robot[i].x_low)
+        robot[i].x_low = robot[i].x - robot[i].delta;
+    if (robot[i].x > robot[i].x_high)
+        robot[i].x_high = robot[i].x + robot[i].delta;
+    if (robot[i].x_low < MIN_X)
+        robot[i].x_low = MIN_X;
+    if (robot[i].x_high > MAX_X)
+        robot[i].x_high = MAX_X;
+"""
+
+   def eq7(self, r):
+        # < 3 because the experiment has 3 tasks
+        if r.task + 1 < 4 and r.x > self.th_values[r.task] + self.upper_margin:
             r.task += 1
-        elif r.x < self.th_values[r.task - 2] - self.lower_margin:
+
+        # >0 because we need the task to be at least 1
+        elif r.task - 1 > 0 and r.x < self.th_values[r.task - 2] - self.lower_margin:
             r.task -= 1
 
-        print(r.task)
         r.w = self.demand(r.task)
         r.color = self.COLORS[r.task]
 

@@ -160,6 +160,7 @@ def is_point_on_area(x, y):
     return False
 
 
+# Adds random point on the map (up to nb_point)
 for _ in range(nb_point):
     x = uniform(X_lower_bound, X_upper_bound)
     y = uniform(Y_lower_bound, Y_upper_bound)
@@ -280,7 +281,7 @@ while True:
             """ BROADCAST DATA -> induced by just updating the value and the robot being able to sense others at any given time. """
             PSITaskHandler.eq7(robot)
 
-            # TODO has to work and anything related to an ant state is obsolete
+            # TODO has_to_work and anything related to an ant state is obsolete
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
