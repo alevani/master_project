@@ -31,6 +31,7 @@ from const import X_upper_bound
 from const import Y_lower_bound
 from const import Y_upper_bound
 from const import MARKER_HOME
+from const import TYPE_HOME
 from const import scaleup
 from const import dist
 from const import W
@@ -128,7 +129,6 @@ for x in range(int(W * 100)):
 # Areas
 AREAS = []
 TYPE_NEUTRAL = 0
-TYPE_HOME = 1
 TYPE_BROOD_CHAMBER = 3
 TYPE_WAISTE_DEPOSIT = 4
 TYPE_FORAGING_AREA = 5
@@ -268,6 +268,11 @@ while True:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
 
+                    #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
+                    #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
+                    #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
+                    #! > and will keep its state ...
+                    # ? but is what I did the best option now? (go_and_stay_home)
                     TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
 
@@ -282,12 +287,15 @@ while True:
                 if not robot.has_destination():
                     if robot.carry_resource:
                         robot.drop_resource()
-                    robot.go_start_position()
+
+                    robot.last_foraging_point = None
+                    robot.go_and_stay_home()
 
             # the robot has to be active
             else:
                 if robot.task == no_task:
-                    robot.go_start_position()
+                    robot.last_foraging_point = None
+                    robot.go_and_stay_home()
 
                 elif robot.task == foraging:
 
@@ -431,7 +439,8 @@ while True:
                   " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
                   " | "+str(robot.time_to_task_report) +
-                  " | " + ("True" if robot.has_to_report else "False"))
+                  " | " + ("True" if robot.has_to_report else "False") +
+                  " | " + str(robot.TASKS_Q))
         TaskHandler.print_stats()
 
         # print to csv file

@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('./stats26000.csv')
+file = open('./stats.csv')
 
 
 foraging_need = []

@@ -16,7 +16,7 @@ from const import (BLACK, BOTTOM_LIGHT_SENSORS_POSITION, MARKER_HOME,
                    PROXIMITY_SENSORS_POSITION, RESOURCE_STATE_FORAGING,
                    RESOURCE_STATE_NEST_PROCESSING, RESOURCE_STATE_TRANSFORMED,
                    RESOURCE_STATE_WAISTE, ROBOT_TIMESTEP, SIMULATION_TIMESTEP,
-                   H, L, R, W, core_worker, dist, scaleup, temp_worker)
+                   H, L, R, W, core_worker, dist, scaleup, temp_worker, TYPE_HOME)
 from Position import Position
 
 OUT_RANGE = 10000
@@ -117,16 +117,19 @@ class Robot:
         self.bottom_sensors = deepcopy(self.bottom_sensors_backup)
         self.update_collision_box(position)
 
-    def stay_home(self):
-        if not self.area_left and not self.area_right:
-            if randint(0, 1):
-                self.turn_left()
-            else:
-                self.turn_right()
-        elif not self.area_right:
-            self.soft_turn_left()
-        elif not self.area_left:
-            self.soft_turn_right()
+    def go_and_stay_home(self):
+        if self.is_on_area(TYPE_HOME):
+            if not self.area_left and not self.area_right:
+                if randint(0, 1):
+                    self.turn_left()
+                else:
+                    self.turn_right()
+            elif not self.area_right:
+                self.soft_turn_left()
+            elif not self.area_left:
+                self.soft_turn_right()
+        else:
+            self.destination = MARKER_HOME
 
     def pickup_resource(self, POI):
         self.carry_resource = True
@@ -235,7 +238,6 @@ class Robot:
             pos.y = point.y
 
     def go_start_position(self):
-        # set the robot's destination to its charging area
         self.last_foraging_point = None
         self.destination = self.start_position
 

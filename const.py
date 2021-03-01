@@ -18,6 +18,7 @@ SIMULATION_TIMESTEP = .01
 R = 0.02  # radius of wheels in meters
 L = 0.095  # distance between wheels in meters
 
+TYPE_HOME = 1
 
 # Assuming the robot is looking north
 BOTTOM_LIGHT_SENSORS_POSITION = [
