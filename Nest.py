@@ -7,7 +7,7 @@ class Nest:
         self.resource_need = resource_need
         self.resource_stock = 0
         self.resource_transformed = 0
-        self.resource_waiste = 0
+        self.resource_waste = 0
         self.total = 0
         self.robot_task_status = []
         # self.robot_task_status = [RobotTaskStatus(

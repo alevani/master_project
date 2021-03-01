@@ -24,9 +24,9 @@ from random import *
 from const import RESOURCE_STATE_NEST_PROCESSING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
-from const import RESOURCE_STATE_WAISTE
+from const import RESOURCE_STATE_WASTE
 from const import MARKER_BROOD_CHAMBER
-from const import MARKER_WAISTE_AREA
+from const import MARKER_WASTE_AREA
 from const import X_lower_bound
 from const import X_upper_bound
 from const import Y_lower_bound
@@ -52,6 +52,7 @@ import sys
 # IDEAS
 ########
 # ? MVC Refactor
+# TODO rename the task so it matches what really happen
 ### GLOBALS ###################################################################
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:")
@@ -131,7 +132,7 @@ for x in range(int(W * 100)):
 AREAS = []
 TYPE_NEUTRAL = 0
 TYPE_BROOD_CHAMBER = 3
-TYPE_WAISTE_DEPOSIT = 4
+TYPE_WASTE_DEPOSIT = 4
 TYPE_FORAGING_AREA = 5
 
 home = Area(Position(0 - 2.1, -H/2+0.5), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
@@ -139,8 +140,8 @@ home = Area(Position(0 - 2.1, -H/2+0.5), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 brood_chamber = Area(Position(0 - 0.7, -H/2+0.5), 1.4,
                      1.4, TYPE_BROOD_CHAMBER, (224, 153, 255))
 
-waiste_deposit = Area(Position(W/2-1.4, H/2-1.4), 1.4,
-                      1.4, TYPE_WAISTE_DEPOSIT, (240, 188, 91))
+waste_deposit = Area(Position(W/2-1.4, H/2-1.4), 1.4,
+                      1.4, TYPE_WASTE_DEPOSIT, (240, 188, 91))
 
 foraging_area = Area(Position(-W/2, -H/2), W,
                      H, TYPE_FORAGING_AREA, (255, 255, 255))
@@ -148,7 +149,7 @@ foraging_area = Area(Position(-W/2, -H/2), W,
 AREAS.append(foraging_area)
 AREAS.append(home)
 AREAS.append(brood_chamber)
-AREAS.append(waiste_deposit)
+AREAS.append(waste_deposit)
 
 
 def is_point_on_area(x, y):
@@ -354,14 +355,14 @@ while True:
                 elif robot.task == brood_care:
 
                     if robot.carry_resource:
-                        if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
+                        if robot.is_on_area(TYPE_WASTE_DEPOSIT):
                             robot.destination = None
                             if robot.time_in_zone >= robot.time_to_drop_out:
                                 robot.trash_resource()
                             else:
                                 robot.time_in_zone += 1
                         else:
-                            robot.destination = MARKER_WAISTE_AREA
+                            robot.destination = MARKER_WASTE_AREA
                     else:
                         if robot.is_on_area(TYPE_BROOD_CHAMBER):
                             robot.destination = None
@@ -369,7 +370,7 @@ while True:
                                 robot.time_to_drop_out = 50
                                 robot.time_in_zone = 0
                                 robot.pickup_resource(pointOfInterest)
-                                robot.destination = MARKER_WAISTE_AREA
+                                robot.destination = MARKER_WASTE_AREA
                         else:
                             robot.destination = MARKER_BROOD_CHAMBER
 

@@ -15,7 +15,7 @@ from CollisionBox import CollisionBox
 from const import (BLACK, BOTTOM_LIGHT_SENSORS_POSITION, MARKER_HOME,
                    PROXIMITY_SENSORS_POSITION, RESOURCE_STATE_FORAGING,
                    RESOURCE_STATE_NEST_PROCESSING, RESOURCE_STATE_TRANSFORMED,
-                   RESOURCE_STATE_WAISTE, ROBOT_TIMESTEP, SIMULATION_TIMESTEP,
+                   RESOURCE_STATE_WASTE, ROBOT_TIMESTEP, SIMULATION_TIMESTEP,
                    H, L, R, W, core_worker, dist, scaleup, temp_worker, TYPE_HOME)
 from Position import Position
 
@@ -158,8 +158,8 @@ class Robot:
         self.carry_resource = False
         x, y = scaleup(self.position.x, self.position.y)
 
-        # not RESOURCE_STATE_WAISTE because we don't care of stacking fully processed resources.
-        if globals.PHEROMONES_MAP[x][y] != 0 and not self.payload.state == RESOURCE_STATE_WAISTE:
+        # not RESOURCE_STATE_WASTE because we don't care of stacking fully processed resources.
+        if globals.PHEROMONES_MAP[x][y] != 0 and not self.payload.state == RESOURCE_STATE_WASTE:
             x, y = self._find_next_possible_drop_out_pos(x, y)
 
         self.payload.position.x = x
@@ -175,8 +175,8 @@ class Robot:
     def trash_resource(self):
         globals.NEST.resource_transformed -= self.payload.value
         globals.NEST.total += self.payload.value
-        globals.POIs[self.payload.index].state = RESOURCE_STATE_WAISTE
-        self.payload.state = RESOURCE_STATE_WAISTE
+        globals.POIs[self.payload.index].state = RESOURCE_STATE_WASTE
+        self.payload.state = RESOURCE_STATE_WASTE
         self.drop_resource()
 
     def transform_resource(self):
