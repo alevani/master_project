@@ -64,11 +64,6 @@ class Robot:
         self.R = R
         self.L = L
 
-        # Foraging  # Nest maintenance  # Brood care
-        self.TASKS_Q = [0, 0, 0]
-        self.has_to_report = False
-        self.time_to_task_report = 0
-
         self.payload = None
         self.area_left = -1
         self.area_right = -1
@@ -102,8 +97,18 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
+        self.x = 2
+        self.sensed_robot_information = None
+        self.d_lower = self.x - 1
+        self.d_upper = 1024 - self.x - 1
+        #! maybe it should be something else than 0?
+        self.w = 0  # ! she says in the paper has to be [0,1]
+
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
+
+    def in_comm_range(self, position):
+        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.5 else False
 
     def rest(self):
         self.destination = None
@@ -118,6 +123,13 @@ class Robot:
         self.update_collision_box(position)
 
     def go_and_stay_home(self):
+        #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
+        #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
+        #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
+        #! > and will keep its state ...
+        # ? but is what I did the best option now? (go_and_stay_home)
+        # this function is not working super well
+        # can^t be seen in the simulation though, but the perf is not impacted
         if self.is_on_area(TYPE_HOME):
             if not self.area_left and not self.area_right:
                 if randint(0, 1):
@@ -488,9 +500,7 @@ class Robot:
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        if self.has_to_report and not self.carry_resource:
-            self.goto(MARKER_HOME, robot_prox_sensors_values)
-        elif self.has_destination():
+        if self.has_destination():
             self.goto(self.destination, robot_prox_sensors_values)
         else:
             if self.is_avoiding:

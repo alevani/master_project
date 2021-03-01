@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
+from PSISensedInformationPacket import PSISensedInformationPacket
 from GreedyTaskHandler import GreedyTaskHandler
 from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
+from PSITaskHandler import PSITaskHandler
 from shapely.geometry.point import Point
 from shapely.ops import nearest_points
 from Visualizator import Visualizator
@@ -12,7 +14,6 @@ from TaskHandler import TaskHandler
 from Position import Position
 from pygame.locals import *
 from copy import deepcopy
-
 from Robot import add_robot
 from Robot import Robot
 
@@ -180,8 +181,7 @@ globals.NEST = Nest(-10)
 for _ in range(nb_robot):
     add_robot()
 
-TaskHandler = TaskHandler(TASKS)
-GreedyTaskHandler = GreedyTaskHandler(TASKS)
+PSITaskHandler = PSITaskHandler()
 ###############################################################################
 
 
@@ -223,6 +223,22 @@ def get_proximity_sensors_values(robot_rays, robot):
     return values
 
 
+def update_comm_state(robot_rays, robot):
+    for r in globals.ROBOTS:
+        # Don't check ourselves
+        if r.number != robot.number:
+            #! my robot cannot really go up to 50cm, is it clever to keep going even if so ..?
+            if robot.in_comm_range(r.position):
+                for index, ray in enumerate(robot_rays):
+                    if r.is_sensing(ray):
+
+                        #! is deterministic, maybe introduce some noise to be closer to the reality
+                        if robot.sensed_robot_information == None:
+                            # ? Does it really need to be wrapped in an object? high overhead.
+                            return PSISensedInformationPacket(r.x, r.w)
+    return None
+
+
 while True:
     globals.CNT += 1
 
@@ -247,37 +263,23 @@ while True:
         robot.stop()
         robot.sense_area(AREAS)
 
-        robot.time_to_task_report += 1
-        if robot.time_to_task_report % 600 == 0:
-            robot.time_to_task_report = 599  # ! maybe useless
-            robot.has_to_report = True
-
         if not robot.battery_low:
 
-            if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
-                robot.has_to_report = True
+            robot.sensed_robot_information = update_comm_state(
+                robot_rays, robot)
 
-            #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
-            #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
-            #! ob: when more demand than robot, no oscilliation
+            if robot.sensed_robot_information != None:
+                PSITaskHandler.eq3(robot, robot.sensed_robot_information)
+                PSITaskHandler.eq4(robot, robot.sensed_robot_information)
 
-            if robot.has_to_report:
-                if robot.is_on_area(TYPE_HOME):
-                    robot.destination = None
+                # ? Does the information really has to be deleted when used?
+                robot.sensed_robot_information = None  # Information consumed
 
-                    #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
-                    #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
-                    #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
-                    #! > and will keep its state ...
-                    # ? but is what I did the best option now? (go_and_stay_home)
-                    TaskHandler.assign_task(robot)
-                    # GreedyTaskHandler.assign_task(robot)
+            PSITaskHandler.eq6(robot)
+            PSITaskHandler.eq5(robot)
 
-                    globals.NEST.report(
-                        robot.number, robot.task, robot.has_to_work(), robot.battery_level)
-
-                    robot.has_to_report = False
-                    robot.time_to_task_report = 0
+            """ BROADCAST DATA -> induced by just updating the value and the robot being able to sense others at any given time. """
+            PSITaskHandler.eq7(robot)
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
