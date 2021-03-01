@@ -176,7 +176,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-10)
+globals.NEST = Nest(-20)
 for _ in range(nb_robot):
     add_robot()
 
@@ -423,8 +423,8 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
 
-    if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 5
+    # if globals.CNT % 500 == 0:
+    #     globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -458,6 +458,9 @@ while True:
                 txt += str(globals.NEST.resource_transformed)
         globals.CSV_FILE.write(txt+"\n")
 
+    if globals.NEST.total >= 20:
+        import sys
+        sys.exit()
     if ACT:
         pygame .display.flip()  # render drawing
         fpsClock.tick(fps)
