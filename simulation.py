@@ -176,7 +176,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-30)
+globals.NEST = Nest(-10)
 for _ in range(nb_robot):
     add_robot()
 
@@ -259,6 +259,7 @@ while True:
 
             #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
             #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
+            #! ob: when more demand than robot, no oscilliation
 
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
@@ -448,7 +449,7 @@ while True:
         txt = str(globals.CNT)+";"
         for i in range(1, len(TASKS) + 1):
             txt += str(task_assigned_unassigned[i-1][0]) + \
-                ";" + str(task_assigned_unassigned[i-1][1])
+                ";" + str(task_assigned_unassigned[i-1][1])+";"
             if i == foraging:
                 txt += str(globals.NEST.resource_need * -1)+";"
             elif i == nest_maintenance:
