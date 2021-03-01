@@ -118,27 +118,44 @@ class Robot:
         self.update_collision_box(position)
 
     def go_and_stay_home(self):
-        if self.is_on_area(TYPE_HOME):
-            if not self.area_left and not self.area_right:
-                if randint(0, 1):
-                    self.turn_left()
-                else:
-                    self.turn_right()
-            elif not self.area_right:
-                self.soft_turn_left()
-            elif not self.area_left:
-                self.soft_turn_right()
-        else:
-            self.destination = MARKER_HOME
+        # if self.is_on_area(TYPE_HOME):
+        #! maybe I can use the trick of the black tape? so the robot even on the black tape is still home and have time to do his stuff
+        if not self.area_left == 1 and self.area_right == 1:
+            print("awoidjd")
+            print("awoidjd")
+            print("awoidjd")
+            print("awoidjd")
+            print("awoidjd")
+            if randint(0, 1):
+                self.turn_left()
+            else:
+                self.turn_right()
+        elif not self.area_right == 1:
+            self.soft_turn_right()
+        elif not self.area_left == 1:
+            self.soft_turn_left()
+        # else:
+        #     print("HOME")
+        #     print("HOME")
+        #     print("HOME")
+        #     print("HOME")
+        #     print("HOME")
+        #     print("HOME")
+        #     self.destination = MARKER_HOME
 
     def pickup_resource(self, POI):
         self.carry_resource = True
         self.payload = POI
+
+        # This should never happen now, It is kept so if a problem related
+        # to resource pick up occurs, one can eliminate or point out this problem
+        # easily.
         if globals.PHEROMONES_MAP[POI.position.x][POI.position.y] == 0:
             import sys
             from time import sleep
             print("there was no resource at the specified pick up zone")
             sys.exit()
+
         globals.PHEROMONES_MAP[POI.position.x][POI.position.y] = 0
 
     def _find_next_possible_drop_out_pos(self, x, y):
@@ -396,7 +413,8 @@ class Robot:
         self.RIGHT_WHEEL_VELOCITY = right
 
     def is_on_area(self, area):
-        return True if self.area_left == area or self.area_right == area else False
+        #! maybe it should be AND instead of OR
+        return True if (self.area_left == area and self.area_right == area) else False
 
     # from https://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
     def _angle_trunc(self, a):
@@ -510,7 +528,8 @@ class Robot:
                     self.is_avoiding = True
                     self.NB_STEP_TO_AVOID = 7
                 else:
-                    if not self.battery_low:
+                    # if both left and right are set to 0, it means the robot has not been ordered to avoid or remain within an area
+                    if not self.battery_low and (self.LEFT_WHEEL_VELOCITY == 0 and self.RIGHT_WHEEL_VELOCITY == 0):
                         self.wander()
 
         self.simulationstep()
