@@ -269,8 +269,7 @@ while True:
                 robot_rays, robot)
 
             if robot.sensed_robot_information != None:
-                PSITaskHandler.eq3(robot, robot.sensed_robot_information)
-                PSITaskHandler.eq4(robot, robot.sensed_robot_information)
+                PSITaskHandler.eq3_4(robot, robot.sensed_robot_information)
 
                 # ? Does the information really has to be deleted when used?
                 robot.sensed_robot_information = None  # Information consumed
@@ -280,6 +279,8 @@ while True:
 
             """ BROADCAST DATA -> induced by just updating the value and the robot being able to sense others at any given time. """
             PSITaskHandler.eq7(robot)
+
+            # TODO has to work and anything related to an ant state is obsolete
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
