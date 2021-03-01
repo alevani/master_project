@@ -7,7 +7,7 @@ import globals
 def decay_check():
     # for i, point in enumerate(PHEROMONES_PATH):
     #     if point == 0:
-    #         print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes .
+    #         print("REMOVE ME IF THIS EVER HAPPEN")  #  -> yes .
     #         break
 
     #     point.decay_time -= 1

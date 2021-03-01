@@ -27,7 +27,7 @@ class GreedyTaskHandler:
         robot.color = self.COLORS[robot.task]
 
     def print_stats(self):
-        print("******* NEST *******")
+        print("******* NEST *******")
         print("Resources: ", globals.NEST.resource_need)
         print("Nest Maintenance: ", globals.NEST.resource_stock)
         print("Brood Care: ", globals.NEST.resource_transformed)
@@ -40,7 +40,3 @@ class GreedyTaskHandler:
             return globals.NEST.resource_stock
         elif task == 3:
             return globals.NEST.resource_transformed
-
-    # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
-    def assigned(self, task):
-        return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]))

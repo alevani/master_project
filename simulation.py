@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from GreedyTaskHandler import GreedyTaskHandler
@@ -259,11 +260,6 @@ while True:
             #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
             #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
 
-            """
-            J'ai envie que: tu report tous les 600 steps (sauf si tu es actif à la tâche)
-            J'ai envie que tu report quand tu es à la maison
-            """
-
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
@@ -441,13 +437,18 @@ while True:
                   " | "+str(robot.time_to_task_report) +
                   " | " + ("True" if robot.has_to_report else "False") +
                   " | " + str(robot.TASKS_Q))
-        TaskHandler.print_stats()
+
+        task_assigned_unassigned = [TaskHandler.assigned(
+            t) for t in range(1, len(TASKS) + 1)]
+
+        TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
         # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
         for i in range(1, len(TASKS) + 1):
-            txt += TaskHandler.assigned(i) + ";"
+            txt += str(task_assigned_unassigned[i-1][0]) + \
+                ";" + str(task_assigned_unassigned[i-1][1])
             if i == foraging:
                 txt += str(globals.NEST.resource_need * -1)+";"
             elif i == nest_maintenance:

@@ -32,11 +32,11 @@ class TaskHandler:
                 else:  # Task is in energy deficit
                     #! the problem where all tasks are above three still occure
                     #! which leads the robot to be in a idle state even though the demand is high ..
-                    robot.TASKS_Q[i] = robot.TASKS_Q[i] + 1
+                    # robot.TASKS_Q[i] = robot.TASKS_Q[i] + 1
                     robot.TASKS_Q[i] = max(robot.TASKS_Q[i] + 1, 3)
                 # ! this is not in the model but it would makes sense...
-                if robot.TASKS_Q[i] >= 3:
-                    # if robot.TASKS_Q[i] == 3:
+                # if robot.TASKS_Q[i] >= 3:
+                if robot.TASKS_Q[i] == 3:
                     candidate.append(task)
             if candidate != []:
                 if randint(0, 1):
@@ -78,12 +78,16 @@ class TaskHandler:
         else:
             robot.color = BLACK
 
-    def print_stats(self):
-        print("******* NEST *******")
-        print("Resources: ", globals.NEST.resource_need)
-        print("Nest Maintenance: ", globals.NEST.resource_stock)
-        print("Brood Care: ", globals.NEST.resource_transformed)
+    def print_stats(self, assignments):
+        print("******* NEST *******")
+        print("Resources: " + str(globals.NEST.resource_need) +
+              " | " + str(assignments[0][0]))
+        print("Nest Maintenance: " +
+              str(globals.NEST.resource_stock) + " | " + str(assignments[1][0]))
+        print("Brood Care: " + str(globals.NEST.resource_transformed) +
+              " | " + str(assignments[2][0]))
         print("Total: ", globals.NEST.total)
+
         #! not really its place.
         print("Total distance: " + str(int(globals.total_dist))+" cm")
 
@@ -104,7 +108,7 @@ class TaskHandler:
 
     # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
     def assigned(self, task):
-        return str(sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]))+";"+str(sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]))
+        return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()])
 
     # Return the energy supplied to a task "task" at time "step"
 
