@@ -94,7 +94,7 @@ if ACT:
     fpsClock = pygame.time.Clock()
 ###############################################################################
 
-### Task allocation #########################################################
+### Task allocation #########################################################
 resting = 0
 STATES_NAME = ['Resting', 'First reserve',
                'Second reserve', 'Temporary worker', 'Core worker']
