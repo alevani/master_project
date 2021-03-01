@@ -117,8 +117,8 @@ TASKS.append(nest_maintenance)
 TASKS.append(brood_care)
 #############################################################################
 
-### Start's variables #########################################################
-# Slow at creation, and heavy, but considerabely increase visualisation speed.
+### Start's variables #########################################################
+# Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
     inner = []
     for y in range(int(H * 100)):
@@ -193,7 +193,7 @@ def get_proximity_sensors_values(robot_rays, robot):
         values.append(dist((point.x, point.y),
                            (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
-    # Robot detection
+    # Robot detection
     if globals.do_avoid:
         for r in globals.ROBOTS:
 
@@ -408,7 +408,7 @@ while True:
                 robot.battery_level -= randint(0, 4)
                 if robot.battery_level < 25:
 
-                    # Robot's start position is its charging block
+                    # Robot's start position is its charging block
                     robot.battery_low = True
                     robot.saved_destination = robot.destination
                     robot.destination = robot.start_position
@@ -433,14 +433,14 @@ while True:
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report | Has to report")
+        print("N° | % | State | Task | Q | Timestep since last report | Has to report")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] +
-                  " | "+TASKS_NAME[robot.task - 1] +
-                  " | "+str(robot.time_to_task_report) +
-                  " | " + ("True" if robot.has_to_report else "False") +
-                  " | " + str(robot.TASKS_Q))
+                  " | "+STATES_NAME[robot.state] +
+                  " | "+TASKS_NAME[robot.task - 1] +
+                  " | "+str(robot.time_to_task_report) +
+                  " | " + ("True" if robot.has_to_report else "False") +
+                  " | " + str(robot.TASKS_Q))
         TaskHandler.print_stats()
 
         # print to csv file
