@@ -102,7 +102,7 @@ class Robot:
         self.d_lower = self.x - 1
         self.d_upper = 1024 - self.x - 1
         #! maybe it should be something else than 0?
-        self.w = 0  # ! she says in the paper has to be [0,1]
+        self.w = 1
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
