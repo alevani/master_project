@@ -24,7 +24,7 @@ class GreedyTaskHandler:
         robot.state = self.temp_worker
 
         # The task that has the highest demand, not the highest needs (big diff)
-        robot.task = numpy.argmax([self.demand(task)
+        robot.task = numpy.argmax([globals.NEST.demand(task)
                                    for task in self.TASKS]) + 1
         robot.color = self.COLORS[robot.task]
 
@@ -34,11 +34,3 @@ class GreedyTaskHandler:
         print("Nest Maintenance: ", globals.NEST.resource_stock)
         print("Brood Care: ", globals.NEST.resource_transformed)
         print("Total: ", globals.NEST.total)
-
-    def demand(self, task):
-        if task == 1:
-            return globals.NEST.resource_need * -1
-        elif task == 2:
-            return globals.NEST.resource_stock
-        elif task == 3:
-            return globals.NEST.resource_transformed

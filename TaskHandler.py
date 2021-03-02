@@ -91,38 +91,11 @@ class TaskHandler:
         #! not really its place.
         print("Total distance: " + str(int(globals.total_dist))+" cm")
 
-    def demand(self, task):
-        if task == 1:
-            return globals.NEST.resource_need * -1
-        elif task == 2:
-            return globals.NEST.resource_stock
-        elif task == 3:
-            return globals.NEST.resource_transformed
-
-    # Return the energy an ant "robot" can supply to a task "task" at time "step"
-    def energy(self, task, robot):
-        if robot.has_to_work() and robot.battery_level > 0:
-            return 1
-        else:
-            return 0
-
-    # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
+     # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
     def assigned(self, task):
         return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()])
 
-    # Return the energy supplied to a task "task" at time "step"
-
-    def energy_supplied(self, task):
-        return sum([self.energy(task, robot) for robot in globals.ROBOTS if robot.task == task])
-
-    # Return the energy status of a task "task" at time "step"
-    # R > 0 then task "task" has a deficit of energy
-    # R < 0 then task "task" has a surplus of energy
-    # R = 0 then task "task" is in equilibrium
-    def energy_status(self, task):
-        # return demand(task) - energy_supplied(task)
-        return self.demand(task) - globals.NEST.energy(task)
-
     # Local Feedback function
+
     def feedback(self, task):
-        return 1 if self.energy_status(task) >= 0 else -1
+        return 1 if globals.NEST.energy_status(task) >= 0 else -1
