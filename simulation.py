@@ -422,30 +422,26 @@ while True:
         print("N° | % | State | Task | Q | Timestep since last report | Has to report")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] +
-                  " | "+TASKS_NAME[robot.task - 1] +
-                  " | "+str(robot.time_to_task_report) +
-                  " | " + ("True" if robot.has_to_report else "False") +
-                  " | " + str(robot.TASKS_Q))
+                  " | "+TASKS_NAME[robot.task - 1])
 
-        task_assigned_unassigned = [TaskHandler.assigned(
-            t) for t in range(1, len(TASKS) + 1)]
+        # task_assigned_unassigned = [TaskHandler.assigned(
+        #     t) for t in range(1, len(TASKS) + 1)]
 
-        TaskHandler.print_stats(task_assigned_unassigned)
+        # TaskHandler.print_stats(task_assigned_unassigned)
 
-        # print to csv file
-        # TODO add a metric for total distance over POI density
-        txt = str(globals.CNT)+";"
-        for i in range(1, len(TASKS) + 1):
-            txt += str(task_assigned_unassigned[i-1][0]) + \
-                ";" + str(task_assigned_unassigned[i-1][1])+";"
-            if i == foraging:
-                txt += str(globals.NEST.resource_need * -1)+";"
-            elif i == nest_maintenance:
-                txt += str(globals.NEST.resource_stock)+";"
-            elif i == brood_care:
-                txt += str(globals.NEST.resource_transformed)
-        globals.CSV_FILE.write(txt+"\n")
+        # # print to csv file
+        # # TODO add a metric for total distance over POI density
+        # txt = str(globals.CNT)+";"
+        # for i in range(1, len(TASKS) + 1):
+        #     txt += str(task_assigned_unassigned[i-1][0]) + \
+        #         ";" + str(task_assigned_unassigned[i-1][1])+";"
+        #     if i == foraging:
+        #         txt += str(globals.NEST.resource_need * -1)+";"
+        #     elif i == nest_maintenance:
+        #         txt += str(globals.NEST.resource_stock)+";"
+        #     elif i == brood_care:
+        #         txt += str(globals.NEST.resource_transformed)
+        # globals.CSV_FILE.write(txt+"\n")
 
     if ACT:
         pygame .display.flip()  # render drawing
