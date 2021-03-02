@@ -136,6 +136,9 @@ TYPE_FORAGING_AREA = 5
 
 home = Area(Position(0 - 2.1, -H/2+0.5), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 
+home = Area(Position(0 - 2.1 - .5, -H/2+0.5 - .5),
+            2.4, 2.4, TYPE_HOME, (133, 147, 255))
+
 cleaning_area = Area(Position(0 - 0.7, -H/2+0.5), 1.4,
                      1.4, TYPE_CLEANING_AREA, (224, 153, 255))
 
@@ -176,7 +179,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-20)
+globals.NEST = Nest(-5)
 for _ in range(nb_robot):
     add_robot()
 
@@ -260,6 +263,7 @@ while True:
             #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
             #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
             #! ob: when more demand than robot, no oscilliation
+            #! ob: when too much osc the robot struggles to complete a task because it is alawys pull somewhere else.
 
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
@@ -286,7 +290,11 @@ while True:
                         robot.drop_resource()
 
                     robot.last_foraging_point = None
-                    robot.go_and_stay_home()
+
+                    if globals.do_avoid:
+                        robot.go_and_stay_home()
+                    else:
+                        robot.destination = MARKER_HOME
 
             # the robot has to be active
             else:
@@ -465,3 +473,6 @@ while True:
     if ACT:
         pygame .display.flip()  # render drawing
         fpsClock.tick(fps)
+
+    #! here I could shuffle robot list so that the execution order is never the same. Less deterministic, more realistic.
+    shuffle(globals.ROBOTS)
