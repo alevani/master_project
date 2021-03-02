@@ -24,9 +24,9 @@ from random import *
 from const import RESOURCE_STATE_NEST_PROCESSING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
-from const import RESOURCE_STATE_WAISTE
-from const import MARKER_BROOD_CHAMBER
-from const import MARKER_WAISTE_AREA
+from const import RESOURCE_STATE_WASTE
+from const import MARKER_CLEANING_AREA
+from const import MARKER_WASTE_AREA
 from const import X_lower_bound
 from const import X_upper_bound
 from const import Y_lower_bound
@@ -106,16 +106,16 @@ TASKS = []
 # A task is a tuple of its energy and a task object
 no_task = 0
 foraging = 1
-nest_maintenance = 2
-brood_care = 3
+nest_processing = 2
+cleaning = 3
 
 
 TASKS_NAME = ['Foraging',
-              'Nest maintenance', 'Brood care']
+              'Nest processing', 'Cleaning']
 
 TASKS.append(foraging)
-TASKS.append(nest_maintenance)
-TASKS.append(brood_care)
+TASKS.append(nest_processing)
+TASKS.append(cleaning)
 #############################################################################
 
 ### Start's variables #########################################################
@@ -129,26 +129,26 @@ for x in range(int(W * 100)):
 
 # Areas
 AREAS = []
-TYPE_NEUTRAL = 0
-TYPE_BROOD_CHAMBER = 3
-TYPE_WAISTE_DEPOSIT = 4
+
+TYPE_CLEANING_AREA = 3
+TYPE_WASTE_AREA = 4
 TYPE_FORAGING_AREA = 5
 
 home = Area(Position(0 - 2.1, -H/2+0.5), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 
-brood_chamber = Area(Position(0 - 0.7, -H/2+0.5), 1.4,
-                     1.4, TYPE_BROOD_CHAMBER, (224, 153, 255))
+cleaning_area = Area(Position(0 - 0.7, -H/2+0.5), 1.4,
+                     1.4, TYPE_CLEANING_AREA, (224, 153, 255))
 
-waiste_deposit = Area(Position(W/2-1.4, H/2-1.4), 1.4,
-                      1.4, TYPE_WAISTE_DEPOSIT, (240, 188, 91))
+waste_area = Area(Position(W/2-1.4, H/2-1.4), 1.4,
+                  1.4, TYPE_WASTE_AREA, (240, 188, 91))
 
 foraging_area = Area(Position(-W/2, -H/2), W,
                      H, TYPE_FORAGING_AREA, (255, 255, 255))
 
 AREAS.append(foraging_area)
 AREAS.append(home)
-AREAS.append(brood_chamber)
-AREAS.append(waiste_deposit)
+AREAS.append(cleaning_area)
+AREAS.append(waste_area)
 
 
 def is_point_on_area(x, y):
@@ -246,7 +246,6 @@ while True:
 
         robot.stop()
         robot.sense_area(AREAS)
-        robot.go_and_stay_home()
 
         # robot.time_to_task_report += 1
         # if robot.time_to_task_report % 600 == 0:
@@ -326,9 +325,9 @@ while True:
         #                 # Arbitrary, makes sure the resource is in home (Hopefully)
         #                 robot.time_to_drop_out = randint(50, 150)
 
-        #         elif robot.task == nest_maintenance:
+        #         elif robot.task == nest_processing:
 
-        #             if robot.is_on_area(TYPE_BROOD_CHAMBER) and robot.carry_resource and robot.payload_carry_time == 0:
+        #             if robot.is_on_area(TYPE_CLEANING_AREA) and robot.carry_resource and robot.payload_carry_time == 0:
         #                 robot.destination = None
         #                 if robot.time_in_zone >= robot.time_to_drop_out:
         #                     robot.transform_resource()
@@ -340,7 +339,7 @@ while True:
 
         #                 if robot.carry_resource:
         #                     if globals.CNT - robot.payload_carry_time >= 200:
-        #                         robot.destination = MARKER_BROOD_CHAMBER
+        #                         robot.destination = MARKER_CLEANING_AREA
         #                         robot.time_to_drop_out = randint(50, 100)
         #                         robot.time_in_zone = 0
         #                         robot.payload_carry_time = 0
@@ -349,31 +348,30 @@ while True:
         #                     robot.pickup_resource(pointOfInterest)
         #                     robot.payload_carry_time = globals.CNT
         #             else:
-        #                 if robot.destination != MARKER_BROOD_CHAMBER:
+        #                 if robot.destination != MARKER_CLEANING_AREA:
         #                     robot.destination = MARKER_HOME
 
-        #         elif robot.task == brood_care:
+        #         elif robot.task == cleaning:
 
         #             if robot.carry_resource:
-        #                 if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
+        #                 if robot.is_on_area(TYPE_WASTE_AREA):
         #                     robot.destination = None
         #                     if robot.time_in_zone >= robot.time_to_drop_out:
         #                         robot.trash_resource()
         #                     else:
         #                         robot.time_in_zone += 1
         #                 else:
-        #                     robot.destination = MARKER_WAISTE_AREA
+        #                     robot.destination = MARKER_WASTE_AREA
         #             else:
-
-        #                 if robot.is_on_area(TYPE_BROOD_CHAMBER):
+        #                 if robot.is_on_area(TYPE_CLEANING_AREA):
         #                     robot.destination = None
         #                     if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_TRANSFORMED:
         #                         robot.time_to_drop_out = 50
         #                         robot.time_in_zone = 0
         #                         robot.pickup_resource(pointOfInterest)
-        #                         robot.destination = MARKER_WAISTE_AREA
+        #                         robot.destination = MARKER_WASTE_AREA
         #                 else:
-        #                     robot.destination = MARKER_BROOD_CHAMBER
+        #                     robot.destination = MARKER_CLEANING_AREA
 
         # if robot.is_on_area(TYPE_HOME):
         #     if robot.destination == robot.start_position or robot.battery_low:
@@ -389,6 +387,7 @@ while True:
         #             else:
         #                 robot.destination = None
 
+        robot.go_and_stay_home()
         robot.step(robot_prox_sensors_values)
         # ###################################
 
@@ -425,8 +424,8 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
 
-    if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 5
+    # if globals.CNT % 500 == 0:
+    #     globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -454,11 +453,15 @@ while True:
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
             if i == foraging:
                 txt += str(globals.NEST.resource_need * -1)+";"
-            elif i == nest_maintenance:
+            elif i == nest_processing:
                 txt += str(globals.NEST.resource_stock)+";"
-            elif i == brood_care:
+            elif i == cleaning:
                 txt += str(globals.NEST.resource_transformed)
         globals.CSV_FILE.write(txt+"\n")
+
+    if globals.NEST.total >= 20:
+        import sys
+        sys.exit()
 
     if ACT:
         pygame .display.flip()  # render drawing

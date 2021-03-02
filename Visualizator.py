@@ -15,7 +15,7 @@ from time import sleep
 from const import RESOURCE_STATE_NEST_PROCESSING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
-from const import RESOURCE_STATE_WAISTE
+from const import RESOURCE_STATE_WASTE
 from const import X_lower_bound
 from const import X_upper_bound
 from const import Y_lower_bound
@@ -176,7 +176,7 @@ class Visualizator:
                     color = GRAY
                 elif poi.state == RESOURCE_STATE_TRANSFORMED:
                     color = RED
-                elif poi.state == RESOURCE_STATE_WAISTE:
+                elif poi.state == RESOURCE_STATE_WASTE:
                     color = BLUE
 
                 pygame.draw.circle(self.screen, color,
