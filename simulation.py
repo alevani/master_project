@@ -283,99 +283,84 @@ while True:
 
             # TODO has_to_work and anything related to an ant state is obsolete
 
-            # if the robot does not have to work .. let it rest in its charging area.
-            if not robot.has_to_work():
-                if not robot.has_destination():
-                    if robot.carry_resource:
-                        robot.drop_resource()
+            if robot.task == foraging:
 
-                    robot.last_foraging_point = None
-                    robot.go_and_stay_home()
+                if robot.carry_resource and not robot.has_destination():
+                    robot.destination = MARKER_HOME
 
-            # the robot has to be active
-            else:
-                if robot.task == no_task:
-                    robot.last_foraging_point = None
-                    robot.go_and_stay_home()
-
-                elif robot.task == foraging:
-
-                    if robot.carry_resource and not robot.has_destination():
-                        robot.destination = MARKER_HOME
-
-                    if not robot.carry_resource:
-                        if not robot.is_on_area(TYPE_FORAGING_AREA):
-                            # Toggle for robot spread at start
-                            # robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
-                            #     0, 0)
-                            robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
-                        else:
-                            robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
-
-                    # if I arrived home and I do carry a resource, unload it.
-                    if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
-                        robot.destination = None
-                        if robot.time_in_zone >= robot.time_to_drop_out:
-                            robot.compute_resource()
-                        else:
-                            robot.time_in_zone += 1
-
-                    # else if I find a resource on the ground, and I am not already carrying a resource
-                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and not robot.carry_resource and pointOfInterest.state == RESOURCE_STATE_FORAGING:
-                        robot.pickup_resource(pointOfInterest)
-                        robot.destination = MARKER_HOME
-                        robot.last_foraging_point = robot.position
-
-                        # Arbitrary, makes sure the resource is in home (Hopefully)
-                        robot.time_to_drop_out = randint(50, 150)
-
-                elif robot.task == nest_maintenance:
-
-                    if robot.is_on_area(TYPE_BROOD_CHAMBER) and robot.carry_resource and robot.payload_carry_time == 0:
-                        robot.destination = None
-                        if robot.time_in_zone >= robot.time_to_drop_out:
-                            robot.transform_resource()
-                        else:
-                            robot.time_in_zone += 1
-
-                    elif robot.is_on_area(TYPE_HOME):
-                        robot.destination = None
-
-                        if robot.carry_resource:
-                            if globals.CNT - robot.payload_carry_time >= 200:
-                                robot.destination = MARKER_BROOD_CHAMBER
-                                robot.time_to_drop_out = randint(50, 100)
-                                robot.time_in_zone = 0
-                                robot.payload_carry_time = 0
-
-                        elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_NEST_PROCESSING:
-                            robot.pickup_resource(pointOfInterest)
-                            robot.payload_carry_time = globals.CNT
+                if not robot.carry_resource:
+                    if not robot.is_on_area(TYPE_FORAGING_AREA):
+                        # Toggle for robot spread at start
+                        # robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else Position(
+                        #     0, 0)
+                        robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
                     else:
-                        if robot.destination != MARKER_BROOD_CHAMBER:
-                            robot.destination = MARKER_HOME
+                        robot.destination = robot.last_foraging_point if not robot.last_foraging_point == None else None
 
-                elif robot.task == brood_care:
+                # if I arrived home and I do carry a resource, unload it.
+                if robot.is_on_area(TYPE_HOME) and robot.carry_resource:
+                    robot.destination = None
+                    if robot.time_in_zone >= robot.time_to_drop_out:
+                        robot.compute_resource()
+                    else:
+                        robot.time_in_zone += 1
+
+                # else if I find a resource on the ground, and I am not already carrying a resource
+                elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and not robot.carry_resource and pointOfInterest.state == RESOURCE_STATE_FORAGING:
+                    robot.pickup_resource(pointOfInterest)
+                    robot.destination = MARKER_HOME
+                    robot.last_foraging_point = robot.position
+
+                    # Arbitrary, makes sure the resource is in home (Hopefully)
+                    robot.time_to_drop_out = randint(50, 150)
+
+            elif robot.task == nest_maintenance:
+
+                if robot.is_on_area(TYPE_BROOD_CHAMBER) and robot.carry_resource and robot.payload_carry_time == 0:
+                    robot.destination = None
+                    if robot.time_in_zone >= robot.time_to_drop_out:
+                        robot.transform_resource()
+                    else:
+                        robot.time_in_zone += 1
+
+                elif robot.is_on_area(TYPE_HOME):
+                    robot.destination = None
 
                     if robot.carry_resource:
-                        if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
-                            robot.destination = None
-                            if robot.time_in_zone >= robot.time_to_drop_out:
-                                robot.trash_resource()
-                            else:
-                                robot.time_in_zone += 1
+                        if globals.CNT - robot.payload_carry_time >= 200:
+                            robot.destination = MARKER_BROOD_CHAMBER
+                            robot.time_to_drop_out = randint(50, 100)
+                            robot.time_in_zone = 0
+                            robot.payload_carry_time = 0
+
+                    elif (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_NEST_PROCESSING:
+                        robot.pickup_resource(pointOfInterest)
+                        robot.payload_carry_time = globals.CNT
+                else:
+                    if robot.destination != MARKER_BROOD_CHAMBER:
+                        robot.destination = MARKER_HOME
+
+            elif robot.task == brood_care:
+
+                if robot.carry_resource:
+                    if robot.is_on_area(TYPE_WAISTE_DEPOSIT):
+                        robot.destination = None
+                        if robot.time_in_zone >= robot.time_to_drop_out:
+                            robot.trash_resource()
                         else:
+                            robot.time_in_zone += 1
+                    else:
+                        robot.destination = MARKER_WAISTE_AREA
+                else:
+                    if robot.is_on_area(TYPE_BROOD_CHAMBER):
+                        robot.destination = None
+                        if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_TRANSFORMED:
+                            robot.time_to_drop_out = 50
+                            robot.time_in_zone = 0
+                            robot.pickup_resource(pointOfInterest)
                             robot.destination = MARKER_WAISTE_AREA
                     else:
-                        if robot.is_on_area(TYPE_BROOD_CHAMBER):
-                            robot.destination = None
-                            if (robot_bottom_sensor_states == (2, 0) or robot_bottom_sensor_states == (0, 2)) and robot.carry_resource == False and pointOfInterest.state == RESOURCE_STATE_TRANSFORMED:
-                                robot.time_to_drop_out = 50
-                                robot.time_in_zone = 0
-                                robot.pickup_resource(pointOfInterest)
-                                robot.destination = MARKER_WAISTE_AREA
-                        else:
-                            robot.destination = MARKER_BROOD_CHAMBER
+                        robot.destination = MARKER_BROOD_CHAMBER
 
         if robot.is_on_area(TYPE_HOME):
             if robot.destination == robot.start_position or robot.battery_low:

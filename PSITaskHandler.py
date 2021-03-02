@@ -112,6 +112,7 @@ class PSITaskHandler:
         #     return min(globals.NEST.resource_transformed / nb_robots, 1)
 
         # as long as the demand is coherent the ratio (r2.w / r1.w) is going to be calculated in the correct way
+        print(globals.NEST.resource_need)
         if task == 1:
             return globals.NEST.resource_need * -1
         elif task == 2:
