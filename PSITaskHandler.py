@@ -1,23 +1,7 @@
-# ? th
-# ? +- X .. ? + or - ? sweat_smile
-# ? is self.w updated in eq7?
-# ? wasn't it a story about robot are distributed among the task in a uniform way?
-# what is the init task of a robot
-# what is the init w of a robot (the task's demand?)
-
-#! Have I misunderstood something and when the paper says e.g. "dlower" it referes to a calcule of distance?
-#! I think yes, so when for a calcule you have to return d_lower e.g. then you have to calculate the dist from x to it
-
+from random import random
 
 """
 Code heavily inspired from the received code of the author of the paper
-"""
-
-"""
-apparently everytime the task demand changes it recalculate calculateTh_fixed. why?
-
--> I think it is because they remove some tasks at some point which means they have
-   to recalculate the tresh. (I do not need it)
 """
 
 
@@ -60,82 +44,53 @@ class PSITaskHandler:
         if r2.x > r1.x and d_effective < r1.d_upper:
             r1.d_upper = d_effective
 
+    # OK
     def eq5(self, r):
-        r.d_lower += self.phi_base
-        r.d_upper += self.phi_base
+        r.d_lower -= max(self.phi_base, 0)
+        r.d_upper += min(self.phi_base, 1024)
 
+    # OK
     def change_x(self, r, a):
-	    if (r.x + a) >= 0 and(r.x + a) <= 1024:
-		    r.x += a
+        if (r.x + a) >= 0 and(r.x + a) <= 1024:
+            r.x += a
 
+    # OK
     def eq6(self, r):
         ldist = r.x - r.d_lower
         hdist = r.d_upper - r.x
 
         if r.d_upper == 1024:
-		    hdist *= 2
+            hdist *= 2
 
         if r.d_lower == 0:
-		    ldist *= 2
+            ldist *= 2
 
         if hdist > ldist:
-		    self.change_x(r, self.delta)
-	    elif (hdist < ldist):
-		    self.change_x(r, -self.delta)
-	    else:
-	 	    self.change_x(r,-self.delta+2*self.delta*(float)rand()/(float)RAND_MAX)
+            self.change_x(r, self.delta)
+        elif (hdist < ldist):
+            self.change_x(r, -self.delta)
+        else:
+            self.change_x(r, -self.delta + 2 * self.delta * random())
 
+        if (r.x <= 0):
+            r.x = 0 + 1
+            r.d_lower = 0
 
-"""
-void
-}
+        if (r.x >= 1024):
+            r.x = 1024 - 1
+            r.d_upper = 1024
 
-eq 6
-	float hdist,ldist;
+        if (r.x < r.d_lower):
+            r.d_lower = r.x - self.delta
+        if (r.x > r.d_upper):
+            r.d_upper = r.x + self.delta
+        if (r.d_lower < 0):
+            r.d_lower = 0
+        if (r.d_upper > 1024):
+            r.d_upper = 1024
 
-	// Have I misunderstood something and when the paper says e.g. "dlower" it referes to a calcule of distance?
-	// I think yes, so when for a calcule you have to return d_lower e.g. then you have to calculate the dist from x to it
-	ldist = robot[i].x - robot[i].x_low;
-	hdist = robot[i].x_high - robot[i].x;
-	if (robot[i].x_high == MAX_X)
-		hdist *= 2;
-	if (robot[i].x_low == MIN_X)
-		ldist *= 2;
-
-	if (hdist > ldist)
-		change_x(i,robot[i].delta);
-	else if (hdist < ldist)
-		change_x(i,-robot[i].delta);
-	else
-	 	//change_x(i,-robot[i].delta+2*robot[i].delta*(float)rand()/(float)RAND_MAX);
-		/*if(rand()%2<1)
-			change_x(i,robot[i].delta);
-		else 	change_x(i,-robot[i].delta);*/
-	 	change_x(i,-robot[i].delta+2*robot[i].delta*(float)rand()/(float)RAND_MAX);
-
-    // a bit of random change
-    change_x(i,-RANODM_CHANGE+2*RANODM_CHANGE*(float)rand()/(float)RAND_MAX);
-
-
-    if (robot[i].x <= MIN_X) {
-        robot[i].x = MIN_X + 1;
-        robot[i].x_low = MIN_X;
-    }
-    if (robot[i].x >= MAX_X) {
-        robot[i].x = MAX_X - 1;
-        robot[i].x_high = MAX_X;
-    }
-    if (robot[i].x < robot[i].x_low)
-        robot[i].x_low = robot[i].x - robot[i].delta;
-    if (robot[i].x > robot[i].x_high)
-        robot[i].x_high = robot[i].x + robot[i].delta;
-    if (robot[i].x_low < MIN_X)
-        robot[i].x_low = MIN_X;
-    if (robot[i].x_high > MAX_X)
-        robot[i].x_high = MAX_X;
-"""
-
-   def eq7(self, r):
+    # OK
+    def eq7(self, r):
         # < 3 because the experiment has 3 tasks
         if r.task + 1 < 4 and r.x > self.th_values[r.task] + self.upper_margin:
             r.task += 1
