@@ -98,11 +98,11 @@ class Robot:
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
         self.x = 2
+        self.task = 1
         self.sensed_robot_information = None
         self.d_lower = self.x - 1
         self.d_upper = 1024 - self.x - 1
         #! maybe it should be something else than 0?
-        self.w = 1
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False

@@ -47,8 +47,8 @@ class PSITaskHandler:
 
     def eq1(self, r1, r2):
         th = 1
-        print(r2.w, r1.w)
-        return abs(self.D(r1, r2) - r1.x + ((r2.w / r1.w) * (r2.x - th)))
+
+        return abs(self.D(r1, r2) - r1.x + ((self.demand(r1.task) / self.demand(r2.task)) * (r2.x - th)))
 
     def eq3_4(self, r1, r2):
         d_effective = self.eq1(r1, r2)
@@ -64,20 +64,30 @@ class PSITaskHandler:
         r.d_lower += self.phi_base
         r.d_upper += self.phi_base
 
+    def change_x(self, r, a):
+	    if (r.x + a) >= 0 and(r.x + a) <= 1024:
+		    r.x += a
+
     def eq6(self, r):
-        #! should the assigned values be bounded?
-        if r.d_lower < r.d_upper:
-            r.x = min(r.x + self.delta, self.Xmax)
-        elif r.d_lower > r.d_upper:
-            r.x = max(r.x - self.delta, self.Xmin)
-        else:
-            r.x += 0
+        ldist = r.x - r.d_lower
+        hdist = r.d_upper - r.x
+
+        if r.d_upper == 1024:
+		    hdist *= 2
+
+        if r.d_lower == 0:
+		    ldist *= 2
+
+        if hdist > ldist:
+		    self.change_x(r, self.delta)
+	    elif (hdist < ldist):
+		    self.change_x(r, -self.delta)
+	    else:
+	 	    self.change_x(r,-self.delta+2*self.delta*(float)rand()/(float)RAND_MAX)
 
 
 """
-void change_x(int i, float a) {
-	if ((robot[i].x + a) >= MIN_X && (robot[i].x + a) <= MAX_X )
-		robot[i].x += a;
+void
 }
 
 eq 6
@@ -134,7 +144,6 @@ eq 6
         elif r.task - 1 > 0 and r.x < self.th_values[r.task - 2] - self.lower_margin:
             r.task -= 1
 
-        r.w = self.demand(r.task)
         r.color = self.COLORS[r.task]
 
     def demand(self, task):

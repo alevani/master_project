@@ -1,4 +1,4 @@
 class PSISensedInformationPacket:
-    def __init__(self, x, w):
+    def __init__(self, x, task):
         self.x = x
-        self.w = w
+        self.task = task

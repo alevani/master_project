@@ -236,7 +236,7 @@ def update_comm_state(robot_rays, robot):
                         #! is deterministic, maybe introduce some noise to be closer to the reality
                         if robot.sensed_robot_information == None:
                             # ? Does it really need to be wrapped in an object? high overhead.
-                            return PSISensedInformationPacket(r.x, r.w)
+                            return PSISensedInformationPacket(r.x, r.task)
     return None
 
 
