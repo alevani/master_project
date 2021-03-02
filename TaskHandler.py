@@ -91,11 +91,10 @@ class TaskHandler:
         #! not really its place.
         print("Total distance: " + str(int(globals.total_dist))+" cm")
 
-     # # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
+    # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
     def assigned(self, task):
         return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()])
 
     # Local Feedback function
-
     def feedback(self, task):
         return 1 if globals.NEST.energy_status(task) >= 0 else -1
