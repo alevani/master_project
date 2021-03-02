@@ -31,6 +31,6 @@ class GreedyTaskHandler:
     def print_stats(self):
         print("******* NEST *******")
         print("Resources: ", globals.NEST.resource_need)
-        print("Nest Maintenance: ", globals.NEST.resource_stock)
-        print("Brood Care: ", globals.NEST.resource_transformed)
+        print("Nest processing: ", globals.NEST.resource_stock)
+        print("Cleaning: ", globals.NEST.resource_transformed)
         print("Total: ", globals.NEST.total)

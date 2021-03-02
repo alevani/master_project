@@ -64,7 +64,7 @@ class Robot:
         self.R = R
         self.L = L
 
-        # Foraging  # Nest maintenance  # Brood care
+        # Foraging  # Nest processing  # Cleaning
         self.TASKS_Q = [0, 0, 0]
         self.has_to_report = False
         self.time_to_task_report = 0

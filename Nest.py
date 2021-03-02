@@ -35,6 +35,5 @@ class Nest:
     # R > 0 then task "task" has a deficit of energy
     # R < 0 then task "task" has a surplus of energy
     # R = 0 then task "task" is in equilibrium
-
     def energy_status(self, task):
         return self.demand(task) - self.energy(task)

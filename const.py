@@ -69,6 +69,6 @@ core_worker = 4
 
 
 # Markers
-MARKER_BROOD_CHAMBER = Position(0, -H/2 + 0.7 + .5)
+MARKER_CLEANING_AREA = Position(0, -H/2 + 0.7 + .5)
 MARKER_HOME = Position(0 - 1.4, -H/2 + 0.7 + .5)
 MARKER_WASTE_AREA = Position(W/2-0.7, H/2 - 0.7)

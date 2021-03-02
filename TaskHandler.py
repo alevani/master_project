@@ -82,9 +82,9 @@ class TaskHandler:
         print("******* NEST *******")
         print("Resources: " + str(globals.NEST.resource_need) +
               " | " + str(assignments[0][0]))
-        print("Nest Maintenance: " +
+        print("Nest processing: " +
               str(globals.NEST.resource_stock) + " | " + str(assignments[1][0]))
-        print("Brood Care: " + str(globals.NEST.resource_transformed) +
+        print("Cleaning: " + str(globals.NEST.resource_transformed) +
               " | " + str(assignments[2][0]))
         print("Total: ", globals.NEST.total)
 
