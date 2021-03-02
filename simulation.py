@@ -136,8 +136,8 @@ TYPE_FORAGING_AREA = 5
 
 home = Area(Position(0 - 2.1, -H/2+0.5), 1.4, 1.4, TYPE_HOME, (133, 147, 255))
 
-home = Area(Position(0 - 2.1 - .5, -H/2+0.5 - .5),
-            2.4, 2.4, TYPE_HOME, (133, 147, 255))
+# home = Area(Position(0 - 2.1 - .5, -H/2+0.5 - .5),
+#             2.4, 2.4, TYPE_HOME, (133, 147, 255))
 
 cleaning_area = Area(Position(0 - 0.7, -H/2+0.5), 1.4,
                      1.4, TYPE_CLEANING_AREA, (224, 153, 255))
@@ -475,4 +475,4 @@ while True:
         fpsClock.tick(fps)
 
     #! here I could shuffle robot list so that the execution order is never the same. Less deterministic, more realistic.
-    shuffle(globals.ROBOTS)
+    # shuffle(globals.ROBOTS)
