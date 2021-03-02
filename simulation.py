@@ -179,7 +179,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-5)
+globals.NEST = Nest(-20)
 for _ in range(nb_robot):
     add_robot()
 
@@ -264,6 +264,8 @@ while True:
             #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
             #! ob: when more demand than robot, no oscilliation
             #! ob: when too much osc the robot struggles to complete a task because it is alawys pull somewhere else.
+            #! obs: sometimes an ant nest processing can lose its task assignemnt by going outside the border and be replaced by another once.
+            #! that is the same issues as descibred line 276
 
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
@@ -431,8 +433,8 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
 
-    # if globals.CNT % 500 == 0:
-    #     globals.NEST.resource_need -= 5
+    if globals.CNT % 500 == 0:
+        globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
