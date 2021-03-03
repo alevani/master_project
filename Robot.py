@@ -36,7 +36,7 @@ def add_robot():
     postheta = randint(0, 360)
     num = len(globals.ROBOTS) + 1
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 1, 0, 100))
     globals.NEST.robot_task_status.append(RobotTaskStatus(num, 0, False, 100))
 
 
