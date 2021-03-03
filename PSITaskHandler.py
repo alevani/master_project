@@ -25,23 +25,44 @@ class PSITaskHandler:
         partner_actual_x = r2.x
         # ratio = self.demand(r2.task) / max(1, self.demand(r1.task))
 
+        #! as of now, the demand is a shared information
+        #! I need to change it.
+
         #! maybe say that if < 0 then ratio = 0?
-        d1 = self.demand(r1.task) if self.demand(r1.task) > 0 else 1
-        d2 = self.demand(r2.task) if self.demand(r2.task) > 0 else 1
-        ratio = d2/d1
+        d1 = self.demand(r1.task)
+        d2 = self.demand(r2.task)
+
+        if d1 == d2:
+            ratio = 1
+        elif d1 < 1 or d2 < 1:
+            ratio = 0
+        else:
+            ratio = d2/d1
+
+        # d1 = self.demand(r1.task) if self.demand(r1.task) > 0 else 1
+        # d2 = self.demand(r2.task) if self.demand(r2.task) > 0 else 1
+        # ratio = d2/d1
+
         # if r1.number == 1:
         #     print("demand for task: ", r1.task)
         #     print(self.demand(r1.task))
         #     print("ratio: ", ratio)
-
-        if ratio != 1:
-            if partner_actual_x > r1.x:
-                partner_actual_x = self.th_values[r1.task-1] + (
-                    partner_actual_x-self.th_values[r1.task-1])*ratio
-            else:
-                partner_actual_x = self.th_values[r2.task-1]-(
-                    self.th_values[r2.task-1]-partner_actual_x)*ratio
-
+        try:
+            if ratio != 1:
+                if partner_actual_x > r1.x:
+                    partner_actual_x = self.th_values[r1.task-1] + (
+                        partner_actual_x-self.th_values[r1.task-1])*ratio
+                else:
+                    partner_actual_x = self.th_values[r2.task-1]-(
+                        self.th_values[r2.task-1]-partner_actual_x)*ratio
+        except:
+            print(ratio)
+            print(r1.task)
+            print(r1.x)
+            print(r2.task)
+            print(r2.x)
+            import sys
+            sys.exit()
         return partner_actual_x
 
     def eq3_4(self, r1, r2):
