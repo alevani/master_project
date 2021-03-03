@@ -230,14 +230,14 @@ def broadcast(robot_rays, robot):
         if r.number != robot.number:
             #! my robot cannot really go up to 50cm, is it clever to keep going even if so ..?
             if robot.in_comm_range(r.position):
-                # for index, ray in enumerate(robot_rays):
-                #     if r.is_sensing(ray):
+                for index, ray in enumerate(robot_rays):
+                    if r.is_sensing(ray):
 
-                #! is deterministic, maybe introduce some noise to be closer to the reality
-                if r.sensed_robot_information == None:
-                    # ? Does it really need to be wrapped in an object? high overhead.
-                    r.sensed_robot_information = PSISensedInformationPacket(
-                        r.x, r.task)
+                        #! is deterministic, maybe introduce some noise to be closer to the reality
+                        if r.sensed_robot_information == None:
+                            # ? Does it really need to be wrapped in an object? high overhead.
+                            r.sensed_robot_information = PSISensedInformationPacket(
+                                r.x, r.task)
 
 
 while True:

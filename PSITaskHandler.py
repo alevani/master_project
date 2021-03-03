@@ -1,18 +1,16 @@
 from random import random
 import globals
 
-#! when the demand is high .. it should switch to high demand I believe .. but it does not.
-#! robot can switch task if they carry a resource .. this should not be possible
-
-
 # Code heavily inspired from the received code of the author of the paper
+
+
 class PSITaskHandler:
     # ? do all the function have to lay in the class?
     def __init__(self):
         self.Xmin = 0
-        self.Xmax = 1024
+        self.Xmax = 512
         self.th_values = [int(0.3 * self.Xmax), int(0.6 * self.Xmax)]
-        self.delta = 30
+        self.delta = 12
         self.phi_base = 0.3
 
         # ? do these numbers have to be coherent with how high my task demand can go?
@@ -27,6 +25,7 @@ class PSITaskHandler:
         partner_actual_x = r2.x
         # ratio = self.demand(r2.task) / max(1, self.demand(r1.task))
 
+        #! maybe say that if < 0 then ratio = 0?
         d1 = self.demand(r1.task) if self.demand(r1.task) > 0 else 1
         d2 = self.demand(r2.task) if self.demand(r2.task) > 0 else 1
         ratio = d2/d1
