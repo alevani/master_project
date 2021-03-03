@@ -179,7 +179,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-20)
+globals.NEST = Nest(-5)
 for _ in range(nb_robot):
     add_robot()
 
@@ -263,7 +263,8 @@ while True:
             #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
             #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
             #! ob: when more demand than robot, no oscilliation
-            #! ob: when too much osc the robot struggles to complete a task because it is alawys pull somewhere else.
+            #! ob: when too much osc the robot struggles to complete a task because it is always pulled somewhere else.
+            # ? my tweak with the >=3 fixes it
             #! obs: sometimes an ant nest processing can lose its task assignemnt by going outside the border and be replaced by another once.
             #! that is the same issues as descibred line 276
 
