@@ -36,7 +36,7 @@ def add_robot():
     postheta = randint(0, 360)
     num = len(globals.ROBOTS) + 1
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 1, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 4, 1, 100))
     globals.NEST.robot_task_status.append(RobotTaskStatus(num, 0, False, 100))
 
 
@@ -88,6 +88,9 @@ class Robot:
         self.is_avoiding_cnt = 0
         self.NB_STEP_TO_AVOID = 15
 
+        self.has_to_report = False
+        self.time_to_task_report = 0
+
         self.saved_destination = None
 
         self.position = position
@@ -100,7 +103,7 @@ class Robot:
 
         self.time_to_drop_out = 0
         self.x = 2
-        self.task = randint(1, 2)
+        self.task = 1
         self.sensed_robot_information = None
         self.x_low = 1
         self.x_high = 1023

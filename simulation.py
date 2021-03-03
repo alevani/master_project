@@ -178,10 +178,11 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-5)
+globals.NEST = Nest(-30)
 for _ in range(nb_robot):
     add_robot()
 
+TaskHandler = TaskHandler(TASKS)
 PSITaskHandler = PSITaskHandler()
 ###############################################################################
 
@@ -430,9 +431,7 @@ while True:
                   " | "+str(robot.x_high) +
                   " | "+str(robot.x_low))
 
-        task_assigned_unassigned = [TaskHandler.assigned(
-            t) for t in TASKS]
-
+        task_assigned_unassigned = [TaskHandler.assigned(t) for t in TASKS]
         TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file

@@ -27,8 +27,9 @@ class PSITaskHandler:
 
         #! as of now, the demand is a shared information
         #! I need to change it.
-
+        # Demand doesn't need to be energy supplied. all good i'd say.
         #! maybe say that if < 0 then ratio = 0?
+        globals.NEST.demand()
         d1 = self.demand(r1.task)
         d2 = self.demand(r2.task)
 
