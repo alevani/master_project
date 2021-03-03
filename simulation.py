@@ -178,7 +178,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-10)
+globals.NEST = Nest(-5)
 for _ in range(nb_robot):
     add_robot()
 
@@ -224,20 +224,20 @@ def get_proximity_sensors_values(robot_rays, robot):
     return values
 
 
-def update_comm_state(robot_rays, robot):
+def broadcast(robot_rays, robot):
     for r in globals.ROBOTS:
         # Don't check ourselves
         if r.number != robot.number:
             #! my robot cannot really go up to 50cm, is it clever to keep going even if so ..?
             if robot.in_comm_range(r.position):
-                for index, ray in enumerate(robot_rays):
-                    if r.is_sensing(ray):
+                # for index, ray in enumerate(robot_rays):
+                #     if r.is_sensing(ray):
 
-                        #! is deterministic, maybe introduce some noise to be closer to the reality
-                        if robot.sensed_robot_information == None:
-                            # ? Does it really need to be wrapped in an object? high overhead.
-                            return PSISensedInformationPacket(r.x, r.task)
-    return None
+                #! is deterministic, maybe introduce some noise to be closer to the reality
+                if r.sensed_robot_information == None:
+                    # ? Does it really need to be wrapped in an object? high overhead.
+                    r.sensed_robot_information = PSISensedInformationPacket(
+                        r.x, r.task)
 
 
 while True:
@@ -266,8 +266,7 @@ while True:
 
         if not robot.battery_low:
 
-            robot.sensed_robot_information = update_comm_state(
-                robot_rays, robot)
+            broadcast(robot_rays, robot)
 
             if robot.sensed_robot_information != None:
                 PSITaskHandler.eq3_4(robot, robot.sensed_robot_information)
@@ -279,9 +278,11 @@ while True:
             PSITaskHandler.eq5(robot)
 
             """ BROADCAST DATA -> induced by just updating the value and the robot being able to sense others at any given time. """
-            PSITaskHandler.eq7(robot)
+            # Don't switch off task if you are carrying a resouce.
+            if not robot.carry_resource:
+                PSITaskHandler.eq7(robot)
 
-            # TODO has_to_work and anything related to an ant state is obsolete
+            #! I think I have to use the report as well as if I want to compare all the model they all have to get access to shared information in the same way.
 
             if robot.task == foraging:
 
@@ -412,17 +413,20 @@ while True:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
 
-    if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 5
+    # if globals.CNT % 500 == 0:
+    #     globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report | Has to report")
+        print("N° | % | Task | x | x_high | x_low")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+TASKS_NAME[robot.task - 1])
+                  " | "+TASKS_NAME[robot.task - 1] +
+                  " | "+str(robot.x) +
+                  " | "+str(robot.x_high) +
+                  " | "+str(robot.x_low))
 
         # task_assigned_unassigned = [TaskHandler.assigned(
         #     t) for t in range(1, len(TASKS) + 1)]

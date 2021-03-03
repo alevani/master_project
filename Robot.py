@@ -63,6 +63,7 @@ class Robot:
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
+        self.payload_carry_time = 0
 
         self.payload = None
         self.area_left = -1
@@ -97,11 +98,12 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
+        self.time_to_drop_out = 0
         self.x = 2
-        self.task = 1
+        self.task = randint(1, 2)
         self.sensed_robot_information = None
-        self.d_lower = self.x - 1
-        self.d_upper = 1024 - self.x - 1
+        self.x_low = 1
+        self.x_high = 1023
         #! maybe it should be something else than 0?
 
     def in_range(self, position):
