@@ -19,6 +19,9 @@ cleaning_need = []
 cleaning_assigned = []
 cleaning_unassigned = []
 
+distance = []
+total = []
+
 step = []
 for line in file:
     arr = [int(value) for value in line.split(";")]
@@ -36,6 +39,9 @@ for line in file:
     cleaning_need.append(arr[9])
     cleaning_assigned.append(arr[7])
     not_working_robot[len(not_working_robot) - 1] += arr[8]
+
+    distance.append(arr[10])
+    total.append(arr[11])
 
 
 fig, ax = plt.subplots()
@@ -82,4 +88,22 @@ fig, task_rep = plt.subplots()
 task_rep.stackplot(step, foraging_assigned,
                    nest_processing_assigned, cleaning_assigned, not_working_robot)
 
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+fig, distance_plot = plt.subplots()
+distance_plot.plot(step, distance, label="Distance")
+distance_plot.set(xlabel='simulation step', ylabel='value')
+distance_plot.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+fig, total_plot = plt.subplots()
+total_plot.plot(step, total, label="Total processed resources")
+total_plot.set(xlabel='simulation step', ylabel='value')
+total_plot.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
 plt.show()

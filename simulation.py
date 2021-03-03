@@ -470,6 +470,9 @@ while True:
                 txt += str(globals.NEST.resource_stock)+";"
             elif i == cleaning:
                 txt += str(globals.NEST.resource_transformed)
+
+        txt += ";" + str(int(globals.total_dist))
+        txt += ";" + str(globals.NEST.total)
         globals.CSV_FILE.write(txt+"\n")
 
     if globals.NEST.total >= 20:
