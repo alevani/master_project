@@ -265,15 +265,38 @@ while True:
         robot.stop()
         robot.sense_area(AREAS)
 
+        robot.time_to_task_report += 1
+        if robot.time_to_task_report % 600 == 0:
+            robot.time_to_task_report = 599  # ! maybe useless
+            robot.has_to_report = True
+
         if not robot.battery_low:
+            if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
+                robot.has_to_report = True
 
             broadcast(robot_rays, robot)
+            if robot.has_to_report:
+                if robot.is_on_area(TYPE_HOME):
+                    robot.destination = None
 
-            if robot.sensed_robot_information != None:
-                PSITaskHandler.eq3_4(robot, robot.sensed_robot_information)
+                    #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
+                    #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
+                    #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
+                    #! > and will keep its state ...
+                    # ? but is what I did the best option now? (go_and_stay_home)
 
-                # ? Does the information really has to be deleted when used?
-                robot.sensed_robot_information = None  # Information consumed
+                    if robot.sensed_robot_information != None:
+                        PSITaskHandler.eq3_4(
+                            robot, robot.sensed_robot_information)
+
+                        # ? Does the information really has to be deleted when used?
+                        robot.sensed_robot_information = None  # Information consumed
+
+                    globals.NEST.report(
+                        robot.number, robot.task, robot.has_to_work(), robot.battery_level)
+
+                    robot.has_to_report = False
+                    robot.time_to_task_report = 0
 
             PSITaskHandler.eq6(robot)
             PSITaskHandler.eq5(robot)

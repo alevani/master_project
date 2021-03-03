@@ -29,9 +29,9 @@ class PSITaskHandler:
         #! I need to change it.
         # Demand doesn't need to be energy supplied. all good i'd say.
         #! maybe say that if < 0 then ratio = 0?
-        globals.NEST.demand()
-        d1 = self.demand(r1.task)
-        d2 = self.demand(r2.task)
+
+        d1 = globals.NEST.demand(r1.task)
+        d2 = globals.NEST.demand(r2.task)
 
         if d1 == d2:
             ratio = 1
@@ -137,18 +137,3 @@ class PSITaskHandler:
             r.task -= 1
 
         r.color = self.COLORS[r.task]
-
-    def demand(self, task):
-        # as long as the demand is coherent the ratio (r2.w / r1.w) is going to be calculated in the correct way
-        # if task == 1:
-        #     return 1
-        # elif task == 2:
-        #     return 5
-        # elif task == 3:
-        #     return 1
-        if task == 1:
-            return globals.NEST.resource_need * -1
-        elif task == 2:
-            return globals.NEST.resource_stock
-        elif task == 3:
-            return globals.NEST.resource_transformed
