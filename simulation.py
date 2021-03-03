@@ -180,7 +180,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-5)
+globals.NEST = Nest(-30)
 for _ in range(nb_robot):
     add_robot()
 
