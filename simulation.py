@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
+from GreedyTaskHandlerImproved import GreedyTaskHandlerImproved
 from GreedyTaskHandler import GreedyTaskHandler
 from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
@@ -185,6 +186,7 @@ for _ in range(nb_robot):
 
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
+GreedyTaskHandlerImproved = GreedyTaskHandlerImproved(TASKS)
 ###############################################################################
 
 
@@ -279,6 +281,7 @@ while True:
                     # ? but is what I did the best option now? (go_and_stay_home)
                     TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
+                    # GreedyTaskHandlerImproved.assign_task(robot)
 
                     globals.NEST.report(
                         robot.number, robot.task, robot.has_to_work(), robot.battery_level)
