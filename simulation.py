@@ -454,14 +454,14 @@ while True:
                   " | " + str(robot.TASKS_Q))
 
         task_assigned_unassigned = [TaskHandler.assigned(
-            t) for t in range(1, len(TASKS) + 1)]
+            t) for t in TASKS]
 
         TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
         # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
-        for i in range(1, len(TASKS) + 1):
+        for i in TASKS:
             txt += str(task_assigned_unassigned[i-1][0]) + \
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
             if i == foraging:
