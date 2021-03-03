@@ -279,9 +279,13 @@ while True:
                     #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
+                    robot_old_task = robot.task
                     TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
                     # GreedyTaskHandlerImproved.assign_task(robot)
+
+                    if not robot_old_task == robot.task:
+                        robot.n_task_switch += 1
 
                     globals.NEST.report(
                         robot.number, robot.task, robot.has_to_work(), robot.battery_level)
@@ -444,14 +448,15 @@ while True:
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report | Has to report")
+        print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
                   " | "+str(robot.time_to_task_report) +
                   " | " + ("True" if robot.has_to_report else "False") +
-                  " | " + str(robot.TASKS_Q))
+                  " | " + str(robot.TASKS_Q) +
+                  " | " + str(robot.n_task_switch))
 
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
@@ -472,7 +477,12 @@ while True:
                 txt += str(globals.NEST.resource_transformed)
 
         txt += ";" + str(int(globals.total_dist))
-        txt += ";" + str(globals.NEST.total)
+        txt += ";" + str(globals.NEST.total) + ";"
+
+        for robot in globals.ROBOTS:
+            txt += "(" + str(robot.number) + "," + \
+                str(robot.n_task_switch)+");"
+
         globals.CSV_FILE.write(txt+"\n")
 
     if globals.NEST.total >= 20:

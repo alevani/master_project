@@ -99,6 +99,8 @@ class Robot:
         self.draw_information = []
         self.path = []
 
+        self.n_task_switch = 0
+
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 

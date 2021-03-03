@@ -22,9 +22,11 @@ cleaning_unassigned = []
 distance = []
 total = []
 
+robots_n_task_switch = None
+
 step = []
 for line in file:
-    arr = [int(value) for value in line.split(";")]
+    arr = [int(value) for value in line.split(";")[:12]]
     step.append(arr[0])
 
     foraging_need.append(arr[3])
@@ -42,6 +44,14 @@ for line in file:
 
     distance.append(arr[10])
     total.append(arr[11])
+
+    arr = sorted([eval(e) for e in line.split(";")[12:-1]])
+
+    if robots_n_task_switch == None:
+        robots_n_task_switch = [e[1] for e in arr]
+    else:
+        for i, e in enumerate(arr):
+            robots_n_task_switch[i] += e[1]
 
 
 fig, ax = plt.subplots()
@@ -99,6 +109,7 @@ distance_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
+# TODO left legen should be in % saying the task is to grasp 50
 fig, total_plot = plt.subplots()
 total_plot.plot(step, total, label="Total processed resources")
 total_plot.set(xlabel='simulation step', ylabel='value')
@@ -106,4 +117,16 @@ total_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+
+
+fig, robot_n_task_plot = plt.subplots()
+robot_n_task_plot.plot(range(len(robots_n_task_switch)), robots_n_task_switch,
+                       label="Total processed resources")
+robot_n_task_plot.set(xlabel='simulation step', ylabel='value')
+robot_n_task_plot.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+
 plt.show()
