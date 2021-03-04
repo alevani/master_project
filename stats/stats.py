@@ -62,10 +62,12 @@ ax.set(xlabel='simulation step', ylabel='Needs')
 ax.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+# fig.suptitle('This is a somewhat long figure title', fontsize=16)
 
 
 fig, foraging_plot = plt.subplots()
-foraging_plot.plot(step, foraging_assigned, label="Robot assigned to the task")
+foraging_plot.plot(step, foraging_assigned,
+                   label="Robot assigned to the foraging task")
 foraging_plot.plot(step, foraging_need, label="Resource need")
 foraging_plot.set(xlabel='simulation step', ylabel='value')
 foraging_plot.grid()
@@ -75,7 +77,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 fig, nest_processing = plt.subplots()
 nest_processing.plot(step, nest_processing_assigned,
-                     label="Robot assigned to the task")
+                     label="Robot assigned to the nest processing task")
 nest_processing.plot(step, nest_processing_need,
                      label="Resource need")
 nest_processing.set(xlabel='simulation step', ylabel='value')
@@ -85,7 +87,8 @@ nest_processing.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 fig, cleaning = plt.subplots()
-cleaning.plot(step, cleaning_assigned, label="Robot assigned to the task")
+cleaning.plot(step, cleaning_assigned,
+              label="Robot assigned to the cleaning task")
 cleaning.plot(step, cleaning_need, label="Resource need")
 cleaning.set(xlabel='simulation step', ylabel='value')
 cleaning.grid()
@@ -96,14 +99,15 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 fig, task_rep = plt.subplots()
 task_rep.stackplot(step, foraging_assigned,
-                   nest_processing_assigned, cleaning_assigned, not_working_robot)
-
+                   nest_processing_assigned, cleaning_assigned, not_working_robot, labels=["Foragers", "Nest processors", "Cleaners", "Unassigned"])
+task_rep.set(xlabel='simulation step', ylabel='Number of robot')
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 fig, distance_plot = plt.subplots()
-distance_plot.plot(step, distance, label="Distance")
-distance_plot.set(xlabel='simulation step', ylabel='value')
+distance_plot.plot(
+    step, distance, label="Overall distance for all robot over the full period")
+distance_plot.set(xlabel='simulation step', ylabel='Covered distance (cm)')
 distance_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -111,8 +115,8 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 # TODO left legen should be in % saying the task is to grasp 50
 fig, total_plot = plt.subplots()
-total_plot.plot(step, total, label="Total processed resources")
-total_plot.set(xlabel='simulation step', ylabel='value')
+total_plot.plot(step, [t/20 for t in total], label="Total processed resources")
+total_plot.set(xlabel='simulation step', ylabel='Task completion')
 total_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -120,9 +124,9 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(len(robots_n_task_switch)), robots_n_task_switch,
-                       label="Total processed resources")
-robot_n_task_plot.set(xlabel='simulation step', ylabel='value')
+robot_n_task_plot.plot(range(1, len(robots_n_task_switch) + 1), robots_n_task_switch,
+                       label="Number of task switch for a robot over the total period")
+robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 robot_n_task_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
