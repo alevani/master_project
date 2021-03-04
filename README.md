@@ -39,9 +39,9 @@ left-click -> spread a random number of point in a 100x100 area around the posit
 click 6 -> Remove a robot from the simulation
 ```
 
-Current status: [Video link](https://www.youtube.com/watch?v=HpS3zuJ1a9I)
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/HpS3zuJ1a9I/0.jpg)](https://www.youtube.com/watch?v=HpS3zuJ1a9I)
+Current status: [Video link](https://www.youtube.com/watch?v=uGT88xa4q-w)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/uGT88xa4q-w/3.jpg)](https://www.youtube.com/watch?v=uGT88xa4q-w)
 
 
 Below, some results of the current task allocation system. There's 50 robot running, no battery loss, -10 food every 500 simulation step.
-![IMAGE ALT TEXT HERE](https://github.com/alevani/master_project/blob/main/assets/stress-test-result.png)
+![IMAGE ALT TEXT HERE](https://github.com/alevani/master_project/blob/main/assets/test50.png)
