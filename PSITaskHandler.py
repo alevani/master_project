@@ -23,16 +23,26 @@ class PSITaskHandler:
     def eq1(self, r1, r2):
 
         partner_actual_x = r2.x
-        # ratio = self.demand(r2.task) / max(1, self.demand(r1.task))
-
-        #! as of now, the demand is a shared information
-        #! I need to change it.
-        # Demand doesn't need to be energy supplied. all good i'd say.
-        #! maybe say that if < 0 then ratio = 0?
 
         d1 = globals.NEST.demand(r1.task)
         d2 = globals.NEST.demand(r2.task)
 
+        """ That failed .. shouldn't have. since r2.x and r1.x are the same ratio should've been = to 1
+
+        My guess: x are not a reflect of the actual task because I fucked up something with the report.
+
+
+        Resources: 428 | 19
+        Nest Maintenance: 231 | 13
+        Brood Care: 203 | 18
+        Total:  24
+        Total distance: 4359 cm
+        0.8787878787878788
+        2
+        309.9978488561499
+        3
+        309.9978488561499
+        """
         if d1 == d2:
             ratio = 1
         elif d1 < 1 or d2 < 1:
@@ -40,14 +50,6 @@ class PSITaskHandler:
         else:
             ratio = d2/d1
 
-        # d1 = self.demand(r1.task) if self.demand(r1.task) > 0 else 1
-        # d2 = self.demand(r2.task) if self.demand(r2.task) > 0 else 1
-        # ratio = d2/d1
-
-        # if r1.number == 1:
-        #     print("demand for task: ", r1.task)
-        #     print(self.demand(r1.task))
-        #     print("ratio: ", ratio)
         try:
             if ratio != 1:
                 if partner_actual_x > r1.x:

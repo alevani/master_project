@@ -270,11 +270,16 @@ while True:
             robot.time_to_task_report = 599  # ! maybe useless
             robot.has_to_report = True
 
+        # This is because sometimes the robot would not change it task because it was carrying a resource
+        # but its x would change anyway and then the X wouldn't match the segment of the task the robot is in
+        if robot.has_to_change_task_but_carry_resource and not robot.carry_resource:
+            PSITaskHandler.eq7(robot)
+            robot.has_to_change_task_but_carry_resource = False
+
         if not robot.battery_low:
             if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
                 robot.has_to_report = True
 
-            broadcast(robot_rays, robot)
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
@@ -301,10 +306,15 @@ while True:
             PSITaskHandler.eq6(robot)
             PSITaskHandler.eq5(robot)
 
-            """ BROADCAST DATA -> induced by just updating the value and the robot being able to sense others at any given time. """
+            # Broadcast x and task
+            broadcast(robot_rays, robot)
+
             # Don't switch off task if you are carrying a resouce.
             if not robot.carry_resource:
                 PSITaskHandler.eq7(robot)
+            else:
+                # ? would I need to backup the x I get from here and use it instead of the one I get when I am ready to switch?
+                robot.has_to_change_task_but_carry_resource = True
 
             #! I think I have to use the report as well as if I want to compare all the model they all have to get access to shared information in the same way.
             #! then I could say, before broadcasting, get w information from the current state of the nest? or something o that sort

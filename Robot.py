@@ -107,7 +107,7 @@ class Robot:
         self.sensed_robot_information = None
         self.x_low = 1
         self.x_high = 1023
-        #! maybe it should be something else than 0?
+        self.has_to_change_task_but_carry_resource = False
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
