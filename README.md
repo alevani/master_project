@@ -17,7 +17,7 @@ Conditions for ant task report:
 ## How to: Line command
 ```
 > python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>
-> python simulation.py -r 50 -p 1000 -s True -b False -t False -a True
+> python simulation.py -r 50 -p 1000 -s True -b False -t False -a True -f stats.csv -e 1
 
 -r = Number of simulated robot
 -p = Number of randomly generated resource
