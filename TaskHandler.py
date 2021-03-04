@@ -1,3 +1,4 @@
+from const import RESOURCE_STATE_FORAGING
 from const import second_reserve
 from const import first_reserve
 from const import core_worker
@@ -87,6 +88,8 @@ class TaskHandler:
         print("Cleaning: " + str(globals.NEST.resource_transformed) +
               " | " + str(assignments[2][0]))
         print("Total: ", globals.NEST.total)
+        print("Amount of resources left in the arena: ",
+              sum([1 for i in globals.POIs if i.state == RESOURCE_STATE_FORAGING]))
 
         #! not really its place.
         print("Total distance: " + str(int(globals.total_dist))+" cm")
