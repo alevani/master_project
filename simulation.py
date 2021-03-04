@@ -284,7 +284,7 @@ while True:
                     # GreedyTaskHandler.assign_task(robot)
                     # GreedyTaskHandlerImproved.assign_task(robot)
 
-                    if not robot_old_task == robot.task:
+                    if robot_old_task != robot.task:
                         robot.n_task_switch += 1
 
                     globals.NEST.report(
@@ -485,7 +485,7 @@ while True:
 
         globals.CSV_FILE.write(txt+"\n")
 
-    if globals.NEST.total >= 20:
+    if globals.NEST.total >= 21:
         import sys
         sys.exit()
 
