@@ -178,7 +178,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-30)
+globals.NEST = Nest(-10)
 for _ in range(nb_robot):
     add_robot()
 
@@ -231,14 +231,14 @@ def broadcast(robot_rays, robot):
         if r.number != robot.number:
             #! my robot cannot really go up to 50cm, is it clever to keep going even if so ..?
             if robot.in_comm_range(r.position):
-                for index, ray in enumerate(robot_rays):
-                    if r.is_sensing(ray):
+                # for index, ray in enumerate(robot_rays):
+                #     if r.is_sensing(ray):
 
-                        #! is deterministic, maybe introduce some noise to be closer to the reality
-                        if r.sensed_robot_information == None:
-                            # ? Does it really need to be wrapped in an object? high overhead.
-                            r.sensed_robot_information = PSISensedInformationPacket(
-                                r.x, r.task)
+                #! is deterministic, maybe introduce some noise to be closer to the reality
+                if r.sensed_robot_information == None:
+                    # ? Does it really need to be wrapped in an object? high overhead.
+                    r.sensed_robot_information = PSISensedInformationPacket(
+                        robot.x, robot.task)
 
 
 while True:
@@ -249,6 +249,15 @@ while True:
         VISUALIZER.draw_areas(AREAS)
 
     for robot in globals.ROBOTS:
+
+        # th = [int(0.3 * 512), int(0.6 * 512)]
+        # import sys
+        # if (robot.task == 1 and robot.x > int(0.3 * 512)) or (robot.task == 2 and (robot.x > int(0.6 * 512) or robot.x < int(0.3 * 512))) or (robot.task == 3 and robot.x < int(0.6 * 512)):
+        #     print("stage one")
+        #     print(robot.has_to_change_task_but_carry_resource)
+        #     print(robot.task)
+        #     print(robot.x)
+        #     sys.exit()
 
         # If the robot is out of power, don't process it
         if robot.battery_level <= 0:
@@ -294,7 +303,6 @@ while True:
                         PSITaskHandler.eq3_4(
                             robot, robot.sensed_robot_information)
 
-                        # ? Does the information really has to be deleted when used?
                         robot.sensed_robot_information = None  # Information consumed
 
                     globals.NEST.report(
@@ -310,6 +318,7 @@ while True:
             broadcast(robot_rays, robot)
 
             # Don't switch off task if you are carrying a resouce.
+            # PSITaskHandler.eq7(robot)
             if not robot.carry_resource:
                 PSITaskHandler.eq7(robot)
             else:
