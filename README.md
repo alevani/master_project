@@ -16,7 +16,7 @@ Conditions for ant task report:
 
 ## How to: Line command
 ```
-> python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation>
+> python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>
 > python simulation.py -r 50 -p 1000 -s True -b False -t False -a True
 
 -r = Number of simulated robot
@@ -25,6 +25,8 @@ Conditions for ant task report:
 -b = Active battery effects
 -t = Record robot's path
 -a = specifies if the robot should avoid one another
+-f = specify the name the output stats file should have
+-e = speciy which of the two experiments the program will be running
 ```
 
 ## In-pygame command shorcut

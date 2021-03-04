@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import errno
+import os
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from GreedyTaskHandlerImproved import GreedyTaskHandlerImproved
@@ -55,9 +57,9 @@ import sys
 # ? MVC Refactor
 ### GLOBALS ###################################################################
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:")
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:f:e:")
 except getopt.GetoptError:
-    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation')
+    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
     sys.exit(2)
 
 nb_robot = 0
@@ -65,10 +67,11 @@ nb_point = 0
 ACT = None
 battery_effects = None
 do_record_trail = None
+exp_number = None
 
 for opt, arg in opts:
     if opt == "-h":
-        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation')
+        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
         sys.exit(2)
 
     if opt == "-r":
@@ -83,11 +86,22 @@ for opt, arg in opts:
         do_record_trail = True if arg == "True" else False
     elif opt == "-a":
         globals.do_avoid = True if arg == "True" else False
+    elif opt == "-f":
+        filename = "stats/"+arg
+    elif opt == "-e":
+        exp_number = int(arg)
 
+
+if not os.path.exists(os.path.dirname(filename)):
+    try:
+        os.makedirs(os.path.dirname(filename))
+    except OSError as exc:  # Guard against race condition
+        if exc.errno != errno.EEXIST:
+            raise
+globals.CSV_FILE = open(filename, "w")
 # WORLD
 WORLD = LinearRing([(W/2, H/2), (-W/2, H/2), (-W/2, -H/2), (W/2, -H/2)])
 
-globals.CSV_FILE = open("stats/stats.csv", "w")
 
 if ACT:
     VISUALIZER = Visualizator()
@@ -180,7 +194,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-30)
+globals.NEST = Nest(-25)
 for _ in range(nb_robot):
     add_robot()
 
@@ -484,10 +498,17 @@ while True:
                 str(robot.n_task_switch)+");"
 
         globals.CSV_FILE.write(txt+"\n")
-
-    if globals.NEST.total >= 20:
+    if globals.CNT >= 20:
         import sys
         sys.exit()
+    if exp_number == 2:
+        if globals.CNT >= 70000:
+            import sys
+            sys.exit()
+    elif exp_number == 1:
+        if globals.NEST.total >= 50:
+            import sys
+            sys.exit()
 
     if ACT:
         pygame .display.flip()  # render drawing
