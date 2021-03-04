@@ -46,13 +46,19 @@ for line in file:
     total.append(arr[11])
 
     arr = sorted([eval(e) for e in line.split(";")[12:-1]])
+    #! I think this is right even though it does not have to happen every time
+    #! I go through file
+    robots_n_task_switch = [e[1] for e in arr]
 
-    if robots_n_task_switch == None:
-        robots_n_task_switch = [e[1] for e in arr]
-    else:
-        for i, e in enumerate(arr):
-            robots_n_task_switch[i] += e[1]
+    # if robots_n_task_switch == None:
+    # robots_n_task_switch = [e[1] for e in arr]
+    # else:
+    #     for i, e in enumerate(arr):
+    #         robots_n_task_switch[i] += e[1]
 
+#! the problem is that
+#! I should not be adding but plotting ONCE at the end because
+#! I do not intend to show over timestep but just general
 
 fig, ax = plt.subplots()
 ax.plot(step, foraging_need, label="Resource need")
