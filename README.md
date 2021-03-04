@@ -40,7 +40,7 @@ click 6 -> Remove a robot from the simulation
 ```
 
 Current status: [Video link](https://www.youtube.com/watch?v=uGT88xa4q-w)
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/uGT88xa4q-w/3.jpg)](https://www.youtube.com/watch?v=uGT88xa4q-w)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/uGT88xa4q-w/0.jpg)](https://www.youtube.com/watch?v=uGT88xa4q-w)
 
 
 Below, some results of the current task allocation system. There's 50 robot running, no battery loss, -10 food every 500 simulation step.
