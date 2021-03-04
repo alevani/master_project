@@ -24,6 +24,7 @@ class GreedyTaskHandlerImproved:
         robot.state = self.temp_worker
 
         # The task that has the highest demand, not the highest needs (big diff)
+
         robot.task = numpy.argmax([globals.NEST.energy_status(task)
                                    for task in self.TASKS]) + 1
         robot.color = self.COLORS[robot.task]

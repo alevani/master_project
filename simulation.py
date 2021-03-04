@@ -269,6 +269,7 @@ while True:
             # ? my tweak with the >=3 fixes it
             #! obs: sometimes an ant nest processing can lose its task assignemnt by going outside the border and be replaced by another once.
             #! that is the same issues as descibred line 276
+            #!obs: a robot with AITA will not change task unless its task's demand is satisfied first. even if the other task has hiiigh demand.
 
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
@@ -280,9 +281,9 @@ while True:
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
                     robot_old_task = robot.task
-                    # TaskHandler.assign_task(robot)
+                    TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
-                    GreedyTaskHandlerImproved.assign_task(robot)
+                    # GreedyTaskHandlerImproved.assign_task(robot)
 
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
@@ -460,7 +461,6 @@ while True:
 
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
-
         TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file

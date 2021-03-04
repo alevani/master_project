@@ -22,11 +22,12 @@ def read(file):
 
         arr = sorted([eval(e) for e in line.split(";")[12:-1]])
 
-        if robots_n_task_switch == None:
-            robots_n_task_switch = [e[1] for e in arr]
-        else:
-            for i, e in enumerate(arr):
-                robots_n_task_switch[i] += e[1]
+        robots_n_task_switch = [e[1] for e in arr]
+        # if robots_n_task_switch == None:
+        #     robots_n_task_switch = [e[1] for e in arr]
+        # else:
+        #     for i, e in enumerate(arr):
+        #         robots_n_task_switch[i] += e[1]
     return distance, total, robots_n_task_switch
 
 
@@ -37,9 +38,9 @@ d_aita, t_aita, n_aita = read(aita)
 # max_x_len = max(max(len(d_gta), len(d_gata)), len(d_aita))
 
 
-d_gta += [None for i in range(len(step) - len(d_gta))]
-d_gata += [None for i in range(len(step) - len(d_gata))]
-d_aita += [None for i in range(len(step) - len(d_aita))]
+d_gta += [d_gta[len(d_gta) - 1] for i in range(len(step) - len(d_gta))]
+d_gata += [d_gata[len(d_gata) - 1] for i in range(len(step) - len(d_gata))]
+d_aita += [d_aita[len(d_aita) - 1] for i in range(len(step) - len(d_aita))]
 
 fig, distance_plot = plt.subplots()
 distance_plot.plot(step, d_gta, label="Greedy TA distance")
@@ -52,9 +53,9 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 
-t_gta += [None for i in range(len(step) - len(t_gta))]
-t_gata += [None for i in range(len(step) - len(t_gata))]
-t_aita += [None for i in range(len(step) - len(t_aita))]
+t_gta += [20 for i in range(len(step) - len(t_gta))]
+t_gata += [20 for i in range(len(step) - len(t_gata))]
+t_aita += [20 for i in range(len(step) - len(t_aita))]
 
 
 fig, total_plot = plt.subplots()
