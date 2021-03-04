@@ -280,9 +280,9 @@ while True:
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
                     robot_old_task = robot.task
-                    TaskHandler.assign_task(robot)
+                    # TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
-                    # GreedyTaskHandlerImproved.assign_task(robot)
+                    GreedyTaskHandlerImproved.assign_task(robot)
 
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
@@ -485,7 +485,7 @@ while True:
 
         globals.CSV_FILE.write(txt+"\n")
 
-    if globals.NEST.total >= 21:
+    if globals.NEST.total >= 20:
         import sys
         sys.exit()
 

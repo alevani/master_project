@@ -113,7 +113,6 @@ distance_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
-# TODO left legen should be in % saying the task is to grasp 50
 fig, total_plot = plt.subplots()
 total_plot.plot(step, [t/20 for t in total], label="Total processed resources")
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
