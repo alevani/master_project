@@ -23,11 +23,7 @@ def read(file):
         arr = sorted([eval(e) for e in line.split(";")[12:-1]])
 
         robots_n_task_switch = [e[1] for e in arr]
-        # if robots_n_task_switch == None:
-        #     robots_n_task_switch = [e[1] for e in arr]
-        # else:
-        #     for i, e in enumerate(arr):
-        #         robots_n_task_switch[i] += e[1]
+ 
     return distance, total, robots_n_task_switch
 
 

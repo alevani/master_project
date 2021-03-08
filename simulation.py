@@ -491,7 +491,7 @@ while True:
             elif i == cleaning:
                 txt += str(globals.NEST.resource_transformed)
 
-        txt += ";" + str(int(globals.total_dist))
+        txt += ";" + str(float(globals.total_dist))
         txt += ";" + str(globals.NEST.total) + ";"
 
         for robot in globals.ROBOTS:

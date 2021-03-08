@@ -326,7 +326,7 @@ class Robot:
             theta += omega * self.SIMULATION_TIMESTEP
             theta = theta % math.radians(360)
 
-        # ? is this making the run slower?
+        # ? why is this never a float?
         globals.total_dist += dist((self.position.x, self.position.y), (x, y))
 
         self.update_proximity_sensor_position(
