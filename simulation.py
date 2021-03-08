@@ -194,7 +194,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-25)
+globals.NEST = Nest(-50)
 for _ in range(nb_robot):
     add_robot()
 
@@ -295,9 +295,10 @@ while True:
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
                     robot_old_task = robot.task
+                    # TODO add a random task assignment that reassign every n time step? (that means no need for report or information sharing)
                     TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
-                    # GreedyTaskHandlerImproved.assign_task(robot)
+                    # GreedyTaskHandlerImproved.assign_task(robot) ->  maybe remove this one and use the random instead.
 
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
@@ -504,9 +505,8 @@ while True:
             import sys
             sys.exit()
     elif exp_number == 1:
-        # if globals.NEST.total >= 50:
-        #! somehow this always stops one before ..
-        if globals.NEST.total >= 5:
+        if globals.NEST.total >= 30:
+            #! somehow this always stops one before ..
             import sys
             sys.exit()
 
