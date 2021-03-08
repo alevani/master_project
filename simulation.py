@@ -505,7 +505,8 @@ while True:
             import sys
             sys.exit()
     elif exp_number == 1:
-        if globals.NEST.total >= 30:
+        # if globals.NEST.total >= 30:
+        if globals.NEST.total >= 5:
             #! somehow this always stops one before ..
             import sys
             sys.exit()

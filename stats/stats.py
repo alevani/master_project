@@ -2,22 +2,22 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('./stats.csv')
+file = open('./avged_file.csv')
 
 
 foraging_need = []
 foraging_assigned = []
-foraging_unassigned = []
+
 
 nest_processing_need = []
 nest_processing_assigned = []
-nest_processing_unassigned = []
+
 
 not_working_robot = []
 
 cleaning_need = []
 cleaning_assigned = []
-cleaning_unassigned = []
+
 
 distance = []
 total = []
@@ -26,7 +26,7 @@ robots_n_task_switch = None
 
 step = []
 for line in file:
-    arr = [int(value) for value in line.split(";")[:12]]
+    arr = [float(value) for value in line.split(";")[:12]]
     step.append(arr[0])
 
     foraging_need.append(arr[3])
@@ -47,7 +47,6 @@ for line in file:
 
     arr = sorted([eval(e) for e in line.split(";")[12:-1]])
     robots_n_task_switch = [e[1] for e in arr]
-
 
 fig, ax = plt.subplots()
 ax.plot(step, foraging_need, label="Resource need")
@@ -109,7 +108,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t/20 for t in total], label="Total processed resources")
+total_plot.plot(step, [t/4 for t in total], label="Total processed resources")
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
 total_plot.grid()
 

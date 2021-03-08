@@ -28,6 +28,7 @@ class TaskHandler:
         if robot.state == self.resting:
             candidate = []
             for i, task in enumerate(self.TASKS):
+
                 if self.feedback(task) < 0:  # Task is in energy surplus
                     robot.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
@@ -39,6 +40,7 @@ class TaskHandler:
                 if robot.TASKS_Q[i] >= 3:
                     # if robot.TASKS_Q[i] == 3:
                     candidate.append(task)
+
             if candidate != []:
                 if randint(0, 1):
                     for i in range(len(robot.TASKS_Q)):
@@ -101,3 +103,5 @@ class TaskHandler:
     # Local Feedback function
     def feedback(self, task):
         return 1 if globals.NEST.energy_status(task) >= 0 else -1
+        #! I think this is better because then it means that if a task has no needs no robot will be assigned to it
+        # return 1 if globals.NEST.energy_status(task) > 0 else -1

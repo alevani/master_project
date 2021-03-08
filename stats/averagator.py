@@ -5,84 +5,118 @@ directory = './EXP/ALONE/EXP1/'
 _, _, filenames = next(walk(directory))
 filenames = [directory+f for f in filenames if 'csv' in f]
 
+# All the array should be of the same lenght
+
 
 def read(file):
     distance = []
     total = []
     robots_n_task_switch = None
+
+    foraging_need = []
+    foraging_assigned = []
+
+    nest_processing_need = []
+    nest_processing_assigned = []
+
+    foraging_not_working = []
+    nest_processing_not_working = []
+    cleaning_not_working = []
+
+    cleaning_need = []
+    cleaning_assigned = []
+
     for line in file:
-        arr = [int(value) for value in line.split(";")[:12]]
+        arr = [float(value) for value in line.split(";")[:12]]
+
+        foraging_need.append(arr[3])
+        foraging_assigned.append(arr[1])
+        foraging_not_working.append(arr[2])
+
+        nest_processing_need.append(arr[6])
+        nest_processing_assigned.append(arr[4])
+        nest_processing_not_working.append(arr[5])
+
+        cleaning_need.append(arr[9])
+        cleaning_assigned.append(arr[7])
+        cleaning_not_working.append(arr[8])
 
         distance.append(arr[10])
         total.append(arr[11])
 
-        arr = sorted([eval(e) for e in line.split(";")[12:-1]])
+        # ! this has to be complient with if i remove robots .. maybe use a dictionnary with robot's number a key
 
-        # this has to be adaptive for EXP3
-        robots_n_task_switch = [e[1] for e in arr]
+        robots_n_task_switch = sorted([list(eval(e))
+                                       for e in line.split(";")[12:-1]])
 
-    return distance, total, robots_n_task_switch
-
-
-distance1, total1, switch1 = read(open(filenames[0]))
-distance2, total2, switch2 = read(open(filenames[1]))
-distance3, total3, switch3 = read(open(filenames[2]))
-distance4, total4, switch4 = read(open(filenames[3]))
-distance5, total5, switch5 = read(open(filenames[4]))
-
-size = max(len(distance1), len(distance2), len(
-    distance3), len(distance4), len(distance5))
-
-distance1 += [distance1[len(distance1) - 1]
-              for i in range(size - len(distance1))]
-distance2 += [distance2[len(distance2) - 1]
-              for i in range(size - len(distance2))]
-distance3 += [distance3[len(distance3) - 1]
-              for i in range(size - len(distance3))]
-distance4 += [distance4[len(distance4) - 1]
-              for i in range(size - len(distance4))]
-distance5 += [distance5[len(distance5) - 1]
-              for i in range(size - len(distance5))]
-
-for i, _ in enumerate(distance1):
-    distance1[i] += distance2[i] + distance3[i] + distance4[i] + distance5[i]
-    distance1[i] /= 5
-
-size = max(len(total1), len(total2), len(
-    total3), len(total4), len(total5))
-
-total1 += [total1[len(total1) - 1]
-           for i in range(size - len(total1))]
-total2 += [total2[len(total2) - 1]
-           for i in range(size - len(total2))]
-total3 += [total3[len(total3) - 1]
-           for i in range(size - len(total3))]
-total4 += [total4[len(total4) - 1]
-           for i in range(size - len(total4))]
-total5 += [total5[len(total5) - 1]
-           for i in range(size - len(total5))]
-
-for i, _ in enumerate(total1):
-    total1[i] += total2[i] + total3[i] + total4[i] + total5[i]
-    total1[i] /= 5
+    return [distance, total, robots_n_task_switch, foraging_need, foraging_assigned, nest_processing_need, nest_processing_assigned, cleaning_need, cleaning_assigned, foraging_not_working, nest_processing_not_working, cleaning_not_working]
 
 
-size = max(len(switch1), len(switch2), len(
-    switch3), len(switch4), len(switch5))
+all = []
+for filename in filenames:
+    all.append(read(open(filename)))
 
-switch1 += [switch1[len(switch1) - 1]
-            for i in range(size - len(switch1))]
-switch2 += [switch2[len(switch2) - 1]
-            for i in range(size - len(switch2))]
-switch3 += [switch3[len(switch3) - 1]
-            for i in range(size - len(switch3))]
-switch4 += [switch4[len(switch4) - 1]
-            for i in range(size - len(switch4))]
-switch5 += [switch5[len(switch5) - 1]
-            for i in range(size - len(switch5))]
 
-for i, _ in enumerate(switch1):
-    switch1[i] += switch2[i] + switch3[i] + switch4[i] + switch5[i]
-    switch1[i] /= 5
+def process(a):
 
-print(switch1)
+    size = max([len(e) for e in a])
+
+    for e in a:
+        e += [e[len(e) - 1]
+              for i in range(size - len(e))]
+
+    temp = a.pop(0)
+
+    for i, _ in enumerate(temp):
+        temp[i] += sum([e[i] for e in a])
+        temp[i] /= len(a) + 1
+
+    return temp
+
+
+avg_distance = process([a[0] for a in all])
+avg_total = process([a[1] for a in all])
+
+avg_switch = [a[2] for a in all]
+
+base = avg_switch.pop(0)
+
+for i, _ in enumerate(base):
+    base[i][1] += sum([e[i][1] for e in avg_switch])
+    base[i][1] /= len(avg_switch) + 1
+
+avg_switch = base
+
+
+foraging_need = process([a[3] for a in all])
+avg_foraging_assigned = process([a[4] for a in all])
+avg_nest_processing_need = process([a[5] for a in all])
+avg_nest_processing_assigned = process([a[6] for a in all])
+avg_cleaning_need = process([a[7] for a in all])
+avg_cleaning_assigned = process([a[8] for a in all])
+avg_foraging_not_working = process([a[9] for a in all])
+avg_nest_processing_not_working = process([a[10] for a in all])
+avg_cleaning_not_working = process([a[11] for a in all])
+
+
+txt = ""
+for r in avg_switch:
+    txt += ";" + str(r)
+
+file = open('avged_file.csv', 'w+')
+for i in range(len(avg_distance)):
+    file.write(str((i + 1) * 10) + ";" +
+               str(avg_foraging_assigned[i]) + ";" +
+               str(avg_foraging_not_working[i]) + ";" +
+               str(foraging_need[i]) + ";" +
+               str(avg_nest_processing_assigned[i]) + ";" +
+               str(avg_nest_processing_not_working[i]) + ";" +
+               str(avg_nest_processing_need[i]) + ";" +
+               str(avg_cleaning_assigned[i]) + ";" +
+               str(avg_cleaning_not_working[i]) + ";" +
+               str(avg_cleaning_need[i]) + ";" +
+               str(avg_distance[i]) + ";" +
+               str(avg_total[i]) + txt + "\n")
+
+
+file.close()
