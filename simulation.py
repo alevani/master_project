@@ -53,6 +53,10 @@ import sys
 # IDEAS
 ########
 # ? MVC Refactor
+# TODO Fixed task model?
+# TODO find out if it is relevant to have experiment where the waste area is closer to the nest than it is now (or assumed it is part of the exps.)
+# ? wheter I decide or not to use robot avoidance, I must explain why .. congestion is a hastle.
+# ? Should I implement a decongestion module?
 ### GLOBALS ###################################################################
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:")
@@ -231,14 +235,14 @@ def broadcast(robot_rays, robot):
         if r.number != robot.number:
             #! my robot cannot really go up to 50cm, is it clever to keep going even if so ..?
             if robot.in_comm_range(r.position):
-                # for index, ray in enumerate(robot_rays):
-                #     if r.is_sensing(ray):
+                for index, ray in enumerate(robot_rays):
+                    if r.is_sensing(ray):
 
-                #! is deterministic, maybe introduce some noise to be closer to the reality
-                if r.sensed_robot_information == None:
-                    # ? Does it really need to be wrapped in an object? high overhead.
-                    r.sensed_robot_information = PSISensedInformationPacket(
-                        robot.x, robot.task)
+                        #! is deterministic, maybe introduce some noise to be closer to the reality
+                        if r.sensed_robot_information == None:
+                            # ? Does it really need to be wrapped in an object? high overhead.
+                            r.sensed_robot_information = PSISensedInformationPacket(
+                                robot.x, robot.task)
 
 
 while True:

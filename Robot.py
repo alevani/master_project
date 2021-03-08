@@ -113,7 +113,8 @@ class Robot:
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def in_comm_range(self, position):
-        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.5 else False
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.5 else False
+        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def rest(self):
         self.destination = None
