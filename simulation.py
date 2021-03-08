@@ -498,15 +498,15 @@ while True:
                 str(robot.n_task_switch)+");"
 
         globals.CSV_FILE.write(txt+"\n")
-    if globals.CNT >= 20:
-        import sys
-        sys.exit()
+
     if exp_number == 2:
         if globals.CNT >= 70000:
             import sys
             sys.exit()
     elif exp_number == 1:
-        if globals.NEST.total >= 50:
+        # if globals.NEST.total >= 50:
+        #! somehow this always stops one before ..
+        if globals.NEST.total >= 5:
             import sys
             sys.exit()
 
