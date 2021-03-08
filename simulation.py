@@ -510,6 +510,14 @@ while True:
             import sys
             sys.exit()
 
+    elif exp_number == 3:
+        if globals.CNT >= 30000:
+            import sys
+            sys.exit()
+        if globals.CNT >= 15000:
+            for _ in range(20):
+                globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
+
     if ACT:
         pygame .display.flip()  # render drawing
         fpsClock.tick(fps)
