@@ -36,7 +36,7 @@ def add_robot():
     postheta = randint(0, 360)
     num = len(globals.ROBOTS) + 1
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 1, 0, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, randint(1, 3), 3, 100))
     globals.NEST.robot_task_status.append(RobotTaskStatus(num, 0, False, 100))
 
 
@@ -67,7 +67,7 @@ class Robot:
         # Foraging  # Nest processing  # Cleaning
         self.TASKS_Q = [0, 0, 0]
         self.has_to_report = False
-        self.time_to_task_report = 0
+        self.time_to_task_report = 600
 
         self.payload = None
         self.area_left = -1
@@ -490,9 +490,7 @@ class Robot:
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        if self.has_to_report and not self.carry_resource:
-            self.goto(MARKER_HOME, robot_prox_sensors_values)
-        elif self.has_destination():
+        if self.has_destination():
             self.goto(self.destination, robot_prox_sensors_values)
         else:
             if self.is_avoiding:
