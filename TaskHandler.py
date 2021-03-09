@@ -102,6 +102,7 @@ class TaskHandler:
 
     # Local Feedback function
     def feedback(self, task):
+        #! that actually also says that, if the demand is 0 (can be also because there are enough ant on a task) then you should still be given a task, as you might be helpful
         return 1 if globals.NEST.energy_status(task) >= 0 else -1
         #! I think this is better because then it means that if a task has no needs no robot will be assigned to it
         # return 1 if globals.NEST.energy_status(task) > 0 else -1

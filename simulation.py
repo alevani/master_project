@@ -9,6 +9,7 @@ from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
 from shapely.ops import nearest_points
+from Visualizator import delete_class
 from Visualizator import Visualizator
 from shapely.affinity import rotate
 from TaskHandler import TaskHandler
@@ -458,7 +459,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 5
+        globals.NEST.resource_need -= 10
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -515,9 +516,12 @@ while True:
         if globals.CNT >= 30000:
             import sys
             sys.exit()
-        if globals.CNT >= 15000:
-            for _ in range(20):
+        if globals.CNT == 10000:
+            for _ in range(13):
                 globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
+        if globals.CNT == 20000:
+            for _ in range(13):
+                add_robot()
 
     if ACT:
         pygame .display.flip()  # render drawing
