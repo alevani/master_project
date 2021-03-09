@@ -39,6 +39,10 @@ p -> Pause the simulation
 right-click or click 7 -> add a robot to the simulation
 left-click -> spread a random number of point in a 100x100 area around the position of the click
 click 6 -> Remove a robot from the simulation
+v -> Delete 1/3 of the robots (random)
+b -> Delete 1/3 of the robots performing foraging
+n -> Delete 1/3 of the robots performing nest processing
+m -> Delete 1/3 of the robots performing cleaning
 ```
 
 Current status: [Video link](https://www.youtube.com/watch?v=uGT88xa4q-w)
