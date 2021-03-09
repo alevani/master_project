@@ -133,7 +133,7 @@ TASKS.append(foraging)
 TASKS.append(nest_processing)
 TASKS.append(cleaning)
 #############################################################################
-
+n_robot_to_add = 0
 ### Start's variables #########################################################
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -516,12 +516,24 @@ while True:
         if globals.CNT >= 30000:
             import sys
             sys.exit()
+        # if globals.CNT == 10000:
+        #     for _ in range(13):
+        #         globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
+        # if globals.CNT == 20000:
+        #     for _ in range(13):
+        #         add_robot()
         if globals.CNT == 10000:
-            for _ in range(13):
-                globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
+            index_to_delete = []
+            for i, r in enumerate(globals.ROBOTS):
+                if r.task == 3:
+                    n_robot_to_add += 1
+                    index_to_delete.append(i)
+            for index in index_to_delete:
+                globals.ROBOTS.pop(index)
+
         if globals.CNT == 20000:
-            for _ in range(13):
-                add_robot()
+            for _ in range(n_robot_to_add):
+                add_robot(3)
 
     if ACT:
         pygame .display.flip()  # render drawing

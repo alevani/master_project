@@ -30,13 +30,13 @@ y_a = int((-H/2 + 0.1 + .5)*100)
 y_b = int((-H/2 + 1.3 + .5)*100)
 
 
-def add_robot():
+def add_robot(task=0):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     postheta = randint(0, 360)
     num = len(globals.ROBOTS) + 1
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, 0, 0, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, 0, 100))
     globals.NEST.robot_task_status.append(RobotTaskStatus(num, 0, False, 100))
 
 
