@@ -522,14 +522,13 @@ while True:
         # if globals.CNT == 20000:
         #     for _ in range(13):
         #         add_robot()
+
+        #! Delete and add will mess the output of the n_task_switch for data, but it is irelevant for this exp anyway.
         if globals.CNT == 10000:
-            index_to_delete = []
-            for i, r in enumerate(globals.ROBOTS):
-                if r.task == 3:
-                    n_robot_to_add += 1
-                    index_to_delete.append(i)
-            for index in index_to_delete:
-                globals.ROBOTS.pop(index)
+            new_robot = [
+                robot for robot in globals.ROBOTS if not robot.task == 3]
+            n_robot_to_add = len(globals.ROBOTS) - len(new_robot)
+            globals.ROBOTS = new_robot
 
         if globals.CNT == 20000:
             for _ in range(n_robot_to_add):
