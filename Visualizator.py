@@ -49,6 +49,21 @@ no_task = 0
 resting = 0
 
 
+def delete_class(task):
+    size = int(0.3*len(globals.ROBOTS))
+    cnt = 0
+    exit = 0
+    while cnt < size:
+        index = randint(0, len(globals.ROBOTS) - 1)
+        if globals.ROBOTS[index].task == task:
+            globals.ROBOTS.pop(index)
+            cnt += 1
+
+        if exit > len(globals.ROBOTS):
+            break
+        exit += 1
+
+
 class Visualizator:
 
     ''' PyGame wrapper designed to draw experimental-related arena content'''
@@ -125,6 +140,17 @@ class Visualizator:
                     globals.CSV_FILE.close()
                     pygame.quit()
                     sys.exit()
+                elif event.key == pygame.K_v:
+                    size = int(0.3*len(globals.ROBOTS))
+                    for _ in range(size):
+                        globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
+                elif event.key == pygame.K_b:
+                    delete_class(1)
+                elif event.key == pygame.K_n:
+                    delete_class(2)
+                elif event.key == pygame.K_m:
+                    delete_class(3)
+
                 elif event.key == pygame.K_d:
                     self.DRAW_DECAY = not self.DRAW_DECAY
                     print("[Display] Toggle pheromone decay visualization")
