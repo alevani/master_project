@@ -56,6 +56,8 @@ import sys
 # IDEAS
 ########
 # ? MVC Refactor
+#! TODO have a file.close when sys.exit to makek sure no data is lost
+# TODO do the median and not the mean
 ### GLOBALS ###################################################################
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:f:e:")
@@ -195,7 +197,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-50)
+globals.NEST = Nest(-25)
 for _ in range(nb_robot):
     add_robot()
 
@@ -459,7 +461,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 10
+        globals.NEST.resource_need -= 12
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -502,7 +504,7 @@ while True:
         globals.CSV_FILE.write(txt+"\n")
 
     if exp_number == 2:
-        if globals.CNT >= 70000:
+        if globals.CNT >= 30000:
             import sys
             sys.exit()
     elif exp_number == 1:
