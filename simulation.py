@@ -427,13 +427,6 @@ while True:
 
         collided = robot.is_colliding(WORLD)
 
-        if robot.has_to_finish_task_before_stop:
-            # If not, the robot has terminated its task, it can be killed
-            if not robot.carry_resource:
-                globals.NEST.report(
-                    robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
-                globals.ROBOTS.pop(i)
-                break
         if ACT:
             DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
                 robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
@@ -460,6 +453,13 @@ while True:
         if collided:
             print("Robot {} collided, position reseted".format(robot.number))
             robot.reset()
+
+        if robot.has_to_finish_task_before_stop:
+            # If not, the robot has terminated its task, it can be killed
+            if not robot.carry_resource:
+                globals.NEST.report(
+                    robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                globals.ROBOTS.pop(i)
 
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
@@ -521,6 +521,7 @@ while True:
         if globals.CNT >= 30000:
             import sys
             sys.exit()
+
         # if globals.CNT == 10000:
         #     for _ in range(13):
         #         globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
@@ -528,19 +529,20 @@ while True:
         #     for _ in range(13):
         #         add_robot()
 
-        if globals.CNT == 10000:
+        if globals.CNT == 200:
             class_to_delete = 1
 
-            new_robot = []
+            keep_alive_robot = []
             for robot in globals.ROBOTS:
 
-                if not robot.task == class_to_delete or not robot.has_to_work():
-                    new_robot.append(robot)
+                if not robot.task == class_to_delete or (robot.task == class_to_delete and not robot.has_to_work()):
+                    keep_alive_robot.append(robot)
 
-                if robot.carry_resource and robot.task == class_to_delete:
+                elif robot.carry_resource and robot.task == class_to_delete:
                     robot.has_to_finish_task_before_stop = True
-                    new_robot.append(robot)
-                else:
+                    keep_alive_robot.append(robot)
+
+                elif robot.task == class_to_delete and robot.has_to_work():
                     globals.NEST.report(
                         robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
 
@@ -548,9 +550,9 @@ while True:
                     n_robot_to_add += 1
                     globals.ADD_AVAILABLE_INDEXES.append(robot.number)
 
-            globals.ROBOTS = new_robot
+            globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 20000:
+        if globals.CNT == 700:
             for _ in range(n_robot_to_add):
                 add_robot(1)
 
