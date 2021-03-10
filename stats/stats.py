@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('./r40rn25_DeleteAllCleaner_back_to_cleaner_drop_15.csv')
+file = open('./21.csv')
 
 
 foraging_need = []

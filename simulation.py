@@ -461,7 +461,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 12
+        globals.NEST.resource_need -= 9
 
     # Task helper
     if globals.CNT % 10 == 0:
