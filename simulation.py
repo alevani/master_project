@@ -466,7 +466,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 9
+        globals.NEST.resource_need -= 5
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -527,8 +527,8 @@ while True:
         # if globals.CNT == 20000:
         #     for _ in range(13):
         #         add_robot()
-        #! it feels like sometimes it deletes robot from another class right after the drop
-        if globals.CNT == 200:
+
+        if globals.CNT == 10000:
             class_to_delete = 1
 
             new_robot = []
@@ -550,7 +550,7 @@ while True:
 
             globals.ROBOTS = new_robot
 
-        if globals.CNT == 700:
+        if globals.CNT == 20000:
             for _ in range(n_robot_to_add):
                 add_robot(1)
 
