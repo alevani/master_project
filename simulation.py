@@ -3,7 +3,6 @@ import errno
 import os
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
-from GreedyTaskHandlerImproved import GreedyTaskHandlerImproved
 from GreedyTaskHandler import GreedyTaskHandler
 from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
@@ -203,7 +202,6 @@ for _ in range(nb_robot):
 
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
-GreedyTaskHandlerImproved = GreedyTaskHandlerImproved(TASKS)
 ###############################################################################
 
 
@@ -301,7 +299,6 @@ while True:
                     # TODO add a random task assignment that reassign every n time step? (that means no need for report or information sharing)
                     TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
-                    # GreedyTaskHandlerImproved.assign_task(robot) ->  maybe remove this one and use the random instead.
 
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
