@@ -34,10 +34,21 @@ def add_robot(task=0):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     postheta = randint(0, 360)
-    num = len(globals.ROBOTS) + 1
+
+    state = 0
+
+    if globals.ADD_AVAILABLE_INDEXES == []:
+        num = len(globals.ROBOTS) + 1
+        globals.NEST.robot_task_status.append(
+            RobotTaskStatus(0, False, 100))
+    else:
+        num = globals.ADD_AVAILABLE_INDEXES.pop()
+        globals.NEST.robot_task_status[num -
+                                       1] == RobotTaskStatus(task, True, 100)
+        state = 4
+
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, 0, 100))
-    globals.NEST.robot_task_status.append(RobotTaskStatus(num, 0, False, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, 100))
 
 
 def delete_robot():
@@ -67,6 +78,7 @@ class Robot:
         self.trashed_resources = 0
         self.resource_transformed = 0
         self.resource_stock = 0
+        self.has_to_finish_task_before_stop = False
 
         # Foraging  # Nest processing  # Cleaning
         self.TASKS_Q = [0, 0, 0]
@@ -180,7 +192,6 @@ class Robot:
 
     def trash_resource(self):
         self.trashed_resources += self.payload.value
-
         globals.POIs[self.payload.index].state = RESOURCE_STATE_WASTE
         self.payload.state = RESOURCE_STATE_WASTE
         self.drop_resource()

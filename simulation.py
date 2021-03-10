@@ -250,7 +250,7 @@ while True:
         VISUALIZER.draw_arena()
         VISUALIZER.draw_areas(AREAS)
 
-    for robot in globals.ROBOTS:
+    for i, robot in enumerate(globals.ROBOTS):
 
         # If the robot is out of power, don't process it
         if robot.battery_level <= 0:
@@ -427,6 +427,13 @@ while True:
 
         collided = robot.is_colliding(WORLD)
 
+        if robot.has_to_finish_task_before_stop:
+            # If not, the robot has terminated its task, it can be killed
+            if not robot.carry_resource:
+                globals.NEST.report(
+                    robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                globals.ROBOTS.pop(i)
+                break
         if ACT:
             DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
                 robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
@@ -520,19 +527,32 @@ while True:
         # if globals.CNT == 20000:
         #     for _ in range(13):
         #         add_robot()
+        #! it feels like sometimes it deletes robot from another class right after the drop
+        if globals.CNT == 200:
+            class_to_delete = 1
 
-        #! Delete and add will mess the output of the n_task_switch for data, but it is irelevant for this exp anyway.
-        if globals.CNT == 10000:
-            # TODO here if robot carry resource delete the demand from the nest
-            # or make sure he processes it before being popped out :)
-            new_robot = [
-                robot for robot in globals.ROBOTS if not robot.task == 3]
-            n_robot_to_add = len(globals.ROBOTS) - len(new_robot)
+            new_robot = []
+            for robot in globals.ROBOTS:
+
+                if not robot.task == class_to_delete or not robot.has_to_work():
+                    new_robot.append(robot)
+
+                if robot.carry_resource and robot.task == class_to_delete:
+                    robot.has_to_finish_task_before_stop = True
+                    new_robot.append(robot)
+                else:
+                    globals.NEST.report(
+                        robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+
+                if robot.task == class_to_delete and robot.has_to_work():
+                    n_robot_to_add += 1
+                    globals.ADD_AVAILABLE_INDEXES.append(robot.number)
+
             globals.ROBOTS = new_robot
 
-        if globals.CNT == 20000:
+        if globals.CNT == 700:
             for _ in range(n_robot_to_add):
-                add_robot(3)
+                add_robot(1)
 
     if ACT:
         pygame .display.flip()  # render drawing
