@@ -307,10 +307,11 @@ while True:
                         robot.n_task_switch += 1
 
                     globals.NEST.report(
-                        robot.number, robot.task, robot.has_to_work(), robot.battery_level)
+                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
 
                     robot.has_to_report = False
                     robot.time_to_task_report = 0
+                    robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
@@ -509,8 +510,6 @@ while True:
             sys.exit()
     elif exp_number == 1:
         if globals.NEST.total >= 30:
-            # if globals.NEST.total >= 5:
-            #! somehow this always stops one before ..
             import sys
             sys.exit()
 
@@ -527,6 +526,8 @@ while True:
 
         #! Delete and add will mess the output of the n_task_switch for data, but it is irelevant for this exp anyway.
         if globals.CNT == 10000:
+            # TODO here if robot carry resource delete the demand from the nest
+            # or make sure he processes it before being popped out :)
             new_robot = [
                 robot for robot in globals.ROBOTS if not robot.task == 3]
             n_robot_to_add = len(globals.ROBOTS) - len(new_robot)

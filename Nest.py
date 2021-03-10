@@ -1,4 +1,3 @@
-from RobotTaskStatus import RobotTaskStatus
 import globals
 
 
@@ -13,12 +12,21 @@ class Nest:
 
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.
-    def report(self, robot_number, robot_task, robot_has_to_work, robot_battery_level):
+    def report(self, robot_number, robot_task, robot_has_to_work, robot_battery_level, trashed_resources, resource_transformed, resource_stock):
         self.robot_task_status[robot_number - 1].task = robot_task
         self.robot_task_status[robot_number -
                                1].has_to_work = robot_has_to_work
         self.robot_task_status[robot_number -
                                1].battery_level = robot_battery_level
+
+        self.resource_transformed -= trashed_resources
+        self.total += trashed_resources
+
+        self.resource_stock -= resource_transformed
+        self.resource_transformed += resource_transformed
+
+        self.resource_need += resource_stock
+        self.resource_stock += resource_stock
 
     def energy(self, task):
         return sum([1 for robot in self.robot_task_status if robot.task == task and robot.has_to_work and robot.battery_level > 0])
