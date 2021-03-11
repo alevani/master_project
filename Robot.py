@@ -74,14 +74,13 @@ class Robot:
         self.SIMULATION_TIMESTEP = SIMULATION_TIMESTEP
         self.R = R
         self.L = L
+        self.payload_carry_time = 0
 
         self.trashed_resources = 0
         self.resource_transformed = 0
         self.resource_stock = 0
         self.has_to_finish_task_before_stop = False
 
-        # Foraging  # Nest processing  # Cleaning
-        self.TASKS_Q = [0, 0, 0]
         self.has_to_report = True
         self.time_to_task_report = 0
 
@@ -119,6 +118,14 @@ class Robot:
 
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
+
+        self.time_to_drop_out = 0
+        self.x = 2
+        self.task = 1
+        self.sensed_robot_information = None
+        self.x_low = 1
+        self.x_high = 1023
+        self.has_to_change_task_but_carry_resource = False
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
@@ -201,6 +208,9 @@ class Robot:
         globals.POIs[self.payload.index].state = RESOURCE_STATE_TRANSFORMED
         self.payload.state = RESOURCE_STATE_TRANSFORMED
         self.drop_resource()
+
+    def in_comm_range(self, position):
+        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def compute_resource(self):
 
