@@ -35,8 +35,6 @@ def add_robot(task=0):
     posy = randint(y_a, y_b)
     postheta = randint(0, 360)
 
-    state = 0
-
     if globals.ADD_AVAILABLE_INDEXES == []:
         num = len(globals.ROBOTS) + 1
         globals.NEST.robot_task_status.append(
@@ -45,10 +43,9 @@ def add_robot(task=0):
         num = globals.ADD_AVAILABLE_INDEXES.pop()
         globals.NEST.robot_task_status[num -
                                        1] == RobotTaskStatus(task, True, 100)
-        state = 4
 
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, 4, 100))
 
 
 def delete_robot():
