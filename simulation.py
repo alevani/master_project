@@ -518,7 +518,7 @@ while True:
             sys.exit()
 
     elif exp_number == 3:
-        if globals.CNT >= 30000:
+        if globals.CNT >= 20000:
             import sys
             sys.exit()
 
@@ -529,12 +529,13 @@ while True:
         #     for _ in range(13):
         #         add_robot()
 
-        if globals.CNT == 200:
+        if globals.CNT == 5000:
             class_to_delete = 1
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
 
+                # class_to_delete = randint(1, 3)
                 if not robot.task == class_to_delete or (robot.task == class_to_delete and not robot.has_to_work()):
                     keep_alive_robot.append(robot)
 
@@ -552,9 +553,10 @@ while True:
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 700:
+        if globals.CNT == 10000:
             for _ in range(n_robot_to_add):
                 add_robot(1)
+                # add_robot(randint(1, 3))
 
     if ACT:
         pygame .display.flip()  # render drawing
