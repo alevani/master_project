@@ -518,7 +518,7 @@ while True:
             sys.exit()
 
     elif exp_number == 3:
-        if globals.CNT >= 20000:
+        if globals.CNT >= 30000:
             import sys
             sys.exit()
 
