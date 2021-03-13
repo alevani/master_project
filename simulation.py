@@ -203,6 +203,20 @@ for _ in range(nb_robot):
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
 ###############################################################################
+# something a bit problematic here is that the ray does not stop when it touches
+# a robot which will lead into information shared throughout bodies (physically impossible)
+
+
+def comm(robot_rays, robot):
+    for r in globals.ROBOTS:
+        # Don't check ourselves
+        if r.number != robot.number:
+            if robot.in_comm_range(r.position):
+                for index, ray in enumerate(robot_rays):
+                    if r.is_sensing(ray):
+                        # TODO make sure the name correspond the task.
+                        r.memory.register(
+                            robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
 
 
 def get_proximity_sensors_values(robot_rays, robot):
@@ -267,48 +281,15 @@ while True:
         robot.stop()
         robot.sense_area(AREAS)
 
-        robot.time_to_task_report += 1
-        if robot.time_to_task_report % 600 == 0:
-            robot.time_to_task_report = 599  # ! maybe useless
-            robot.has_to_report = True
-
         if not robot.battery_low:
 
-            if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
-                robot.has_to_report = True
+            robot_old_task = robot.task
 
-            #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
-            #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
-            #! ob: when more demand than robot, no oscilliation
-            #! ob: when too much osc the robot struggles to complete a task because it is always pulled somewhere else.
-            # ? my tweak with the >=3 fixes it
-            #! obs: sometimes an ant nest processing can lose its task assignemnt by going outside the border and be replaced by another once.
-            #! that is the same issues as descibred line 276
-            #!obs: a robot with AITA will not change task unless its task's demand is satisfied first. even if the other task has hiiigh demand.
+            comm(robot_rays, robot)
+            TaskHandler.assign_task(robot)
 
-            if robot.has_to_report:
-                if robot.is_on_area(TYPE_HOME):
-                    robot.destination = None
-
-                    #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
-                    #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
-                    #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
-                    #! > and will keep its state ...
-                    # ? but is what I did the best option now? (go_and_stay_home)
-                    robot_old_task = robot.task
-                    # TODO add a random task assignment that reassign every n time step? (that means no need for report or information sharing)
-                    TaskHandler.assign_task(robot)
-                    # GreedyTaskHandler.assign_task(robot)
-
-                    if robot_old_task != robot.task:
-                        robot.n_task_switch += 1
-
-                    globals.NEST.report(
-                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
-
-                    robot.has_to_report = False
-                    robot.time_to_task_report = 0
-                    robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
+            if robot_old_task != robot.task:
+                robot.n_task_switch += 1
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
@@ -457,6 +438,7 @@ while True:
         if robot.has_to_finish_task_before_stop:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
+                # TODO this has to be changed in the current implementation
                 globals.NEST.report(
                     robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                 globals.ROBOTS.pop(i)
@@ -477,9 +459,8 @@ while True:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
-                  " | "+str(robot.time_to_task_report) +
-                  " | " + ("True" if robot.has_to_report else "False") +
                   " | " + str(robot.TASKS_Q) +
+                  " | " + str(robot.memory.demand_memory) +
                   " | " + str(robot.n_task_switch))
 
         task_assigned_unassigned = [TaskHandler.assigned(

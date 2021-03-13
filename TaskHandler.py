@@ -29,7 +29,7 @@ class TaskHandler:
             candidate = []
             for i, task in enumerate(self.TASKS):
 
-                if self.feedback(task) < 0:  # Task is in energy surplus
+                if self.feedback(robot, task) < 0:  # Task is in energy surplus
                     robot.TASKS_Q[i] = 0
                 else:  # Task is in energy deficit
                     #! the problem where all tasks are above three still occure
@@ -51,7 +51,7 @@ class TaskHandler:
                     robot.state = self.temp_worker
 
         elif robot.state == self.first_reserve:
-            if self.feedback(robot.task) < 0:
+            if self.feedback(robot, robot.task) < 0:
                 robot.state = self.resting
                 robot.rest()
             elif randint(0, 1):
@@ -59,21 +59,21 @@ class TaskHandler:
             else:
                 robot.state = self.second_reserve
         elif robot.state == self.second_reserve:
-            if self.feedback(robot.task) < 0:
+            if self.feedback(robot, robot.task) < 0:
                 robot.state = self.resting
                 robot.rest()
             else:
                 robot.state = self.temp_worker
 
         elif robot.state == self.temp_worker:
-            if self.feedback(robot.task) < 0:
+            if self.feedback(robot, robot.task) < 0:
                 # As long as the robot holds a resource, do not change its task.
                 if not robot.carry_resource:
                     robot.state = self.first_reserve
             else:
                 robot.state = self.core_worker
         elif robot.state == self.core_worker:
-            if self.feedback(robot.task) < 0:
+            if self.feedback(robot, robot.task) < 0:
                 robot.state = self.temp_worker
 
         if robot.has_to_work():
@@ -105,8 +105,5 @@ class TaskHandler:
             return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()])
 
     # Local Feedback function
-    def feedback(self, task):
-        #! that actually also says that, if the demand is 0 (can be also because there are enough ant on a task) then you should still be given a task, as you might be helpful
-        return 1 if globals.NEST.energy_status(task) >= 0 else -1
-        #! I think this is better because then it means that if a task has no needs no robot will be assigned to it
-        # return 1 if globals.NEST.energy_status(task) > 0 else -1
+    def feedback(self, robot, task):
+        return 1 if robot.memory.energy_status(task) >= 0 else -1

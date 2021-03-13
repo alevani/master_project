@@ -121,8 +121,11 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
-        self.demand = [-25, 0, 0]
         self.memory = RobotMemory()
+
+    def in_comm_range(self, position):
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 4 else False
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
@@ -508,9 +511,7 @@ class Robot:
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        if self.has_to_report and not self.carry_resource:
-            self.goto(MARKER_HOME, robot_prox_sensors_values)
-        elif self.has_destination():
+        if self.has_destination():
             self.goto(self.destination, robot_prox_sensors_values)
         else:
             if self.is_avoiding:
