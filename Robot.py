@@ -125,7 +125,7 @@ class Robot:
 
     def in_comm_range(self, position):
         # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 4 else False
-        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
+        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
@@ -198,19 +198,25 @@ class Robot:
         self.time_in_zone = 0
 
     def trash_resource(self):
+        # The global nest in the file are use for stats, no memory is globally shared
+        globals.NEST.resource_transformed -= self.payload.value
+        globals.NEST.total += self.payload.value
         self.trashed_resources += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_WASTE
         self.payload.state = RESOURCE_STATE_WASTE
         self.drop_resource()
 
     def transform_resource(self):
+        globals.NEST.resource_stock -= self.payload.value
+        globals.NEST.resource_transformed += self.payload.value
         self.resource_transformed += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_TRANSFORMED
         self.payload.state = RESOURCE_STATE_TRANSFORMED
         self.drop_resource()
 
     def compute_resource(self):
-
+        globals.NEST.resource_need += self.payload.value
+        globals.NEST.resource_stock += self.payload.value
         self.resource_stock += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_NEST_PROCESSING
 

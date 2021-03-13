@@ -438,9 +438,6 @@ while True:
         if robot.has_to_finish_task_before_stop:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
-                # TODO this has to be changed in the current implementation
-                globals.NEST.report(
-                    robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                 globals.ROBOTS.pop(i)
 
     if ACT:
@@ -448,6 +445,8 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
+        for robot in globals.ROBOTS:
+            robot.memory.demand_memory[0] -= 7
         globals.NEST.resource_need -= 7
 
     # Task helper
@@ -510,7 +509,7 @@ while True:
         #     for _ in range(13):
         #         add_robot()
 
-        if globals.CNT == 5000:
+        if globals.CNT == 200:
             class_to_delete = 1
 
             keep_alive_robot = []
@@ -524,20 +523,19 @@ while True:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                elif robot.task == class_to_delete and robot.has_to_work():
-                    globals.NEST.report(
-                        robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
-
                 if robot.task == class_to_delete and robot.has_to_work():
-                    n_robot_to_add += 1
-                    globals.ADD_AVAILABLE_INDEXES.append(robot.number)
+                    globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 10000:
-            for _ in range(n_robot_to_add):
-                add_robot(1)
-                # add_robot(randint(1, 3))
+        if globals.CNT == 700:
+            # here I cannot add them to a specific task, because they will
+            # take back the memory status they add from when they have been removed
+            #! maybe reset their position ? now they just take back from where they left..
+            globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
+            # for _ in range(n_robot_to_add):
+            #     add_robot(1)
+            #     # add_robot(randint(1, 3))
 
     if ACT:
         pygame .display.flip()  # render drawing
