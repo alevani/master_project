@@ -439,6 +439,7 @@ while True:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
                 globals.ROBOTS.pop(i)
+                robot.has_to_finish_task_before_stop = False
 
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
@@ -454,16 +455,20 @@ while True:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
         print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
+        task_assigned_unassigned = [TaskHandler.assigned(
+            t) for t in TASKS]
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
                   " | " + str(robot.TASKS_Q) +
+                  # TODO to adapt for each robot
+                  #   " | " + str(task_assigned_unassigned[0][0]) +
+                  #   " | " + str(task_assigned_unassigned[1][0]) +
+                  #   " | " + str(task_assigned_unassigned[2][0]) +
                   " | " + str(robot.memory.demand_memory) +
                   " | " + str(robot.n_task_switch))
 
-        task_assigned_unassigned = [TaskHandler.assigned(
-            t) for t in TASKS]
         TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
@@ -525,14 +530,15 @@ while True:
 
                 if robot.task == class_to_delete and robot.has_to_work():
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
-
             globals.ROBOTS = keep_alive_robot
 
         if globals.CNT == 700:
             # here I cannot add them to a specific task, because they will
             # take back the memory status they add from when they have been removed
             #! maybe reset their position ? now they just take back from where they left..
+
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
+
             # for _ in range(n_robot_to_add):
             #     add_robot(1)
             #     # add_robot(randint(1, 3))
