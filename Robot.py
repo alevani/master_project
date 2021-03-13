@@ -3,6 +3,7 @@ from copy import deepcopy
 from random import randint, random
 
 from RobotTaskStatus import RobotTaskStatus
+from RobotMemory import RobotMemory
 
 import shapely
 from numpy import cos, pi, sin, sqrt, zeros
@@ -119,6 +120,9 @@ class Robot:
 
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
+
+        self.demand = [-25, 0, 0]
+        self.memory = RobotMemory()
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
