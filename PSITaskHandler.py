@@ -24,10 +24,8 @@ class PSITaskHandler:
 
         partner_actual_x = r2.x
 
-        # d1 = globals.NEST.demand(r1.task)
-        # d2 = globals.NEST.demand(r2.task)
-        d1 = 1
-        d2 = 1
+        d1 = globals.NEST.demand(r1.task)
+        d2 = globals.NEST.demand(r2.task)
 
         """ That failed .. shouldn't have. since r2.x and r1.x are the same ratio should've been = to 1
         My guess: x are not a reflect of the actual task because I fucked up something with the report.
@@ -140,6 +138,7 @@ class PSITaskHandler:
 
     # OK
     def eq7(self, r):
+        robot_old_task = r.task
         """
         robot's task = 2
         robot's x = 361. 
@@ -155,5 +154,6 @@ class PSITaskHandler:
         # - self.lower_margin:
         elif r.task > 1 and r.x < self.th_values[r.task - 2]:
             r.task -= 1
-
+        if robot_old_task != r.task:
+            r.n_task_switch += 1
         r.color = self.COLORS[r.task]

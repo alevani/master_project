@@ -200,7 +200,7 @@ for _ in range(nb_point):
 
 globals.NEST = Nest(-25)
 for _ in range(nb_robot):
-    add_robot()
+    add_robot(1)
 
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
@@ -311,15 +311,12 @@ while True:
                     #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
-                    robot_old_task = robot.task
                     if robot.sensed_robot_information != None:
+
                         PSITaskHandler.eq3_4(
                             robot, robot.sensed_robot_information)
 
                         robot.sensed_robot_information = None  # Information consumed
-
-                    if robot_old_task != robot.task:
-                        robot.n_task_switch += 1
 
                     globals.NEST.report(
                         robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
@@ -541,24 +538,24 @@ while True:
         #         add_robot()
 
         if globals.CNT == 5000:
-            class_to_delete = 1
+            class_to_delete = 2
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
 
                 # class_to_delete = randint(1, 3)
-                if not robot.task == class_to_delete or (robot.task == class_to_delete and not robot.has_to_work()):
+                if not robot.task == class_to_delete:
                     keep_alive_robot.append(robot)
 
                 elif robot.carry_resource and robot.task == class_to_delete:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                elif robot.task == class_to_delete and robot.has_to_work():
+                elif robot.task == class_to_delete:
                     globals.NEST.report(
                         robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
 
-                if robot.task == class_to_delete and robot.has_to_work():
+                if robot.task == class_to_delete:
                     n_robot_to_add += 1
                     globals.ADD_AVAILABLE_INDEXES.append(robot.number)
 
@@ -566,7 +563,8 @@ while True:
 
         if globals.CNT == 10000:
             for _ in range(n_robot_to_add):
-                add_robot(1)
+                x = 230.4  # here mid value for task you want to delete and add on back
+                add_robot(2, x)
                 # add_robot(randint(1, 3))
 
     if ACT:
