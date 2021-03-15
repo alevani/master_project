@@ -252,7 +252,6 @@ def comm(robot_rays, robot):
         if partner[1] != None:
             #! is deterministic, maybe introduce some noise to be closer to the reality
             if partner[1].sensed_robot_information == None:
-                print()
                 # ? Does it really need to be wrapped in an object? high overhead.
                 partner[1].sensed_robot_information = PSISensedInformationPacket(
                     robot.x, robot.task)
