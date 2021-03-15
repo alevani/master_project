@@ -214,31 +214,22 @@ def get_proximity_sensors_values(robot_rays, robot):
         values.append(dist((point.x, point.y),
                            (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
-    # Robot detection
+    
     if globals.do_avoid:
-        for r in globals.ROBOTS:
-
-            # Don't check ourselves
-            if r.number != robot.number:
-
-                # in range is used to reduce the amount of robot the robot as to compare.
-                # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
-
-                if robot.in_range(r.position):
-
-                    # "If one of my rays can sense you, get the distance"
-                    for index, ray in enumerate(robot_rays):
+        for index,ray in enumerate(robot_rays):
+            for r in globals.ROBOTS:
+            
+                # Don't check ourselves
+                if r.number != robot.number:
+                    # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
+                    if robot.in_range(r.position):
                         if r.is_sensing(ray):
-
-                            # # ? TEST: if I don't have any last_foraging_point, maybe the robot that I am sensing has one?
-                            # # TODO delete if I choose to say "no communication within the robot what-so-ever"
-                            # if r.last_foraging_point != None and robot.last_foraging_point == None:
-                            #     robot.last_foraging_point = r.last_foraging_point
-
-                            p1, p2 = nearest_points(r.get_collision_box(), Point(
-                                robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                            values[index] = dist(
-                                (p1.x, p1.y), (p2.x, p2.y))
+                                p1, p2 = nearest_points(r.get_collision_box(), Point(
+                                    robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+                                
+                                values[index] = dist(
+                                    (p1.x, p1.y), (p2.x, p2.y))
+                                break
 
     return values
 
