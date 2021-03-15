@@ -218,38 +218,41 @@ def get_proximity_sensors_values(robot_rays, robot):
                            (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
     if globals.do_avoid:
-        for index,ray in enumerate(robot_rays):
+        for index, ray in enumerate(robot_rays):
             for r in globals.ROBOTS:
-            
+
                 # Don't check ourselves
                 if r.number != robot.number:
                     # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
                     if robot.in_range(r.position):
                         if r.is_sensing(ray):
-                                p1, p2 = nearest_points(r.get_collision_box(), Point(
-                                    robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                                
-                                values[index] = dist(
-                                    (p1.x, p1.y), (p2.x, p2.y))
-                                break
+                            p1, p2 = nearest_points(r.get_collision_box(), Point(
+                                robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+
+                            values[index] = dist(
+                                (p1.x, p1.y), (p2.x, p2.y))
 
     return values
 
 
-def broadcast(robot_rays, robot):
-    for r in globals.ROBOTS:
-        # Don't check ourselves
-        if r.number != robot.number:
-            #! my robot cannot really go up to 50cm, is it clever to keep going even if so ..?
-            if robot.in_comm_range(r.position):
-                for index, ray in enumerate(robot_rays):
-                    if r.is_sensing(ray):
+def comm(robot_rays, robot):
 
-                        #! is deterministic, maybe introduce some noise to be closer to the reality
-                        if r.sensed_robot_information == None:
-                            # ? Does it really need to be wrapped in an object? high overhead.
-                            r.sensed_robot_information = PSISensedInformationPacket(
-                                robot.x, robot.task)
+    for index, ray in enumerate(robot_rays):
+        partner = [10000, None]
+        for r in globals.ROBOTS:
+            if r.number != robot.number:
+                if robot.in_comm_range(r.position):
+                    if r.is_sensing(ray):
+                        p1, p2 = nearest_points(r.get_collision_box(), Point(
+                            robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+                        distance_p1_p2 = dist((p1.x, p1.y), (p2.x, p2.y))
+                        if distance_p1_p2 < partner[0]:
+                            partner = [distance_p1_p2, r]
+
+        if partner[1] != None:
+            # Share the information to the closest robot (as information cannot traverse robot)
+            partner[1].memory.register(
+                robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
 
 
 while True:
@@ -319,7 +322,7 @@ while True:
             PSITaskHandler.eq5(robot)
 
             # Broadcast x and task
-            broadcast(robot_rays, robot)
+            comm(robot_rays, robot)
 
             # Don't switch off task if you are carrying a resouce.
             # PSITaskHandler.eq7(robot)
