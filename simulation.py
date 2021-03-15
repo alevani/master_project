@@ -250,9 +250,12 @@ def comm(robot_rays, robot):
                             partner = [distance_p1_p2, r]
 
         if partner[1] != None:
-            # Share the information to the closest robot (as information cannot traverse robot)
-            partner[1].memory.register(
-                robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+            #! is deterministic, maybe introduce some noise to be closer to the reality
+            if partner[1].sensed_robot_information == None:
+                print()
+                # ? Does it really need to be wrapped in an object? high overhead.
+                partner[1].sensed_robot_information = PSISensedInformationPacket(
+                    robot.x, robot.task)
 
 
 while True:
