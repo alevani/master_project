@@ -504,9 +504,7 @@ class Robot:
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        if self.has_to_report and not self.carry_resource:
-            self.goto(MARKER_HOME, robot_prox_sensors_values)
-        elif self.has_destination():
+        if self.has_destination():
             self.goto(self.destination, robot_prox_sensors_values)
         else:
             if self.is_avoiding:
