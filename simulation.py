@@ -214,22 +214,20 @@ def get_proximity_sensors_values(robot_rays, robot):
         values.append(dist((point.x, point.y),
                            (robot.proximity_sensors[index].x, robot.proximity_sensors[index].y)))
 
-    
     if globals.do_avoid:
-        for index,ray in enumerate(robot_rays):
+        for index, ray in enumerate(robot_rays):
             for r in globals.ROBOTS:
-            
+
                 # Don't check ourselves
                 if r.number != robot.number:
                     # TODO I could change to a polygone of the shape of the front row detection, I would have less to check :)
                     if robot.in_range(r.position):
                         if r.is_sensing(ray):
-                                p1, p2 = nearest_points(r.get_collision_box(), Point(
-                                    robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                                
-                                values[index] = dist(
-                                    (p1.x, p1.y), (p2.x, p2.y))
-                                break
+                            p1, p2 = nearest_points(r.get_collision_box(), Point(
+                                robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+
+                            values[index] = dist(
+                                (p1.x, p1.y), (p2.x, p2.y))
 
     return values
 
