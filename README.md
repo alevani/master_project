@@ -1,6 +1,8 @@
 # Ant-Inspired Task Allocation Implementation.
 Ant-Inspired Task Allocation Model Within a Swarm of Homogeneous Simulated Robotic-Agents
 
+> WARNING: Only the main branch and the fully-distributed TA branch are (or supposed to be) "bugless". The other branch works for the implementation but are not to reproduce for your own work as they might contain some sketchy but time saving workaround.
+
 ## What can be observed
 The robot are dispatch from a starting point in an Arena. Their task is selected following the Task allocation model proposed in this paper: https://ssr.seas.harvard.edu/files/ssr/files/disc14-cornejo.pdf.
 Throughout the simulation, Forager will collect resource from the outside world and gather them in the home area (blue). Then, nest processors will process the resource and move it to the cleaning area (pink) for it to e picked up and move to the waste area (orange).
