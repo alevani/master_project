@@ -258,7 +258,7 @@ while True:
 
         robot.time_to_task_report += 1
         if robot.time_to_task_report % 600 == 0:
-            robot.time_to_task_report = 599  # ! maybe useless
+            robot.time_to_task_report = 599
             robot.has_to_report = True
 
         if not robot.battery_low:
@@ -285,7 +285,7 @@ while True:
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
                     robot_old_task = robot.task
-                    # TODO add a random task assignment that reassign every n time step? (that means no need for report or information sharing)
+
                     TaskHandler.assign_task(robot)
                     # GreedyTaskHandler.assign_task(robot)
 
