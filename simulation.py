@@ -253,8 +253,7 @@ def comm(robot_rays, robot):
             #! is deterministic, maybe introduce some noise to be closer to the reality
             if partner[1].sensed_robot_information == None:
                 # ? Does it really need to be wrapped in an object? high overhead.
-                partner[1].sensed_robot_information = PSISensedInformationPacket(
-                    robot.x, robot.task)
+                partner[1].sensed_robot_information = r
 
 
 while True:
@@ -289,6 +288,7 @@ while True:
         # This is because sometimes the robot would not change it task because it was carrying a resource
         # but its x would change anyway and then the X wouldn't match the segment of the task the robot is in
         if robot.has_to_change_task_but_carry_resource and not robot.carry_resource:
+            robot.task = robot.saved_task
             PSITaskHandler.eq7(robot)
             robot.has_to_change_task_but_carry_resource = False
 
@@ -331,7 +331,10 @@ while True:
             if not robot.carry_resource:
                 PSITaskHandler.eq7(robot)
             else:
-                # ? would I need to backup the x I get from here and use it instead of the one I get when I am ready to switch?
+                old_task = robot.task
+                PSITaskHandler.eq7(robot)
+                robot.saved_task = robot.task
+                robot.task = old_task
                 robot.has_to_change_task_but_carry_resource = True
 
             if robot.task == foraging:

@@ -1,4 +1,5 @@
 from random import random
+from math import ceil
 import globals
 
 # Code heavily inspired from the received code of the author of the paper
@@ -9,7 +10,8 @@ class PSITaskHandler:
     def __init__(self):
         self.Xmin = 0
         self.Xmax = 512
-        self.th_values = [int(0.3 * self.Xmax), int(0.6 * self.Xmax)]
+        self.th_values = [ceil(0.333333 * self.Xmax),
+                          ceil(0.6666666 * self.Xmax)]
         self.delta = 12  # was 1
         self.phi_base = 0.3  # was 0.3
 
@@ -24,8 +26,10 @@ class PSITaskHandler:
 
         partner_actual_x = r2.x
 
-        d1 = globals.NEST.demand(r1.task)
-        d2 = globals.NEST.demand(r2.task)
+        d1 = globals.NEST.demand(
+            r1.task if not r1.has_to_change_task_but_carry_resource else r1.saved_task)
+        d2 = globals.NEST.demand(
+            r2.task if not r2.has_to_change_task_but_carry_resource else r2.saved_task)
 
         """ That failed .. shouldn't have. since r2.x and r1.x are the same ratio should've been = to 1
         My guess: x are not a reflect of the actual task because I fucked up something with the report.
@@ -139,21 +143,57 @@ class PSITaskHandler:
     # OK
     def eq7(self, r):
         robot_old_task = r.task
+
         """
         robot's task = 2
-        robot's x = 361. 
+        robot's x = 361.
         but 2 : 153 < x 309
         """
+
+        # print(r.task)
+        # print(r.x)
+
         # < 4 because the experiment has 3 tasks
         # + self.upper_margin:
-        if r.task < 3 and r.x > self.th_values[r.task-1]:
-            r.task += 1
+        #! problem is that the robot can jump of two segment
+        #! SO I will add more test because it's true delta can actually be high.
+        #! I think they did not really fall upon that problem because they never tried with such a big delta
+        # if r.task < 3 and r.x > self.th_values[r.task-1]:
+        #     r.task += 1
 
-        # >0 because we need the task to be at least 1
-        # t.task = 2 150 < 153
-        # - self.lower_margin:
-        elif r.task > 1 and r.x < self.th_values[r.task - 2]:
-            r.task -= 1
+        # # >0 because we need the task to be at least 1
+        # # t.task = 2 150 < 153
+        # # - self.lower_margin:
+        # elif r.task > 1 and r.x < self.th_values[r.task - 2]:
+        #     r.task -= 1
+
+        if r.x < self.th_values[0]:
+            r.task = 1
+        elif (r.x > self.th_values[0] and r.x < self.th_values[1]):
+            r.task = 2
+        elif r.x > self.th_values[1]:
+            r.task = 3
+
+        fail = False
+        if r.task == 1:
+            if not r.x < self.th_values[0]:
+                fail = True
+        elif r.task == 2:
+            if not (r.x > self.th_values[0] and r.x < self.th_values[1]):
+                fail = True
+        elif r.task == 3:
+            if not (r.x > self.th_values[1]):
+                fail = True
+        if fail:
+            print("----")
+            print(r.task)
+            print(r.x)
+            print(self.th_values[0])
+            print(self.th_values[1])
+
+            import sys
+            sys.exit()
+
         if robot_old_task != r.task:
             r.n_task_switch += 1
         r.color = self.COLORS[r.task]
