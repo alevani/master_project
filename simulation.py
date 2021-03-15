@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from const import PROXIMITY_SENSORS_POSITION, BOTTOM_LIGHT_SENSORS_POSITION, BLACK, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L
 import errno
 import os
 from random import uniform
@@ -201,7 +200,6 @@ globals.NEST = Nest(-25)
 for _ in range(nb_robot):
     add_robot()
 
-
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
 ###############################################################################
@@ -210,8 +208,9 @@ GreedyTaskHandler = GreedyTaskHandler(TASKS)
 
 
 def comm(robot_rays, robot):
+
     for index, ray in enumerate(robot_rays):
-        partner = None
+        partner = [10000, None]
         for r in globals.ROBOTS:
             if r.number != robot.number:
                 if robot.in_comm_range(r.position):
@@ -219,13 +218,10 @@ def comm(robot_rays, robot):
                         p1, p2 = nearest_points(r.get_collision_box(), Point(
                             robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
                         distance_p1_p2 = dist((p1.x, p1.y), (p2.x, p2.y))
-
-                        if not partner == None and distance_p1_p2 < partner[0]:
-                            partner = [distance_p1_p2, r]
-                        else:
+                        if distance_p1_p2 < partner[0]:
                             partner = [distance_p1_p2, r]
 
-        if not partner == None:
+        if partner[1] != None:
             # Share the information to the closest robot (as information cannot traverse robot)
             partner[1].memory.register(
                 robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
@@ -537,12 +533,9 @@ while True:
             # here I cannot add them to a specific task, because they will
             # take back the memory status they add from when they have been removed
             #! maybe reset their position ? now they just take back from where they left..
-
+            for r in globals.ADD_AVAILABLE_ROBOTS:
+                r.reset()
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
-
-            # for _ in range(n_robot_to_add):
-            #     add_robot(1)
-            #     # add_robot(randint(1, 3))
 
     if ACT:
         pygame .display.flip()  # render drawing
