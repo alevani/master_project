@@ -36,6 +36,7 @@ def add_robot(task=0):
     postheta = randint(0, 360)
 
     state = 0
+    task_report_time = 0
 
     if globals.ADD_AVAILABLE_INDEXES == []:
         num = len(globals.ROBOTS) + 1
@@ -46,9 +47,10 @@ def add_robot(task=0):
         globals.NEST.robot_task_status[num -
                                        1] == RobotTaskStatus(task, True, 100)
         state = 4
+        task_report_time = 600
 
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, 100, task_report_time))
 
 
 def delete_robot():
@@ -57,7 +59,7 @@ def delete_robot():
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level, task_report_time=0):
         self.number = number
         self.last_foraging_point = None
         self.color = color
@@ -83,7 +85,7 @@ class Robot:
         # Foraging  # Nest processing  # Cleaning
         self.TASKS_Q = [0, 0, 0]
         self.has_to_report = True
-        self.time_to_task_report = 0
+        self.time_to_task_report = task_report_time
 
         self.payload = None
         self.area_left = -1
@@ -191,20 +193,22 @@ class Robot:
         self.time_in_zone = 0
 
     def trash_resource(self):
-        self.trashed_resources += self.payload.value
+        globals.NEST.resource_transformed -= self.payload.value
+        globals.NEST.total += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_WASTE
         self.payload.state = RESOURCE_STATE_WASTE
         self.drop_resource()
 
     def transform_resource(self):
-        self.resource_transformed += self.payload.value
+        globals.NEST.resource_stock -= self.payload.value
+        globals.NEST.resource_transformed += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_TRANSFORMED
         self.payload.state = RESOURCE_STATE_TRANSFORMED
         self.drop_resource()
 
     def compute_resource(self):
-
-        self.resource_stock += self.payload.value
+        globals.NEST.resource_need += self.payload.value
+        globals.NEST.resource_stock += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_NEST_PROCESSING
 
         self.destination = self.last_foraging_point

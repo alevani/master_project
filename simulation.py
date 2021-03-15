@@ -261,7 +261,7 @@ while True:
         if not robot.battery_low:
 
             if robot.time_to_task_report <= 0:
-                #! should I switch task if not the case?
+
                 if not robot.carry_resource:
                     robot_old_task = robot.task
                     RandomTaskHandler.assign_task(robot)
@@ -269,9 +269,6 @@ while True:
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
                     robot.time_to_task_report = 600
-                # if the robot carry a resource, it will pass in the first if
-                # each time anyway. When he drop its resource it goes in the second
-                # and its timer is dropped back to 600
             else:
                 robot.time_to_task_report -= 1
 
@@ -494,31 +491,26 @@ while True:
         #     for _ in range(13):
         #         add_robot()
 
-        if globals.CNT == 5000:
+        if globals.CNT == 10000:
             class_to_delete = 1
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
 
-                # class_to_delete = randint(1, 3)
-                if not robot.task == class_to_delete or (robot.task == class_to_delete and not robot.has_to_work()):
+                if not robot.task == class_to_delete:
                     keep_alive_robot.append(robot)
 
                 elif robot.carry_resource and robot.task == class_to_delete:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                elif robot.task == class_to_delete and robot.has_to_work():
-                    globals.NEST.report(
-                        robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
-
-                if robot.task == class_to_delete and robot.has_to_work():
+                if robot.task == class_to_delete:
                     n_robot_to_add += 1
                     globals.ADD_AVAILABLE_INDEXES.append(robot.number)
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 10000:
+        if globals.CNT == 15000:
             for _ in range(n_robot_to_add):
                 add_robot(1)
                 # add_robot(randint(1, 3))
