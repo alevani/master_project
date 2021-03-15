@@ -274,6 +274,7 @@ while True:
             #! obs: sometimes an ant nest processing can lose its task assignemnt by going outside the border and be replaced by another once.
             #! that is the same issues as descibred line 276
             #!obs: a robot with AITA will not change task unless its task's demand is satisfied first. even if the other task has hiiigh demand.
+            #!obs seems to bring a lot of congestion since they are all trying to go at the same place
 
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
@@ -286,8 +287,8 @@ while True:
                     # ? but is what I did the best option now? (go_and_stay_home)
                     robot_old_task = robot.task
 
-                    TaskHandler.assign_task(robot)
-                    # GreedyTaskHandler.assign_task(robot)
+                    # TaskHandler.assign_task(robot)
+                    GreedyTaskHandler.assign_task(robot)
 
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
