@@ -209,6 +209,16 @@ GreedyTaskHandler = GreedyTaskHandler(TASKS)
 
 def comm(robot_rays, robot):
 
+    # Comm that covers the entire Arena. (sends the information to itself so it can register it in its memory)
+    # Has not been implemented but that is a nice and easy way to do it
+    # for r in globals.ROBOTS:
+    #     r.register(robot.number, robot.task, robot.has_to_work(), [
+    #         robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+
+    # Register its own status
+    robot.memory.register(robot.number, robot.task, robot.has_to_work(), [
+                          robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+
     for index, ray in enumerate(robot_rays):
         partner = [10000, None]
         for r in globals.ROBOTS:
