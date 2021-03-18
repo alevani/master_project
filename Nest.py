@@ -32,6 +32,7 @@ class Nest:
         return sum([1 for robot in self.robot_task_status if robot.task == task and robot.has_to_work and robot.battery_level > 0])
 
     def demand(self, task):
+        print(task)
         if task == 1:
             return self.resource_need * -1
         elif task == 2:

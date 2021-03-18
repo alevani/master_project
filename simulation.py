@@ -200,7 +200,7 @@ for _ in range(nb_point):
 
 globals.NEST = Nest(-25)
 for _ in range(globals.NB_ROBOTS):
-    add_robot()
+    add_robot(1)
 
 TaskHandler = TaskHandler(TASKS)
 PSITaskHandler = PSITaskHandler()
@@ -473,6 +473,7 @@ while True:
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+TASKS_NAME[robot.task - 1] +
+                  " | " + str(robot.memory.demand_memory) +
                   " | "+str(robot.x) +
                   " | "+str(robot.x_high) +
                   " | "+str(robot.x_low))
@@ -503,55 +504,44 @@ while True:
 
         globals.CSV_FILE.write(txt+"\n")
 
-    if exp_number == 2:
-        if globals.CNT >= 30000:
-            import sys
-            sys.exit()
-    elif exp_number == 1:
-        if globals.NEST.total >= 30:
-            import sys
-            sys.exit()
+        if exp_number == 2:
+            if globals.CNT >= 30000:
+                import sys
+                sys.exit()
+        elif exp_number == 1:
+            if globals.NEST.total >= 30:
+                import sys
+                sys.exit()
 
-    elif exp_number == 3:
-        if globals.CNT >= 10000:
-            import sys
-            sys.exit()
+        elif exp_number == 3:
+            if globals.CNT >= 10000:
+                import sys
+                sys.exit()
 
-        # if globals.CNT == 10000:
-        #     for _ in range(13):
-        #         globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
-        # if globals.CNT == 20000:
-        #     for _ in range(13):
-        #         add_robot()
+            
+            if globals.CNT == 200:
+                class_to_delete = 1
 
-        if globals.CNT == 5000:
-            class_to_delete = 2
+                keep_alive_robot = []
+                for robot in globals.ROBOTS:
 
-            keep_alive_robot = []
-            for robot in globals.ROBOTS:
+                    # class_to_delete = randint(1, 3)
+                    if not robot.task == class_to_delete:
+                        keep_alive_robot.append(robot)
 
-                # class_to_delete = randint(1, 3)
-                if not robot.task == class_to_delete:
-                    keep_alive_robot.append(robot)
+                    elif robot.carry_resource and robot.task == class_to_delete:
+                        robot.has_to_finish_task_before_stop = True
+                        keep_alive_robot.append(robot)
 
-                elif robot.carry_resource and robot.task == class_to_delete:
-                    robot.has_to_finish_task_before_stop = True
-                    keep_alive_robot.append(robot)
+                    elif robot.task == class_to_delete:
+                        globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
-                elif robot.task == class_to_delete:
-                    globals.NEST.report(
-                        robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                globals.ROBOTS = keep_alive_robot
 
-                if robot.task == class_to_delete:
-                    n_robot_to_add += 1
-                    globals.ADD_AVAILABLE_INDEXES.append(robot.number)
-
-            globals.ROBOTS = keep_alive_robot
-
-        if globals.CNT == 10000:
-            for _ in range(n_robot_to_add):
-                x = 230.4  # here mid value for task you want to delete and add on back
-                add_robot(2, x)
+            if globals.CNT == 700:
+                for r in globals.ADD_AVAILABLE_ROBOTS:
+                    r.reset()
+                globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
         pygame .display.flip()  # render drawing

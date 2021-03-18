@@ -113,6 +113,7 @@ class Robot:
         self.start_position = position
         self.draw_information = []
         self.path = []
+        self.payload_carry_time = 0
 
         self.n_task_switch = 0
 

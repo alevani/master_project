@@ -29,19 +29,6 @@ class PSITaskHandler:
         d2 = r1.memory.demand(
             r2[1] if not r2[2] else r2[3])
 
-        """ That failed .. shouldn't have. since r2[0] and r1.x are the same ratio should've been = to 1
-        My guess: x are not a reflect of the actual task because I fucked up something with the report.
-        Resources: 428 | 19
-        Nest Maintenance: 231 | 13
-        Brood Care: 203 | 18
-        Total:  24
-        Total distance: 4359 cm
-        0.8787878787878788
-        2
-        309.9978488561499
-        3
-        309.9978488561499
-        """
         if d1 == d2:
             ratio = 1
         elif d1 < 1 or d2 < 1:
