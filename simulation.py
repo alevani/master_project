@@ -430,7 +430,7 @@ while True:
             DRAW_bottom_sensor_position = [(robot.bottom_sensors[0].x, robot.bottom_sensors[0].y), (
                 robot.bottom_sensors[1].x, robot.bottom_sensors[1].y)]
 
-            VISUALIZER.draw(robot.position, robot.color, globals.CNT,
+            VISUALIZER.draw(robot.position, robot.color,
                             robot.path, robot.get_collision_box_coordinate(), [], DRAW_proximity_sensor_position, DRAW_bottom_sensor_position, robot_bottom_sensor_states, robot.number)
 
         # Decrease robot's battery .. Nothing much accurate to real world, but it is part of robotic problems
@@ -462,7 +462,7 @@ while True:
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
-
+    VISUALIZER.draw_cnt(globals.CNT)
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
             robot.memory.demand_memory[0] -= 7

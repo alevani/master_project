@@ -277,12 +277,13 @@ class Visualizator:
             pygame.draw.circle(self.screen, color,
                                self.scale(point.position.x, point.position.y), self.zoom//2+1)
 
-    def draw(self, pos, color, i, path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, n):
+    def draw_cnt(self, cnt):
+        counter = self.font.render(str(cnt), True, RED, WHITE)
+        self.screen.blit(counter, (self.MARGIN_W, self.MARGIN_H))
+
+    def draw(self, pos, color,  path, box, sstate, spos, bottom_sensor_position, bottom_sensor_state, n):
         self.draw_robot(self.scale(pos.x, pos.y),
                         pos.theta, color, n)
-
-        counter = self.font.render(str(i), True, RED, WHITE)
-        self.screen.blit(counter, (self.MARGIN_W, self.MARGIN_H))
 
         if self.DRAW_BOTTOM_SENSORS:
             self.draw_bottom_sensors(
