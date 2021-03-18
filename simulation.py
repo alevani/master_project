@@ -220,11 +220,6 @@ def comm(robot_rays, robot):
             r.try_register((robot.number, robot.task, robot.has_to_work(), [
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
 
-    # for r in globals.ROBOTS:
-
-    #     r.memory.register(robot.number, robot.task, robot.has_to_work(), [
-    #         robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
-
     # # Register its own status
     # robot.memory.register(robot.number, robot.task, robot.has_to_work(), [
     #                       robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
@@ -243,8 +238,8 @@ def comm(robot_rays, robot):
 
     #     if partner[1] != None:
     #         # Share the information to the closest robot (as information cannot traverse robot)
-    #         partner[1].memory.register(
-    #             robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+    #         partner[1].try_register((
+    #             robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
 
 
 def get_proximity_sensors_values(robot_rays, robot):
