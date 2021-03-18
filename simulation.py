@@ -64,7 +64,6 @@ except getopt.GetoptError:
     print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
     sys.exit(2)
 
-nb_robot = 0
 nb_point = 0
 ACT = None
 battery_effects = None
@@ -77,7 +76,8 @@ for opt, arg in opts:
         sys.exit(2)
 
     if opt == "-r":
-        nb_robot = int(arg)
+        globals.NB_ROBOTS = int(arg)
+
     elif opt == "-p":
         nb_point = int(arg)
     elif opt == "-s":
@@ -197,7 +197,7 @@ for _ in range(nb_point):
 
 
 globals.NEST = Nest(-25)
-for _ in range(nb_robot):
+for _ in range(globals.NB_ROBOTS):
     add_robot()
 
 TaskHandler = TaskHandler(TASKS)
@@ -208,33 +208,43 @@ GreedyTaskHandler = GreedyTaskHandler(TASKS)
 
 
 def comm(robot_rays, robot):
-
+    '''
+    Broadcast your information to everyone. 
+    '''
     # Comm that covers the entire Arena. (sends the information to itself so it can register it in its memory)
-    # Has not been implemented but that is a nice and easy way to do it
+    for r in globals.ROBOTS:
+        if r.number == robot.number:
+            r.memory.register(robot.number, robot.task, robot.has_to_work(), [
+                robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+        else:
+            r.try_register((robot.number, robot.task, robot.has_to_work(), [
+                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
+
     # for r in globals.ROBOTS:
+
     #     r.memory.register(robot.number, robot.task, robot.has_to_work(), [
     #         robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
 
-    # Register its own status
-    robot.memory.register(robot.number, robot.task, robot.has_to_work(), [
-                          robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+    # # Register its own status
+    # robot.memory.register(robot.number, robot.task, robot.has_to_work(), [
+    #                       robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
 
-    for index, ray in enumerate(robot_rays):
-        partner = [10000, None]
-        for r in globals.ROBOTS:
-            if r.number != robot.number:
-                if robot.in_comm_range(r.position):
-                    if r.is_sensing(ray):
-                        p1, p2 = nearest_points(r.get_collision_box(), Point(
-                            robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-                        distance_p1_p2 = dist((p1.x, p1.y), (p2.x, p2.y))
-                        if distance_p1_p2 < partner[0]:
-                            partner = [distance_p1_p2, r]
+    # for index, ray in enumerate(robot_rays):
+    #     partner = [10000, None]
+    #     for r in globals.ROBOTS:
+    #         if r.number != robot.number:
+    #             if robot.in_comm_range(r.position):
+    #                 if r.is_sensing(ray):
+    #                     p1, p2 = nearest_points(r.get_collision_box(), Point(
+    #                         robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
+    #                     distance_p1_p2 = dist((p1.x, p1.y), (p2.x, p2.y))
+    #                     if distance_p1_p2 < partner[0]:
+    #                         partner = [distance_p1_p2, r]
 
-        if partner[1] != None:
-            # Share the information to the closest robot (as information cannot traverse robot)
-            partner[1].memory.register(
-                robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
+    #     if partner[1] != None:
+    #         # Share the information to the closest robot (as information cannot traverse robot)
+    #         partner[1].memory.register(
+    #             robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
 
 
 def get_proximity_sensors_values(robot_rays, robot):
@@ -293,6 +303,12 @@ while True:
             robot_old_task = robot.task
 
             comm(robot_rays, robot)
+
+            if robot.network_packet != None:
+                robot.consume_network_packet()
+
+            robot.memory.step()
+
             TaskHandler.assign_task(robot)
 
             if robot_old_task != robot.task:
@@ -510,7 +526,7 @@ while True:
             sys.exit()
 
     elif exp_number == 3:
-        if globals.CNT >= 30000:
+        if globals.CNT >= 10000:
             import sys
             sys.exit()
 
@@ -521,8 +537,8 @@ while True:
         #     for _ in range(13):
         #         add_robot()
 
-        if globals.CNT == 200:
-            class_to_delete = 1
+        if globals.CNT == 2500:
+            class_to_delete = 2
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
@@ -539,7 +555,7 @@ while True:
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 700:
+        if globals.CNT == 6000:
             # here I cannot add them to a specific task, because they will
             # take back the memory status they add from when they have been removed
             #! maybe reset their position ? now they just take back from where they left..

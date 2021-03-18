@@ -59,6 +59,7 @@ class Robot:
         self.last_foraging_point = None
         self.color = color
         self.task = task
+        self.network_packet = None
         self.destination = None
         self.state = state
         self.battery_level = battery_level
@@ -117,7 +118,7 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
-        self.memory = RobotMemory()
+        self.memory = RobotMemory(self.number)
 
     def in_comm_range(self, position):
         # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 4 else False
@@ -192,6 +193,18 @@ class Robot:
         self.payload = None
         self.time_to_drop_out = 0
         self.time_in_zone = 0
+
+    def consume_network_packet(self):
+        self.memory.register(*self.network_packet)
+        self.network_packet = None
+
+    def try_register(self, pkg):
+
+        # can register is used to simulate somehow a bit of randomness if the receive of the data
+        if self.network_packet == None and self.memory.can_register(pkg[0]):
+            # if self.number == 1:
+            #     print(str(pkg[0]) + ",")
+            self.network_packet = pkg
 
     def trash_resource(self):
         # The global nest in the file are use for stats, no memory is globally shared

@@ -2,6 +2,7 @@ ROBOTS = []
 CNT = 0
 M = 2
 
+NB_ROBOTS = 0
 
 # point of interest
 POIs = []
