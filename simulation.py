@@ -462,7 +462,7 @@ while True:
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
-    VISUALIZER.draw_cnt(globals.CNT)
+        VISUALIZER.draw_cnt(globals.CNT)
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
             robot.memory.demand_memory[0] -= 7
