@@ -83,7 +83,7 @@ class TaskHandler:
 
     def print_stats(self, assignments):
         print("******* NEST *******")
-        print("Resources: " + str(globals.NEST.resource_need) +
+        print("Resources: " + str(globals.NEST.resource_need * -1) +
               " | " + str(assignments[0][0]))
         print("Nest processing: " +
               str(globals.NEST.resource_stock) + " | " + str(assignments[1][0]))
