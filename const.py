@@ -11,6 +11,8 @@ BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 125, 0)
 
+COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
+          (0, 0, 255), (125, 125, 125)]
 # Speed of robot in simulation, keep FPS at 60 and only change the below variable to variate the speed
 ROBOT_TIMESTEP = 1
 SIMULATION_TIMESTEP = .01

@@ -39,6 +39,7 @@ from const import Y_upper_bound
 from const import MARKER_HOME
 from const import TYPE_HOME
 from const import scaleup
+from const import COLORS
 from const import dist
 from const import W
 from const import H
@@ -220,7 +221,7 @@ def comm(robot_rays, robot):
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
         else:
             r.try_register((robot.number, robot.task, robot.has_to_work(), [
-                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), (robot.x, robot.task, robot.has_to_change_task_but_carry_resource, robot.saved_task))
+                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), (robot.x))
 
 
 def get_proximity_sensors_values(robot_rays, robot):
@@ -295,6 +296,7 @@ while True:
 
             comm(robot_rays, robot)
             robot.memory.step()
+            robot.color = COLORS[robot.task]
 
             # Don't switch off task if you are carrying a resouce.
             if not robot.carry_resource:
@@ -518,7 +520,6 @@ while True:
                 import sys
                 sys.exit()
 
-            
             if globals.CNT == 200:
                 class_to_delete = 1
 

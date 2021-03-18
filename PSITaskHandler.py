@@ -12,24 +12,29 @@ class PSITaskHandler:
         self.Xmax = 512
         self.th_values = [ceil(0.333333 * self.Xmax),
                           ceil(0.6666666 * self.Xmax)]
-        self.delta = 12  # was 1
+        self.delta = 25  # was 1
         self.phi_base = 0.3  # was 0.3
 
         # ? do these numbers have to be coherent with how high my task demand can go?
         self.lower_margin = 3
         self.upper_margin = 3
 
-        self.COLORS = [(0, 0, 0), (255, 0, 0), (0, 255, 0),
-                       (0, 0, 255), (125, 125, 125)]
+    def _det_class(self, x):
+        if x < self.th_values[0]:
+            return 1
+        elif (x > self.th_values[0] and x < self.th_values[1]):
+            return 2
+        elif x > self.th_values[1]:
+            return 3
 
     def eq1(self, r1, r2):
-        partner_actual_x = r2[0]
+        partner_actual_x = r2
+        r2_task = self._det_class(partner_actual_x)
         d1 = r1.memory.demand(
             r1.task if not r1.has_to_change_task_but_carry_resource else r1.saved_task)
-        d2 = r1.memory.demand(
-            r2[1] if not r2[2] else r2[3])
+        d2 = r1.memory.demand(r2_task)
 
-        if d1 == d2:
+        if r2_task == r1.task:
             ratio = 1
         elif d1 < 1 or d2 < 1:
             ratio = 0.1
@@ -42,14 +47,14 @@ class PSITaskHandler:
                     partner_actual_x = self.th_values[r1.task-1] + (
                         partner_actual_x-self.th_values[r1.task-1])*ratio
                 else:
-                    partner_actual_x = self.th_values[r2[1]-1]-(
-                        self.th_values[r2[1]-1]-partner_actual_x)*ratio
+                    partner_actual_x = self.th_values[r2_task-1]-(
+                        self.th_values[r2_task-1]-partner_actual_x)*ratio
         except Exception as e:
             print(ratio)
             print(r1.task)
             print(r1.x)
-            print(r2[1])
-            print(r2[0])
+            print(r2)
+            print(r2_task)
             import sys
             print(e)
             sys.exit()
@@ -172,4 +177,3 @@ class PSITaskHandler:
 
         if robot_old_task != r.task:
             r.n_task_switch += 1
-        r.color = self.COLORS[r.task]
