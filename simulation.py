@@ -4,7 +4,9 @@ import os
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
 from GreedyTaskHandler import GreedyTaskHandler
+from PSISensedInformationPacket import PSISensedInformationPacket
 from numpy import sin, cos, pi, sqrt, zeros
+from PSITaskHandler import PSITaskHandler
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
 from shapely.ops import nearest_points
@@ -201,7 +203,7 @@ for _ in range(globals.NB_ROBOTS):
     add_robot()
 
 TaskHandler = TaskHandler(TASKS)
-GreedyTaskHandler = GreedyTaskHandler(TASKS)
+PSITaskHandler = PSITaskHandler()
 ###############################################################################
 # something a bit problematic here is that the ray does not stop when it touches
 # a robot which will lead into information shared throughout bodies (physically impossible)
@@ -218,28 +220,7 @@ def comm(robot_rays, robot):
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
         else:
             r.try_register((robot.number, robot.task, robot.has_to_work(), [
-                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
-
-    # # Register its own status
-    # robot.memory.register(robot.number, robot.task, robot.has_to_work(), [
-    #                       robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
-
-    # for index, ray in enumerate(robot_rays):
-    #     partner = [10000, None]
-    #     for r in globals.ROBOTS:
-    #         if r.number != robot.number:
-    #             if robot.in_comm_range(r.position):
-    #                 if r.is_sensing(ray):
-    #                     p1, p2 = nearest_points(r.get_collision_box(), Point(
-    #                         robot.proximity_sensors[index].x, robot.proximity_sensors[index].y))
-    #                     distance_p1_p2 = dist((p1.x, p1.y), (p2.x, p2.y))
-    #                     if distance_p1_p2 < partner[0]:
-    #                         partner = [distance_p1_p2, r]
-
-    #     if partner[1] != None:
-    #         # Share the information to the closest robot (as information cannot traverse robot)
-    #         partner[1].try_register((
-    #             robot.number, robot.task, robot.has_to_work(), [robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
+                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), (robot.x, robot.task))
 
 
 def get_proximity_sensors_values(robot_rays, robot):
@@ -293,21 +274,37 @@ while True:
         robot.stop()
         robot.sense_area(AREAS)
 
+        # This is because sometimes the robot would not change it task because it was carrying a resource
+        # but its x would change anyway and then the X wouldn't match the segment of the task the robot is in
+        if robot.has_to_change_task_but_carry_resource and not robot.carry_resource:
+            robot.task = robot.saved_task
+            PSITaskHandler.eq7(robot)
+            robot.has_to_change_task_but_carry_resource = False
+
         if not robot.battery_low:
-
-            robot_old_task = robot.task
-
-            comm(robot_rays, robot)
 
             if robot.network_packet != None:
                 robot.consume_network_packet()
+                PSITaskHandler.eq3_4(
+                    robot, robot.task_packet)
 
+                robot.task_packet = None  # Information consumed
+
+            PSITaskHandler.eq6(robot)
+            PSITaskHandler.eq5(robot)
+
+            comm(robot_rays, robot)  # !
             robot.memory.step()
 
-            TaskHandler.assign_task(robot)
-
-            if robot_old_task != robot.task:
-                robot.n_task_switch += 1
+            # Don't switch off task if you are carrying a resouce.
+            if not robot.carry_resource:
+                PSITaskHandler.eq7(robot)
+            else:
+                old_task = robot.task
+                PSITaskHandler.eq7(robot)
+                robot.saved_task = robot.task
+                robot.task = old_task
+                robot.has_to_change_task_but_carry_resource = True
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
@@ -472,21 +469,16 @@ while True:
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
-        task_assigned_unassigned = [TaskHandler.assigned(
-            t) for t in TASKS]
+        print("N° | % | Task | x | x_high | x_low")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
-                  " | " + str(robot.TASKS_Q) +
-                  # TODO to adapt for each robot
-                  #   " | " + str(task_assigned_unassigned[0][0]) +
-                  #   " | " + str(task_assigned_unassigned[1][0]) +
-                  #   " | " + str(task_assigned_unassigned[2][0]) +
-                  " | " + str(robot.memory.demand_memory) +
-                  " | " + str(robot.n_task_switch))
+                  " | "+str(robot.x) +
+                  " | "+str(robot.x_high) +
+                  " | "+str(robot.x_low))
 
+        task_assigned_unassigned = [TaskHandler.assigned(
+            t) for t in TASKS]
         TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
@@ -532,31 +524,34 @@ while True:
         #     for _ in range(13):
         #         add_robot()
 
-        if globals.CNT == 2500:
+        if globals.CNT == 5000:
             class_to_delete = 2
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
 
                 # class_to_delete = randint(1, 3)
-                if not robot.task == class_to_delete or (robot.task == class_to_delete and not robot.has_to_work()):
+                if not robot.task == class_to_delete:
                     keep_alive_robot.append(robot)
 
                 elif robot.carry_resource and robot.task == class_to_delete:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                if robot.task == class_to_delete and robot.has_to_work():
-                    globals.ADD_AVAILABLE_ROBOTS.append(robot)
+                elif robot.task == class_to_delete:
+                    globals.NEST.report(
+                        robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+
+                if robot.task == class_to_delete:
+                    n_robot_to_add += 1
+                    globals.ADD_AVAILABLE_INDEXES.append(robot.number)
+
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 6000:
-            # here I cannot add them to a specific task, because they will
-            # take back the memory status they add from when they have been removed
-            #! maybe reset their position ? now they just take back from where they left..
-            for r in globals.ADD_AVAILABLE_ROBOTS:
-                r.reset()
-            globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
+        if globals.CNT == 10000:
+            for _ in range(n_robot_to_add):
+                x = 230.4  # here mid value for task you want to delete and add on back
+                add_robot(2, x)
 
     if ACT:
         pygame .display.flip()  # render drawing
