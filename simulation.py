@@ -220,7 +220,7 @@ def comm(robot_rays, robot):
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
         else:
             r.try_register((robot.number, robot.task, robot.has_to_work(), [
-                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), (robot.x, robot.task))
+                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), (robot.x, robot.task, robot.has_to_change_task_but_carry_resource, robot.saved_task))
 
 
 def get_proximity_sensors_values(robot_rays, robot):
@@ -293,7 +293,7 @@ while True:
             PSITaskHandler.eq6(robot)
             PSITaskHandler.eq5(robot)
 
-            comm(robot_rays, robot)  # !
+            comm(robot_rays, robot)
             robot.memory.step()
 
             # Don't switch off task if you are carrying a resouce.

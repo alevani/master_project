@@ -26,7 +26,8 @@ class PSITaskHandler:
         partner_actual_x = r2[0]
         d1 = r1.memory.demand(
             r1.task if not r1.has_to_change_task_but_carry_resource else r1.saved_task)
-        d2 = r1.memory.demand(r2[1])
+        d2 = r1.memory.demand(
+            r2[1] if not r2[2] else r2[3])
 
         """ That failed .. shouldn't have. since r2[0] and r1.x are the same ratio should've been = to 1
         My guess: x are not a reflect of the actual task because I fucked up something with the report.
@@ -44,15 +45,6 @@ class PSITaskHandler:
         if d1 == d2:
             ratio = 1
         elif d1 < 1 or d2 < 1:
-            #! maybe that depends on who from d1 or d2 is as is
-            """
-            r1.task = 1
-            demand(1) = -30y
-            r1.x = 120
-            r2[1] = 2
-            demand(2) = 27
-            r2[0] = 178
-            """
             ratio = 0.1
         else:
             ratio = d2/d1
