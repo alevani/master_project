@@ -221,7 +221,7 @@ def comm(robot_rays, robot):
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
         else:
             r.try_register((robot.number, robot.task, robot.has_to_work(), [
-                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), (robot.x))
+                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]), robot.x)
 
 
 def get_proximity_sensors_values(robot_rays, robot):
