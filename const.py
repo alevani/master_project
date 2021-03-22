@@ -45,10 +45,10 @@ H = 7
 W = 10
 
 # Boundaries for random generation
-X_lower_bound = -W/2+0.01
-X_upper_bound = W/2-0.01
-Y_lower_bound = -H/2+0.01
-Y_upper_bound = H/2-0.01
+X_lower_bound = -W/2+0.10
+X_upper_bound = W/2-0.10
+Y_lower_bound = -H/2+0.10
+Y_upper_bound = H/2-0.10
 
 
 def dist(p, q):
