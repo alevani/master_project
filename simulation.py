@@ -312,21 +312,20 @@ while True:
                         """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
                         """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
 
-                        # if robot_did_receive:
-                        #     robot.demand[0] = globals.NEST.demand(1)
-                        #     robot.demand[1] = globals.NEST.demand(2)
-                        #     robot.demand[2] = globals.NEST.demand(3)
-                        #     robot.has_to_report = False
-                        #     robot.time_to_task_report = 0
-                        # else:
-                        #     robot.time_to_task_report = 30
                         if robot_did_receive:
-                            robot.demand[0] = globals.NEST.demand(1)
-                            robot.demand[1] = globals.NEST.demand(2)
-                            robot.demand[2] = globals.NEST.demand(3)
+                            # Basically saying that if you haven't received data you are going to base you new
+                            # Task on the memory you have of where everyone is at, which is basically the same as
+                            # not being allocated a new task.
+                            # So allocate task only if you receive information from the nest
+                            robot_old_task = robot.task
+                            TaskHandler.assign_task(robot)
+                            # GreedyTaskHandler.assign_task(robot)
+                            if robot_old_task != robot.task:
+                                robot.n_task_switch += 1
 
                         robot.has_to_report = False
                         robot.time_to_task_report = 0
+
                         # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
                         # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
                         # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
@@ -335,12 +334,6 @@ while True:
                         # then some information would be lost as it resets the robot's knowledge on what it has done (and since a report can fail then he would lost this snapshot's information).
                         # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
                         robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
-
-                    robot_old_task = robot.task
-                    TaskHandler.assign_task(robot)
-                    # GreedyTaskHandler.assign_task(robot)
-                    if robot_old_task != robot.task:
-                        robot.n_task_switch += 1
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():

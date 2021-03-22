@@ -37,7 +37,9 @@ class Nest:
 
     def try_report(self, pkg):
         # Small probability of not correctly receiving a robot's information
-        if self.pkg == False and not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
+        # if self.pkg == False and not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
+        #! This assumes that the nest can receive and talk to everyone simultaneously
+        if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
             self.pkg = True
             self.report(*pkg)
             # Small probability of the robot not receiving back information from the nest (done here for ease)
