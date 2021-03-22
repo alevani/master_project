@@ -1,5 +1,5 @@
 import globals
-from random import uniform
+from random import uniform, randint
 
 
 class Nest:
@@ -11,9 +11,35 @@ class Nest:
         self.total = 0
         self.robot_task_status = []
 
-    def try_report(self):
+    def step(self):
+
+        for i, m in enumerate(self.robot_task_status):
+            m.time_since_last_registration += 1
+
+            # If the robot cannot be contacted after a long period of time,
+            # consider it gone.
+            # TODO remove report in simulation.py as robot have to figure by themselves what is the need.
+            if not i + 1 == self.number and m.time_since_last_registration >= 1200:  # 1200 is arbitrary
+                m.has_to_work = False
+                m.task = 0
+
+    def can_register(self, robot_number):
+        if self.robot_task_status[robot_number-1].time_since_last_registration >= self.robot_task_status[robot_number-1].time_before_registration:
+            self.robot_task_status[robot_number -
+                                   1].time_since_last_registration = 0
+            self.robot_task_status[robot_number -
+                                   # This configuration offers the best distribution
+                                   1].time_before_registration = randint(len(globals.ROBOTS), len(globals.ROBOTS) + len(globals.ROBOTS))
+            return True
+        else:
+            False
+
+    def try_report(self, pkg):
         # Small probability of not correctly receiving a robot's information
-        if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
+        #! todo it should only receive one packet at once, here it received everything
+        #! add internal var and clean it in simulation after all robot are gone
+        if not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
+            self.report(*pkg)
             # Small probability of the robot not receiving back information from the nest (done here for ease)
             if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
                 return True, True  # if one end communication is successful
@@ -21,9 +47,9 @@ class Nest:
                 return True, False
         else:
             return False, False
+
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.
-
     def report(self, robot_number, robot_task, robot_has_to_work, robot_battery_level, trashed_resources, resource_transformed, resource_stock):
         self.robot_task_status[robot_number - 1].task = robot_task
         self.robot_task_status[robot_number -

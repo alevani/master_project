@@ -303,8 +303,8 @@ while True:
                     # ? but is what I did the best option now? (go_and_stay_home)
 
                     """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
-                    nest_did_receive, robot_did_receive = globals.NEST.try_report(
-                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                    nest_did_receive, robot_did_receive = globals.NEST.try_report((
+                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock))
 
                     if nest_did_receive:
 
