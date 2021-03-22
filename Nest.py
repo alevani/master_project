@@ -13,13 +13,13 @@ class Nest:
 
     def step(self):
 
-        for i, m in enumerate(self.robot_task_status):
+        for m in self.robot_task_status:
             m.time_since_last_registration += 1
-
+            # print(m.time_since_last_registration)
             # If the robot cannot be contacted after a long period of time,
             # consider it gone.
             # TODO remove report in simulation.py as robot have to figure by themselves what is the need.
-            if not i + 1 == self.number and m.time_since_last_registration >= 1200:  # 1200 is arbitrary
+            if m.time_since_last_registration >= 1200:  # 1200 is arbitrary
                 m.has_to_work = False
                 m.task = 0
 
@@ -39,6 +39,7 @@ class Nest:
         #! todo it should only receive one packet at once, here it received everything
         #! add internal var and clean it in simulation after all robot are gone
         if not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
+            print(pkg[0])
             self.report(*pkg)
             # Small probability of the robot not receiving back information from the nest (done here for ease)
             if not uniform(0, 1) < globals.PROB_COMM_FAILURE:

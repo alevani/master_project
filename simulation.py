@@ -255,6 +255,7 @@ while True:
         VISUALIZER.draw_arena()
         VISUALIZER.draw_areas(AREAS)
 
+    globals.NEST.step()
     for i, robot in enumerate(globals.ROBOTS):
 
         # If the robot is out of power, don't process it
@@ -276,7 +277,6 @@ while True:
         if robot.time_to_task_report % 600 == 0:
             robot.time_to_task_report = 599
             robot.has_to_report = True
-
         if not robot.battery_low:
 
             if robot.is_on_area(TYPE_HOME) and not robot.carry_resource:
@@ -291,16 +291,15 @@ while True:
             #! that is the same issues as descibred line 276
             #!obs: a robot with AITA will not change task unless its task's demand is satisfied first. even if the other task has hiiigh demand.
             #!obs seems to bring a lot of congestion since they are all trying to go at the same place
+            #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
+            #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
+            #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
+            #! > and will keep its state ...
+            # ? but is what I did the best option now? (go_and_stay_home)
 
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
-
-                    #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
-                    #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
-                    #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
-                    #! > and will keep its state ...
-                    # ? but is what I did the best option now? (go_and_stay_home)
 
                     """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
                     nest_did_receive, robot_did_receive = globals.NEST.try_report((
@@ -311,12 +310,11 @@ while True:
                         """ if try report returns True, then the nest has receive the information of the robot"""
                         """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
                         """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
+
                         if robot_did_receive:
-                            robot_old_task = robot.task
-                            TaskHandler.assign_task(robot)
-                            # GreedyTaskHandler.assign_task(robot)
-                            if robot_old_task != robot.task:
-                                robot.n_task_switch += 1
+                            robot.demand[0] = globals.NEST.demand(1)
+                            robot.demand[1] = globals.NEST.demand(2)
+                            robot.demand[2] = globals.NEST.demand(3)
 
                         # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
                         # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
@@ -327,9 +325,16 @@ while True:
                         # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
                         robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
-                        # You did send your information but did not receive anything back from the nest .. no big deal, just try another time
-                        robot.has_to_report = False
-                        robot.time_to_task_report = 0
+                    # You did send your information but did not receive anything back from the nest .. no big deal, just try another time
+                    # ? maybe the nest should be receving from anyone always? ^cause that is gonna 'cause some serious jam
+                    robot.has_to_report = False
+                    robot.time_to_task_report = 0
+
+                    robot_old_task = robot.task
+                    TaskHandler.assign_task(robot)
+                    # GreedyTaskHandler.assign_task(robot)
+                    if robot_old_task != robot.task:
+                        robot.n_task_switch += 1
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
@@ -491,21 +496,21 @@ while True:
 
     # Task helper
     if globals.CNT % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] +
-                  " | "+TASKS_NAME[robot.task - 1] +
-                  " | "+str(robot.time_to_task_report) +
-                  " | " + ("True" if robot.has_to_report else "False") +
-                  " | " + str(robot.TASKS_Q) +
-                  " | " + str(robot.n_task_switch))
+        # print(chr(27) + "[2J")
+        # print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
+        # print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
+        # for robot in globals.ROBOTS:
+        #     print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+        #           " | "+STATES_NAME[robot.state] +
+        #           " | "+TASKS_NAME[robot.task - 1] +
+        #           " | "+str(robot.time_to_task_report) +
+        #           " | " + ("True" if robot.has_to_report else "False") +
+        #           " | " + str(robot.TASKS_Q) +
+        #           " | " + str(robot.n_task_switch))
 
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
-        TaskHandler.print_stats(task_assigned_unassigned)
+        # TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
         txt = str(globals.CNT)+";"

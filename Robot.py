@@ -61,6 +61,7 @@ class Robot:
         self.number = number
         self.last_foraging_point = None
         self.color = color
+        self.demand = [0, 0, 0]
         self.task = task
         self.destination = None
         self.state = state
