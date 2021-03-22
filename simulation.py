@@ -72,6 +72,7 @@ battery_effects = None
 do_record_trail = None
 exp_number = None
 resource_decrease_number = 0
+nest_start_value = -25
 for opt, arg in opts:
     if opt == "-h":
         print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
@@ -96,13 +97,15 @@ for opt, arg in opts:
                 "Warning, probability of communication failure was not within [0,1].")
             globals.PROB_COMM_FAILURE = 0 if globals.PROB_COMM_FAILURE < 0 else 1
     elif opt == "-f":
+
         filename = "stats/"+arg
         if "@" in arg:
             resource_decrease_number = 5
         elif "£" in arg:
             resource_decrease_number = 7
-        elif "$" in arg:
+        elif "æ" in arg:
             resource_decrease_number = 0
+            nest_start_value = -50
     elif opt == "-e":
         exp_number = int(arg)
 
@@ -209,7 +212,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-25)
+globals.NEST = Nest(nest_start_value)
 for _ in range(nb_robot):
     add_robot()
 
@@ -515,17 +518,17 @@ while True:
             import sys
             sys.exit()
     elif exp_number == 1:
-        if globals.NEST.total >= 30:
+        if globals.NEST.total >= 50:
             import sys
             sys.exit()
 
     elif exp_number == 3:
-        if globals.CNT >= 30000:
+        if globals.CNT >= 25000:
             import sys
             sys.exit()
 
-        if globals.CNT == 5000:
-            class_to_delete = 1
+        if globals.CNT == 10000:
+            class_to_delete = 2
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
@@ -547,9 +550,9 @@ while True:
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 10000:
+        if globals.CNT == 15000:
             for _ in range(n_robot_to_add):
-                add_robot(1)
+                add_robot(class_to_delete)
 
     if ACT:
         pygame .display.flip()  # render drawing

@@ -7,7 +7,7 @@ mode=""
 for e in {1..3}; do
     mode=""
     if [[ $e -eq 1 ]]; then
-        mode="$"
+        mode="æ"
     elif [[ $e -eq 2 ]]; then
         mode="@"
     fi
