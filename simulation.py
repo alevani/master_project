@@ -302,6 +302,15 @@ while True:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
 
+                    #! the problem is: because robot first report that they don't do anything, all of them will be allocated
+                    #! to foraging (since none of them have report being allocated to it)
+                    #! in the next round, lots of them will be in a "wow there's too much robot in this task" position
+                    #! They will be demoted to neutral but not report it until the next round and then .. rebolotte
+
+                    # ? a solution could be to move the task handler in the nest and say it is the nest who delivers the task
+                    # ? then in the try_report(_and_assign_task) je peux aisément changer l'ordre et mettre le task assign avant le report
+                    # ? meilleure solution ?
+
                     """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
                     nest_did_receive, robot_did_receive = globals.NEST.try_report((
                         robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock))
@@ -313,6 +322,7 @@ while True:
                         """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
 
                         if robot_did_receive:
+
                             # Basically saying that if you haven't received data you are going to base you new
                             # Task on the memory you have of where everyone is at, which is basically the same as
                             # not being allocated a new task.

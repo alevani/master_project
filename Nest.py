@@ -53,6 +53,7 @@ class Nest:
 
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.
+
     def report(self, robot_number, robot_task, robot_has_to_work, robot_battery_level, trashed_resources, resource_transformed, resource_stock):
         self.robot_task_status[robot_number - 1].task = robot_task
         self.robot_task_status[robot_number -
