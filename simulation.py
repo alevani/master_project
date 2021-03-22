@@ -59,9 +59,10 @@ import sys
 # TODO do the median and not the mean
 ### GLOBALS ###################################################################
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:f:e:")
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:n:f:e:")
 except getopt.GetoptError:
-    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
+    print(
+        'python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <probability of communication failure [0,1]> -f <stats_file_name.csv> -e <exp_number>')
     sys.exit(2)
 
 nb_robot = 0
@@ -70,7 +71,7 @@ ACT = None
 battery_effects = None
 do_record_trail = None
 exp_number = None
-
+resource_decrease_number = 0
 for opt, arg in opts:
     if opt == "-h":
         print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
@@ -88,8 +89,20 @@ for opt, arg in opts:
         do_record_trail = True if arg == "True" else False
     elif opt == "-a":
         globals.do_avoid = True if arg == "True" else False
+    elif opt == "-n":
+        globals.PROB_COMM_FAILURE = float(arg)
+        if globals.PROB_COMM_FAILURE > 1 or globals.PROB_COMM_FAILURE < 0:
+            print(
+                "Warning, probability of communication failure was not within [0,1].")
+            globals.PROB_COMM_FAILURE = 0 if globals.PROB_COMM_FAILURE < 0 else 1
     elif opt == "-f":
         filename = "stats/"+arg
+        if "@" in arg:
+            resource_decrease_number = 5
+        elif "£" in arg:
+            resource_decrease_number = 7
+        elif "$" in arg:
+            resource_decrease_number = 0
     elif opt == "-e":
         exp_number = int(arg)
 
@@ -456,7 +469,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 7
+        globals.NEST.resource_need -= resource_decrease_number
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -477,7 +490,6 @@ while True:
         TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
-        # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
         for i in TASKS:
             txt += str(task_assigned_unassigned[i-1][0]) + \
@@ -512,20 +524,12 @@ while True:
             import sys
             sys.exit()
 
-        # if globals.CNT == 10000:
-        #     for _ in range(13):
-        #         globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
-        # if globals.CNT == 20000:
-        #     for _ in range(13):
-        #         add_robot()
-
         if globals.CNT == 5000:
             class_to_delete = 1
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
 
-                # class_to_delete = randint(1, 3)
                 if not robot.task == class_to_delete or (robot.task == class_to_delete and not robot.has_to_work()):
                     keep_alive_robot.append(robot)
 
@@ -546,7 +550,6 @@ while True:
         if globals.CNT == 10000:
             for _ in range(n_robot_to_add):
                 add_robot(1)
-                # add_robot(randint(1, 3))
 
     if ACT:
         pygame .display.flip()  # render drawing
