@@ -385,7 +385,7 @@ class Robot:
 
         return(0, 0), 0
 
-    def turn_left(self):
+    def turn_right(self):
         self.RIGHT_WHEEL_VELOCITY = -1
         self.LEFT_WHEEL_VELOCITY = 1
 
@@ -397,7 +397,7 @@ class Robot:
         self.RIGHT_WHEEL_VELOCITY = 0
         self.LEFT_WHEEL_VELOCITY = 1
 
-    def turn_right(self):
+    def turn_left(self):
         self.RIGHT_WHEEL_VELOCITY = 1
         self.LEFT_WHEEL_VELOCITY = -1
 
@@ -525,9 +525,9 @@ class Robot:
                     else:
                         self.turn_right()
                 elif self.prox_sensors_state == (1, 0, 0) or self.prox_sensors_state == (1, 1, 0):
-                    self.turn_left()
-                elif self.prox_sensors_state == (0, 0, 1) or self.prox_sensors_state == (0, 1, 1):
                     self.turn_right()
+                elif self.prox_sensors_state == (0, 0, 1) or self.prox_sensors_state == (0, 1, 1):
+                    self.turn_left()
                 elif self.prox_sensors_state == (1, 0, 1) or self.prox_sensors_state == (1, 1, 1):
                     self.is_avoiding = True
                     self.NB_STEP_TO_AVOID = 7
