@@ -2,6 +2,7 @@ ROBOTS = []
 CNT = 0
 M = 2
 
+PROB_COMM_FAILURE = 0
 
 # point of interest
 POIs = []
