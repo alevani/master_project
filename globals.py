@@ -19,6 +19,9 @@ ADD_AVAILABLE_ROBOTS = []
 
 PHEROMONES_MAP = []
 
+
+PROB_COMM_FAILURE = 0
+
 CSV_FILE = None
 do_avoid = True
 

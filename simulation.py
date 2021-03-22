@@ -59,9 +59,10 @@ import sys
 # TODO do the median and not the mean
 ### GLOBALS ###################################################################
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:f:e:")
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:n:f:e:")
 except getopt.GetoptError:
-    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
+    print(
+        'python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <probability of communication failure [0,1]> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
     sys.exit(2)
 
 nb_point = 0
@@ -72,7 +73,8 @@ exp_number = None
 
 for opt, arg in opts:
     if opt == "-h":
-        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
+        print(
+            'python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <probability of communication failure [0,1]> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
         sys.exit(2)
 
     if opt == "-r":
@@ -88,6 +90,12 @@ for opt, arg in opts:
         do_record_trail = True if arg == "True" else False
     elif opt == "-a":
         globals.do_avoid = True if arg == "True" else False
+    elif opt == "-n":
+        globals.PROB_COMM_FAILURE = float(arg)
+        if globals.PROB_COMM_FAILURE > 1 or globals.PROB_COMM_FAILURE < 0:
+            print(
+                "Warning, probability of communication failure was not within [0,1].")
+            globals.PROB_COMM_FAILURE = 0 if globals.PROB_COMM_FAILURE < 0 else 1
     elif opt == "-f":
         filename = "stats/"+arg
     elif opt == "-e":
@@ -217,6 +225,7 @@ def comm(robot_rays, robot):
             r.memory.register(robot.number, robot.task, robot.has_to_work(), [
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
         else:
+
             r.try_register((robot.number, robot.task, robot.has_to_work(), [
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
 
@@ -470,24 +479,24 @@ while True:
 
     # Task helper
     if globals.CNT % 10 == 0:
-        print(chr(27) + "[2J")
-        print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
-        for robot in globals.ROBOTS:
-            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-                  " | "+STATES_NAME[robot.state] +
-                  " | "+TASKS_NAME[robot.task - 1] +
-                  " | " + str(robot.TASKS_Q) +
-                  # TODO to adapt for each robot
-                  #   " | " + str(task_assigned_unassigned[0][0]) +
-                  #   " | " + str(task_assigned_unassigned[1][0]) +
-                  #   " | " + str(task_assigned_unassigned[2][0]) +
-                  " | " + str(robot.memory.demand_memory) +
-                  " | " + str(robot.n_task_switch))
+        # print(chr(27) + "[2J")
+        # print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
+        # print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
+        # # for robot in globals.ROBOTS:
+        #     print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+        #           " | "+STATES_NAME[robot.state] +
+        #           " | "+TASKS_NAME[robot.task - 1] +
+        #           " | " + str(robot.TASKS_Q) +
+        #           # TODO to adapt for each robot
+        #           #   " | " + str(task_assigned_unassigned[0][0]) +
+        #           #   " | " + str(task_assigned_unassigned[1][0]) +
+        #           #   " | " + str(task_assigned_unassigned[2][0]) +
+        #           " | " + str(robot.memory.demand_memory) +
+        #           " | " + str(robot.n_task_switch))
 
-        TaskHandler.print_stats(task_assigned_unassigned)
+        # TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
         # TODO add a metric for total distance over POI density
