@@ -10,6 +10,7 @@ class Nest:
         self.resource_waste = 0
         self.total = 0
         self.robot_task_status = []
+        self.pkg = False
 
     def step(self):
 
@@ -36,13 +37,12 @@ class Nest:
 
     def try_report(self, pkg):
         # Small probability of not correctly receiving a robot's information
-        #! todo it should only receive one packet at once, here it received everything
-        #! add internal var and clean it in simulation after all robot are gone
-        if not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
-            print(pkg[0])
+        if self.pkg == False and not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
+            self.pkg = True
             self.report(*pkg)
             # Small probability of the robot not receiving back information from the nest (done here for ease)
             if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
+                # print(pkg[0])
                 return True, True  # if one end communication is successful
             else:
                 return True, False
