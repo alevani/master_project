@@ -309,12 +309,21 @@ while True:
                     if robot_old_task != robot.task:
                         robot.n_task_switch += 1
 
-                    globals.NEST.report(
-                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                    if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
+                        globals.NEST.report(
+                            robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+
+                        # Including the below line sort of act as how the brain works in FAITA.
+                        # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
+                        # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
+                        # here I did not think this would be a problem until I added noise.
+                        # Since the noise is added, if I did not include the below line (which regarding the current implementation would be the right thing to do)
+                        # then some information would be lost as it resets the robot's knowledge on what it has done (and since a report can fail then he would lost this snapshot's information).
+                        # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
+                        robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
                     robot.has_to_report = False
                     robot.time_to_task_report = 0
-                    robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
