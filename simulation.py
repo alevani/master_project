@@ -71,7 +71,7 @@ battery_effects = None
 do_record_trail = None
 exp_number = None
 resource_decrease_number = 0
-
+nest_start_value = -25
 for opt, arg in opts:
     if opt == "-h":
         print(
@@ -103,7 +103,8 @@ for opt, arg in opts:
             resource_decrease_number = 5
         elif "£" in arg:
             resource_decrease_number = 7
-        elif "$" in arg:
+        elif "æ" in arg:
+            nest_start_value = -50
             resource_decrease_number = 0
 
     elif opt == "-e":
@@ -212,7 +213,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-25)
+globals.NEST = Nest(nest_start_value)
 for _ in range(globals.NB_ROBOTS):
     add_robot()
 
@@ -493,22 +494,22 @@ while True:
     if globals.CNT % 10 == 0:
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
-        # print(chr(27) + "[2J")
-        # print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        # print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
-        # # for robot in globals.ROBOTS:
-        #     print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-        #           " | "+STATES_NAME[robot.state] +
-        #           " | "+TASKS_NAME[robot.task - 1] +
-        #           " | " + str(robot.TASKS_Q) +
-        #           # TODO to adapt for each robot
-        #           #   " | " + str(task_assigned_unassigned[0][0]) +
-        #           #   " | " + str(task_assigned_unassigned[1][0]) +
-        #           #   " | " + str(task_assigned_unassigned[2][0]) +
-        #           " | " + str(robot.memory.demand_memory) +
-        #           " | " + str(robot.n_task_switch))
+        print(chr(27) + "[2J")
+        print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
+        print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
+        # for robot in globals.ROBOTS:
+        print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+              " | "+STATES_NAME[robot.state] +
+              " | "+TASKS_NAME[robot.task - 1] +
+              " | " + str(robot.TASKS_Q) +
+              # TODO to adapt for each robot
+              #   " | " + str(task_assigned_unassigned[0][0]) +
+              #   " | " + str(task_assigned_unassigned[1][0]) +
+              #   " | " + str(task_assigned_unassigned[2][0]) +
+              " | " + str(robot.memory.demand_memory) +
+              " | " + str(robot.n_task_switch))
 
-        # TaskHandler.print_stats(task_assigned_unassigned)
+        TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
         # TODO add a metric for total distance over POI density
@@ -537,16 +538,16 @@ while True:
             import sys
             sys.exit()
     elif exp_number == 1:
-        if globals.NEST.total >= 30:
+        if globals.NEST.total >= 50:
             import sys
             sys.exit()
 
     elif exp_number == 3:
-        if globals.CNT >= 10000:
+        if globals.CNT >= 25000:
             import sys
             sys.exit()
 
-        if globals.CNT == 2500:
+        if globals.CNT == 10000:
             class_to_delete = 2
 
             keep_alive_robot = []
@@ -562,7 +563,7 @@ while True:
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 6000:
+        if globals.CNT == 15000:
             # here I cannot add them to a specific task, because they will
             # take back the memory status they add from when they have been removed
             for r in globals.ADD_AVAILABLE_ROBOTS:
