@@ -290,10 +290,6 @@ def get_proximity_sensors_values(robot_rays, robot):
 while True:
     globals.CNT += 1
 
-    if globals.CNT == 3:
-        import sys
-        sys.exit()
-
     if ACT:
         VISUALIZER.draw_arena()
         VISUALIZER.draw_areas(AREAS)
@@ -497,17 +493,17 @@ while True:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
         print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
-        # for robot in globals.ROBOTS:
-        print("["+str(robot.number)+"]: "+str(robot.battery_level) +
-              " | "+STATES_NAME[robot.state] +
-              " | "+TASKS_NAME[robot.task - 1] +
-              " | " + str(robot.TASKS_Q) +
-              # TODO to adapt for each robot
-              #   " | " + str(task_assigned_unassigned[0][0]) +
-              #   " | " + str(task_assigned_unassigned[1][0]) +
-              #   " | " + str(task_assigned_unassigned[2][0]) +
-              " | " + str(robot.memory.demand_memory) +
-              " | " + str(robot.n_task_switch))
+        for robot in globals.ROBOTS:
+            print("["+str(robot.number)+"]: "+str(robot.battery_level) +
+                  " | "+STATES_NAME[robot.state] +
+                  " | "+TASKS_NAME[robot.task - 1] +
+                  " | " + str(robot.TASKS_Q) +
+                  # TODO to adapt for each robot
+                  #   " | " + str(task_assigned_unassigned[0][0]) +
+                  #   " | " + str(task_assigned_unassigned[1][0]) +
+                  #   " | " + str(task_assigned_unassigned[2][0]) +
+                  " | " + str(robot.memory.demand_memory) +
+                  " | " + str(robot.n_task_switch))
 
         TaskHandler.print_stats(task_assigned_unassigned)
 
