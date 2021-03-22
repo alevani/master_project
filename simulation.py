@@ -301,19 +301,24 @@ while True:
                     #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
                     #! > and will keep its state ...
                     # ? but is what I did the best option now? (go_and_stay_home)
-                    robot_old_task = robot.task
 
-                    TaskHandler.assign_task(robot)
-                    # GreedyTaskHandler.assign_task(robot)
+                    """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
+                    nest_did_receive, robot_did_receive = globals.NEST.try_report(
+                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
 
-                    if robot_old_task != robot.task:
-                        robot.n_task_switch += 1
+                    if nest_did_receive:
 
-                    if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
-                        globals.NEST.report(
-                            robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                        """ if try report returns True, then the nest has receive the information of the robot"""
+                        """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
+                        """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
+                        if robot_did_receive:
+                            robot_old_task = robot.task
+                            TaskHandler.assign_task(robot)
+                            # GreedyTaskHandler.assign_task(robot)
+                            if robot_old_task != robot.task:
+                                robot.n_task_switch += 1
 
-                        # Including the below line sort of act as how the brain works in FAITA.
+                        # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
                         # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
                         # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
                         # here I did not think this would be a problem until I added noise.
@@ -322,8 +327,9 @@ while True:
                         # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
                         robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
-                    robot.has_to_report = False
-                    robot.time_to_task_report = 0
+                        # You did send your information but did not receive anything back from the nest .. no big deal, just try another time
+                        robot.has_to_report = False
+                        robot.time_to_task_report = 0
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():

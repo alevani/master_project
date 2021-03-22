@@ -1,4 +1,5 @@
 import globals
+from random import uniform
 
 
 class Nest:
@@ -10,8 +11,19 @@ class Nest:
         self.total = 0
         self.robot_task_status = []
 
+    def try_report(self):
+        # Small probability of not correctly receiving a robot's information
+        if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
+            # Small probability of the robot not receiving back information from the nest (done here for ease)
+            if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
+                return True, True  # if one end communication is successful
+            else:
+                return True, False
+        else:
+            return False, False
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.
+
     def report(self, robot_number, robot_task, robot_has_to_work, robot_battery_level, trashed_resources, resource_transformed, resource_stock):
         self.robot_task_status[robot_number - 1].task = robot_task
         self.robot_task_status[robot_number -
