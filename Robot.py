@@ -504,33 +504,33 @@ class Robot:
     def step(self, robot_prox_sensors_values):
         self.calculate_proximity_sensors_state(robot_prox_sensors_values)
 
-        # if self.has_to_report and not self.carry_resource:
-        #     self.goto(MARKER_HOME, robot_prox_sensors_values)
-        # elif self.has_destination():
-        #     self.goto(self.destination, robot_prox_sensors_values)
-        # else:
-        #     if self.is_avoiding:
-        #         self.avoid()
-        #     else:
-        #         # Wall / Robot avoidance under no goal
-        #         if self.prox_sensors_state == (0, 1, 0):
-        #             if randint(0, 1):
-        #                 self.turn_left()
-        #             else:
-        #                 self.turn_right()
-        #         elif self.prox_sensors_state == (1, 0, 0) or self.prox_sensors_state == (1, 1, 0):
-        #             self.turn_right()
-        #         elif self.prox_sensors_state == (0, 0, 1) or self.prox_sensors_state == (0, 1, 1):
-        #             self.turn_left()
-        #         elif self.prox_sensors_state == (1, 0, 1) or self.prox_sensors_state == (1, 1, 1):
-        #             self.is_avoiding = True
-        #             self.NB_STEP_TO_AVOID = 7
-        #         else:
-        #             if not self.battery_low:
-        #                 self.wander()
+        if self.has_to_report and not self.carry_resource:
+            self.goto(MARKER_HOME, robot_prox_sensors_values)
+        elif self.has_destination():
+            self.goto(self.destination, robot_prox_sensors_values)
+        else:
+            if self.is_avoiding:
+                self.avoid()
+            else:
+                # Wall / Robot avoidance under no goal
+                if self.prox_sensors_state == (0, 1, 0):
+                    if randint(0, 1):
+                        self.turn_left()
+                    else:
+                        self.turn_right()
+                elif self.prox_sensors_state == (1, 0, 0) or self.prox_sensors_state == (1, 1, 0):
+                    self.turn_right()
+                elif self.prox_sensors_state == (0, 0, 1) or self.prox_sensors_state == (0, 1, 1):
+                    self.turn_left()
+                elif self.prox_sensors_state == (1, 0, 1) or self.prox_sensors_state == (1, 1, 1):
+                    self.is_avoiding = True
+                    self.NB_STEP_TO_AVOID = 7
+                else:
+                    if not self.battery_low:
+                        self.wander()
 
-        # self.simulationstep()
+        self.simulationstep()
 
-        # # if the robot carries a resource, update the resource's position according to the robot's movement
-        # if self.carry_resource:
-        #     self._update_payload_position()
+        # if the robot carries a resource, update the resource's position according to the robot's movement
+        if self.carry_resource:
+            self._update_payload_position()

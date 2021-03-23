@@ -1,9 +1,15 @@
-import globals
+from GreedyTaskHandler import GreedyTaskHandler
+from TaskHandler import TaskHandler
 from random import uniform, randint
+import globals
+
+from const import TASKS
 
 
 class Nest:
     def __init__(self, resource_need):
+        self.TaskHandler = TaskHandler(TASKS)
+        self.GreedyTaskHandler = GreedyTaskHandler(TASKS)
         self.resource_need = resource_need
         self.resource_stock = 0
         self.resource_transformed = 0
@@ -35,21 +41,31 @@ class Nest:
         else:
             False
 
-    def try_report(self, pkg):
+    def try_report_and_get_task(self, r):
+        robot = r
         # Small probability of not correctly receiving a robot's information
         # if self.pkg == False and not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
         #! This assumes that the nest can receive and talk to everyone simultaneously
         if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
-            self.pkg = True
-            self.report(*pkg)
+            # self.pkg = True
+
+            robot_old_task = robot.task
+            self.TaskHandler.assign_task(robot)
+            # self.GreedyTaskHandler.assign_task(robot)
+            if robot_old_task != robot.task:
+                robot.n_task_switch += 1
+
+            self.report(robot.number, robot.task, robot.has_to_work(), robot.battery_level,
+                        robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+
             # Small probability of the robot not receiving back information from the nest (done here for ease)
             if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
-                # print(pkg[0])
-                return True, True  # if one end communication is successful
+
+                return True, True, robot  # if one end communication is successful
             else:
-                return True, False
+                return True, False, None
         else:
-            return False, False
+            return False, False, None
 
     # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
     # a live event.

@@ -3,7 +3,6 @@ import errno
 import os
 from random import uniform
 from shapely.geometry import LinearRing, LineString, Point, Polygon
-from GreedyTaskHandler import GreedyTaskHandler
 from numpy import sin, cos, pi, sqrt, zeros
 from PointOfInterest import PointOfInterest
 from shapely.geometry.point import Point
@@ -11,7 +10,6 @@ from shapely.ops import nearest_points
 from Visualizator import delete_class
 from Visualizator import Visualizator
 from shapely.affinity import rotate
-from TaskHandler import TaskHandler
 from Position import Position
 from pygame.locals import *
 from copy import deepcopy
@@ -24,6 +22,7 @@ from Area import Area
 from Nest import Nest
 from random import *
 
+from const import no_task, foraging, nest_processing, cleaning, TASKS_NAME, TASKS, STATES_NAME
 from const import RESOURCE_STATE_NEST_PROCESSING
 from const import RESOURCE_STATE_TRANSFORMED
 from const import RESOURCE_STATE_FORAGING
@@ -128,28 +127,6 @@ if ACT:
     fpsClock = pygame.time.Clock()
 ###############################################################################
 
-### Task allocation #########################################################
-resting = 0
-STATES_NAME = ['Resting', 'First reserve',
-               'Second reserve', 'Temporary worker', 'Core worker']
-
-# Array to keep track of the tasks
-TASKS = []
-
-# A task is a tuple of its energy and a task object
-no_task = 0
-foraging = 1
-nest_processing = 2
-cleaning = 3
-
-
-TASKS_NAME = ['Foraging',
-              'Nest processing', 'Cleaning']
-
-TASKS.append(foraging)
-TASKS.append(nest_processing)
-TASKS.append(cleaning)
-#############################################################################
 n_robot_to_add = 0
 ### Start's variables #########################################################
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
@@ -216,8 +193,6 @@ globals.NEST = Nest(nest_start_value)
 for _ in range(nb_robot):
     add_robot()
 
-TaskHandler = TaskHandler(TASKS)
-GreedyTaskHandler = GreedyTaskHandler(TASKS)
 ###############################################################################
 
 
@@ -283,67 +258,46 @@ while True:
                 # if robot.is_on_area(TYPE_HOME) and not robot.carry_resource and (robot.task == 0 or not robot.has_to_work()):
                 robot.has_to_report = True
 
-            #! as of now, the task handler makes sure the robot is not assigned a new task if he carries a resource
-            #! obs: the robot are usually deposing resource in the middle but the maintenance only scan the edges (when no avoidance)
-            #! ob: when more demand than robot, no oscilliation
-            #! ob: when too much osc the robot struggles to complete a task because it is always pulled somewhere else.
-            # ? my tweak with the >=3 fixes it
-            #! obs: sometimes an ant nest processing can lose its task assignemnt by going outside the border and be replaced by another once.
-            #! that is the same issues as descibred line 276
-            #!obs: a robot with AITA will not change task unless its task's demand is satisfied first. even if the other task has hiiigh demand.
-            #!obs seems to bring a lot of congestion since they are all trying to go at the same place
-            #! sometimes the robot will be oscilliating between task and no task, the sensor will go outside the zone
-            #! > even though the robot did not intend to leave the area, but because outside HOME, the robot keeps its task.
-            #! > it varies between has_to_work and not has_to_work so when the sensors leave the area HOME the robot does not have to report
-            #! > and will keep its state ...
-            # ? but is what I did the best option now? (go_and_stay_home)
-
             if robot.has_to_report:
                 if robot.is_on_area(TYPE_HOME):
                     robot.destination = None
 
-                    #! the problem is: because robot first report that they don't do anything, all of them will be allocated
-                    #! to foraging (since none of them have report being allocated to it)
-                    #! in the next round, lots of them will be in a "wow there's too much robot in this task" position
-                    #! They will be demoted to neutral but not report it until the next round and then .. rebolotte
-
-                    # ? a solution could be to move the task handler in the nest and say it is the nest who delivers the task
-                    # ? then in the try_report(_and_assign_task) je peux aisément changer l'ordre et mettre le task assign avant le report
-                    # ? meilleure solution ?
-
                     """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
-                    nest_did_receive, robot_did_receive = globals.NEST.try_report((
-                        robot.number, robot.task, robot.has_to_work(), robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock))
+                    nest_did_receive, robot_did_receive, r = globals.NEST.try_report_and_get_task(
+                        robot)
 
-                    if nest_did_receive:
+                    # Here I could or maybe should have some communication overhead .. ?
+                    # Maybe I should just say in the thesis that I disergard the communication over head.
+                    # 'Cause when you initiate a connection with the nest in real life nothing says he will reply INSTANTLY
 
-                        """ if try report returns True, then the nest has receive the information of the robot"""
-                        """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
-                        """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
+                    # in real life we would probabily have a while not receive wait, timeout after n second and proceed with the stored information ..
+                    # Quite hard to model
+                    # Yeah it is going to be part of one of my asusmption I guess..
+                    if robot_did_receive:
+                        # Basically saying that if you haven't received data you are going to base you new
+                        # Task on the memory you have of where everyone is at, which is basically the same as
+                        # not being allocated a new task.
+                        # So allocate task only if you receive information from the nest
+                        robot = r
 
-                        if robot_did_receive:
+                        # if the robot receive its new task, it means the nest had receive its report status
+                        if nest_did_receive:
 
-                            # Basically saying that if you haven't received data you are going to base you new
-                            # Task on the memory you have of where everyone is at, which is basically the same as
-                            # not being allocated a new task.
-                            # So allocate task only if you receive information from the nest
-                            robot_old_task = robot.task
-                            TaskHandler.assign_task(robot)
-                            # GreedyTaskHandler.assign_task(robot)
-                            if robot_old_task != robot.task:
-                                robot.n_task_switch += 1
+                            """ if try report returns True, then the nest has receive the information of the robot"""
+                            """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
+                            """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
 
-                        robot.has_to_report = False
-                        robot.time_to_task_report = 0
+                            # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
+                            # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
+                            # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
+                            # here I did not think this would be a problem until I added noise.
+                            # Since the noise is added, if I did not include the below line (which regarding the current implementation would be the right thing to do)
+                            # then some information would be lost as it resets the robot's knowledge on what it has done (and since a report can fail then he would lost this snapshot's information).
+                            # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
+                            robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
-                        # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
-                        # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
-                        # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
-                        # here I did not think this would be a problem until I added noise.
-                        # Since the noise is added, if I did not include the below line (which regarding the current implementation would be the right thing to do)
-                        # then some information would be lost as it resets the robot's knowledge on what it has done (and since a report can fail then he would lost this snapshot's information).
-                        # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
-                        robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
+                    robot.has_to_report = False
+                    robot.time_to_task_report = 0
 
             # if the robot does not have to work .. let it rest in its charging area.
             if not robot.has_to_work():
@@ -506,7 +460,7 @@ while True:
 
     # Task helper
     if globals.CNT % 10 == 0:
-        task_assigned_unassigned = [TaskHandler.assigned(
+        task_assigned_unassigned = [globals.NEST.TaskHandler.assigned(
             t) for t in TASKS]
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
@@ -520,7 +474,7 @@ while True:
                   " | " + str(robot.TASKS_Q) +
                   " | " + str(robot.n_task_switch))
 
-        TaskHandler.print_stats(task_assigned_unassigned)
+        globals.NEST.TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
         txt = str(globals.CNT)+";"

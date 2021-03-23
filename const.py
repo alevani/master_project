@@ -67,6 +67,27 @@ second_reserve = 2
 temp_worker = 3
 core_worker = 4
 
+### Task allocation #########################################################
+STATES_NAME = ['Resting', 'First reserve',
+               'Second reserve', 'Temporary worker', 'Core worker']
+
+# Array to keep track of the tasks
+TASKS = []
+
+# A task is a tuple of its energy and a task object
+no_task = 0
+foraging = 1
+nest_processing = 2
+cleaning = 3
+
+TASKS_NAME = ['Foraging',
+              'Nest processing', 'Cleaning']
+
+TASKS.append(foraging)
+TASKS.append(nest_processing)
+TASKS.append(cleaning)
+#############################################################################
+
 
 # Markers
 MARKER_CLEANING_AREA = Position(0, -H/2 + 0.7 + .5)
