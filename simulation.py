@@ -230,7 +230,6 @@ while True:
         VISUALIZER.draw_arena()
         VISUALIZER.draw_areas(AREAS)
 
-    globals.NEST.step()
     for i, robot in enumerate(globals.ROBOTS):
 
         # If the robot is out of power, don't process it
@@ -263,14 +262,14 @@ while True:
                     robot.destination = None
 
                     """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
-                    nest_did_receive, robot_did_receive, r = globals.NEST.try_report_and_get_task(robot.number, robot.task, robot.has_to_work(), robot.battery_level,
-                                                                                                  robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                    nest_did_receive, robot_did_receive, packet = globals.NEST.try_report_and_get_task(robot.TASKS_Q, robot.task, robot.state, robot.color, robot.n_task_switch,
+                                                                                                       robot.number, robot.battery_level, robot.trashed_resources, robot.resource_transformed, robot.resource_stock, robot.carry_resource)
 
                     # Here I could or maybe should have some communication overhead .. ?
                     # Maybe I should just say in the thesis that I disergard the communication over head.
                     # 'Cause when you initiate a connection with the nest in real life nothing says he will reply INSTANTLY
 
-                    # in real life we would probabily have a while not receive wait, timeout after n second and proceed with the stored information ..
+                    # in real life we would probabily have a while not re1ceive wait, timeout after n second and proceed with the stored information ..
                     # Quite hard to model
                     # Yeah it is going to be part of one of my asusmption I guess..
                     if robot_did_receive:
@@ -278,9 +277,12 @@ while True:
                         # Task on the memory you have of where everyone is at, which is basically the same as
                         # not being allocated a new task.
                         # So allocate task only if you receive information from the nest
-                        # robot = deepcopy(r)
-                        robot.task = 2
-                        robot.state = 4
+
+                        robot.task = packet.task
+                        robot.state = packet.state
+                        robot.TASKS_Q = packet.TASKS_Q
+                        robot.color = packet.color
+                        robot.n_task_switch = packet.n_task_switch
 
                         # if the robot receive its new task, it means the nest had receive its report status
                         if nest_did_receive:

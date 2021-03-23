@@ -4,12 +4,10 @@ from random import uniform, randint
 from copy import deepcopy
 import globals
 
+from const import core_worker, temp_worker
 from const import TASKS
 
-
-class RobotTaskHandlingPacket:
-    def __init__(self):
-        pass
+from RobotTaskHandlingPacket import RobotTaskHandlingPacket
 
 
 class Nest:
@@ -24,49 +22,27 @@ class Nest:
         self.robot_task_status = []
         self.pkg = False
 
-    def step(self):
+    def robot_has_to_work(self, state):
+        return state == core_worker or state == temp_worker
 
-        for m in self.robot_task_status:
-            m.time_since_last_registration += 1
-            # print(m.time_since_last_registration)
-            # If the robot cannot be contacted after a long period of time,
-            # consider it gone.
-            # TODO remove report in simulation.py as robot have to figure by themselves what is the need.
-            if m.time_since_last_registration >= 1200:  # 1200 is arbitrary
-                m.has_to_work = False
-                m.task = 0
-
-    def can_register(self, robot_number):
-        if self.robot_task_status[robot_number-1].time_since_last_registration >= self.robot_task_status[robot_number-1].time_before_registration:
-            self.robot_task_status[robot_number -
-                                   1].time_since_last_registration = 0
-            self.robot_task_status[robot_number -
-                                   # This configuration offers the best distribution
-                                   1].time_before_registration = randint(len(globals.ROBOTS), len(globals.ROBOTS) + len(globals.ROBOTS))
-            return True
-        else:
-            False
-
-    def try_report_and_get_task(self, robot):
-        # Small probability of not correctly receiving a robot's information
-        # if self.pkg == False and not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
-        #! This assumes that the nest can receive and talk to everyone simultaneously
+    def try_report_and_get_task(self, TASKS_Q, task, state, color, n_task_switch, number, battery_level, trashed_resources, resource_transformed, resource_stock, carry_resource):
         if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
-            # self.pkg = True
 
-            robot_old_task = robot.task
-            self.TaskHandler.assign_task(robot)
+            robot_old_task = task
+            ProcessedTaskHandlerPacket = self.TaskHandler.assign_task(RobotTaskHandlingPacket(
+                TASKS_Q, task, state, color, n_task_switch, carry_resource))
             # self.GreedyTaskHandler.assign_task(robot)
-            if robot_old_task != robot.task:
-                robot.n_task_switch += 1
+            if robot_old_task != ProcessedTaskHandlerPacket.task:
+                ProcessedTaskHandlerPacket.n_task_switch += 1
 
-            self.report(robot.number, robot.task, robot.has_to_work(), robot.battery_level,
-                        robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+            self.report(number, ProcessedTaskHandlerPacket.task, self.robot_has_to_work(ProcessedTaskHandlerPacket.state), battery_level,
+                        trashed_resources, resource_transformed, resource_stock)
 
             # Small probability of the robot not receiving back information from the nest (done here for ease)
             if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
 
-                return True, True, robot  # if one end communication is successful
+                # if one end communication is successful
+                return True, True, ProcessedTaskHandlerPacket
             else:
                 return True, False, None
         else:

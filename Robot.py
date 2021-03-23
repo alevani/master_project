@@ -123,11 +123,6 @@ class Robot:
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
-    def rest(self):
-        self.destination = None
-        if self.carry_resource:
-            self.drop_resource()
-
     def reset(self):
         position = self.start_position
         self.position = position

@@ -47,13 +47,11 @@ class TaskHandler:
                         robot.TASKS_Q[i] = 0
 
                     robot.task = candidate[randint(0, len(candidate)-1)]
-                    robot.rest()
                     robot.state = self.temp_worker
 
         elif robot.state == self.first_reserve:
             if self.feedback(robot.task) < 0:
                 robot.state = self.resting
-                robot.rest()
             elif randint(0, 1):
                 robot.state = self.temp_worker
             else:
@@ -61,7 +59,6 @@ class TaskHandler:
         elif robot.state == self.second_reserve:
             if self.feedback(robot.task) < 0:
                 robot.state = self.resting
-                robot.rest()
             else:
                 robot.state = self.temp_worker
 
@@ -76,10 +73,12 @@ class TaskHandler:
             if self.feedback(robot.task) < 0:
                 robot.state = self.temp_worker
 
-        if robot.has_to_work():
+        if robot.state == core_worker or robot.state == temp_worker:
             robot.color = self.COLORS[robot.task]
         else:
             robot.color = BLACK
+
+        return robot
 
     def print_stats(self, assignments):
         print("******* NEST *******")
