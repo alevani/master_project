@@ -498,10 +498,6 @@ while True:
                   " | "+STATES_NAME[robot.state] +
                   " | "+TASKS_NAME[robot.task - 1] +
                   " | " + str(robot.TASKS_Q) +
-                  # TODO to adapt for each robot
-                  #   " | " + str(task_assigned_unassigned[0][0]) +
-                  #   " | " + str(task_assigned_unassigned[1][0]) +
-                  #   " | " + str(task_assigned_unassigned[2][0]) +
                   " | " + str(robot.memory.demand_memory) +
                   " | " + str(robot.n_task_switch))
 
