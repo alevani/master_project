@@ -128,6 +128,7 @@ class Robot:
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
 
     def rest(self):
+
         self.destination = None
         if self.carry_resource:
             self.drop_resource()
@@ -206,8 +207,6 @@ class Robot:
                 # print("Attempt at packet reception")
                 pass
             if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
-                # if self.number == 1:
-                #     print(str(pkg[0]) + ",")
                 self.network_packet = pkg
             else:
                 if self.number == 1:
