@@ -263,8 +263,8 @@ while True:
                     robot.destination = None
 
                     """ Now let's say .. a bi-directional communication is engaged when a robot is asking for a report"""
-                    nest_did_receive, robot_did_receive, r = globals.NEST.try_report_and_get_task(
-                        robot)
+                    nest_did_receive, robot_did_receive, r = globals.NEST.try_report_and_get_task(robot.number, robot.task, robot.has_to_work(), robot.battery_level,
+                                                                                                  robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
 
                     # Here I could or maybe should have some communication overhead .. ?
                     # Maybe I should just say in the thesis that I disergard the communication over head.
@@ -278,7 +278,9 @@ while True:
                         # Task on the memory you have of where everyone is at, which is basically the same as
                         # not being allocated a new task.
                         # So allocate task only if you receive information from the nest
-                        robot = r
+                        # robot = deepcopy(r)
+                        robot.task = 2
+                        robot.state = 4
 
                         # if the robot receive its new task, it means the nest had receive its report status
                         if nest_did_receive:

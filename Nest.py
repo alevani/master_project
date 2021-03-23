@@ -1,9 +1,15 @@
 from GreedyTaskHandler import GreedyTaskHandler
 from TaskHandler import TaskHandler
 from random import uniform, randint
+from copy import deepcopy
 import globals
 
 from const import TASKS
+
+
+class RobotTaskHandlingPacket:
+    def __init__(self):
+        pass
 
 
 class Nest:
@@ -41,8 +47,7 @@ class Nest:
         else:
             False
 
-    def try_report_and_get_task(self, r):
-        robot = r
+    def try_report_and_get_task(self, robot):
         # Small probability of not correctly receiving a robot's information
         # if self.pkg == False and not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.can_register(pkg[0]):
         #! This assumes that the nest can receive and talk to everyone simultaneously
