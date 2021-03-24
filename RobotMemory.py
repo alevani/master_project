@@ -8,9 +8,7 @@ import globals
 
 class RobotMemory:
     def __init__(self, number, foraging_demand_start_value):
-        # self.memory[0] == robot N1
-        # self.memory[1] == robot N2
-        # and so on ..
+
         self.memory = [RobotMemoryInformation()
                        for i in range(globals.NB_ROBOTS)]
         self.number = number
@@ -25,8 +23,8 @@ class RobotMemory:
 
             # If the robot cannot be contacted after a long period of time,
             # consider it gone.
-            if not i + 1 == self.number and m.time_since_last_registration >= 100:
-                m.has_to_work = False
+            # if not i + 1 == self.number and m.time_since_last_registration >= 100:
+            #     m.has_to_work = False
 
     def can_register(self, robot_number):
         if self.memory[robot_number-1].time_since_last_registration >= self.memory[robot_number-1].time_before_registration:
