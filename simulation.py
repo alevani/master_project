@@ -540,7 +540,7 @@ while True:
             sys.exit()
 
         if globals.CNT == 10000:
-            classes_to_delete = [3, 2]
+            classes_to_delete = [2]
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
