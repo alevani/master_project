@@ -540,7 +540,6 @@ while True:
 
                 keep_alive_robot = []
                 for robot in globals.ROBOTS:
-
                     if not robot.task in classes_to_delete:
                         keep_alive_robot.append(robot)
 
@@ -548,12 +547,15 @@ while True:
                         robot.has_to_finish_task_before_stop = True
                         keep_alive_robot.append(robot)
 
-                    elif robot.task in classes_to_delete:
+                    if robot.task in classes_to_delete:
                         globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
                 globals.ROBOTS = keep_alive_robot
 
             if globals.CNT == 20000:
+                print(len(globals.ADD_AVAILABLE_ROBOTS))
+                print(len(globals.ROBOTS))
+
                 for r in globals.ADD_AVAILABLE_ROBOTS:
                     r.reset()
                 globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
