@@ -62,9 +62,10 @@ import sys
 # TODO do the median and not the mean
 ### GLOBALS ###################################################################
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:f:e:")
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:n:f:e:")
 except getopt.GetoptError:
-    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
+    print(
+        'python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <probability of communication failure [0,1]> -f <stats_file_name.csv> -e <exp_number>')
     sys.exit(2)
 
 nb_point = 0
@@ -72,7 +73,8 @@ ACT = None
 battery_effects = None
 do_record_trail = None
 exp_number = None
-
+resource_decrease_number = 0
+nest_start_value = 25
 for opt, arg in opts:
     if opt == "-h":
         print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
@@ -80,7 +82,6 @@ for opt, arg in opts:
 
     if opt == "-r":
         globals.NB_ROBOTS = int(arg)
-
     elif opt == "-p":
         nb_point = int(arg)
     elif opt == "-s":
@@ -91,8 +92,22 @@ for opt, arg in opts:
         do_record_trail = True if arg == "True" else False
     elif opt == "-a":
         globals.do_avoid = True if arg == "True" else False
+    elif opt == "-n":
+        globals.PROB_COMM_FAILURE = float(arg)
+        if globals.PROB_COMM_FAILURE > 1 or globals.PROB_COMM_FAILURE < 0:
+            print(
+                "Warning, probability of communication failure was not within [0,1].")
+            globals.PROB_COMM_FAILURE = 0 if globals.PROB_COMM_FAILURE < 0 else 1
     elif opt == "-f":
+
         filename = "stats/"+arg
+        if "@" in arg:
+            resource_decrease_number = 5
+        elif "£" in arg:
+            resource_decrease_number = 7
+        elif "æ" in arg:
+            resource_decrease_number = 0
+            nest_start_value = 50
     elif opt == "-e":
         exp_number = int(arg)
 
@@ -199,9 +214,9 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-25)
+globals.NEST = Nest(nest_start_value)
 for _ in range(globals.NB_ROBOTS):
-    add_robot(1)
+    add_robot(nest_start_value, 1)
 
 TaskHandler = TaskHandler(TASKS)
 PSITaskHandler = PSITaskHandler()
@@ -464,8 +479,8 @@ while True:
 
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
-            robot.memory.demand_memory[0] -= 7
-        globals.NEST.resource_need -= 7
+            robot.memory.demand_memory[0] += resource_decrease_number
+        globals.NEST.resource_need += resource_decrease_number
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -491,7 +506,7 @@ while True:
             txt += str(task_assigned_unassigned[i-1][0]) + \
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
             if i == foraging:
-                txt += str(globals.NEST.resource_need * -1)+";"
+                txt += str(globals.NEST.resource_need)+";"
             elif i == nest_processing:
                 txt += str(globals.NEST.resource_stock)+";"
             elif i == cleaning:

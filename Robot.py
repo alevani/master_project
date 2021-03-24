@@ -1,6 +1,6 @@
 import math
 from copy import deepcopy
-from random import randint, random
+from random import randint, random, uniform
 
 from RobotTaskStatus import RobotTaskStatus
 from RobotMemory import RobotMemory
@@ -31,7 +31,7 @@ y_a = int((-H/2 + 0.1 + .5)*100)
 y_b = int((-H/2 + 1.3 + .5)*100)
 
 
-def add_robot(task=0, x=2):
+def add_robot(foraging_demand_start_value, task=0, x=2):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     postheta = randint(0, 360)
@@ -46,7 +46,7 @@ def add_robot(task=0, x=2):
                                        1] == RobotTaskStatus(task, True, 100)
 
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, 4, 100, x))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, 4, 100, x, foraging_demand_start_value))
 
 
 def delete_robot():
@@ -55,7 +55,7 @@ def delete_robot():
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level, x):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level, x, foraging_demand_start_value):
         self.number = number
         self.last_foraging_point = None
         self.color = color
@@ -120,7 +120,7 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
-        self.memory = RobotMemory(self.number)
+        self.memory = RobotMemory(self.number, foraging_demand_start_value)
         self.saved_task = None
         self.time_to_drop_out = 0
         self.x = x
@@ -209,7 +209,7 @@ class Robot:
     def try_register(self, pkg, task_pkg):
 
         # can register is used to simulate somehow a bit of randomness if the receive of the data
-        if self.network_packet == None and self.memory.can_register(pkg[0]):
+        if not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.network_packet == None and self.memory.can_register(pkg[0]):
             # if self.number == 1:
             #     print(str(pkg[0]) + ",")
             self.network_packet = pkg
