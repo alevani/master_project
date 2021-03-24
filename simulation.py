@@ -480,7 +480,7 @@ while True:
             sys.exit()
 
     elif exp_number == 3:
-        if globals.CNT >= 30000:
+        if globals.CNT >= 25000:
             import sys
             sys.exit()
 
@@ -492,7 +492,7 @@ while True:
         #         add_robot()
 
         if globals.CNT == 10000:
-            class_to_delete = 1
+            class_to_delete = [2, 3]
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
@@ -510,7 +510,7 @@ while True:
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 15000:
+        if globals.CNT == 2000:
             for _ in range(n_robot_to_add):
                 add_robot(1)
                 # add_robot(randint(1, 3))
