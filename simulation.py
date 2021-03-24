@@ -284,21 +284,23 @@ while True:
                         robot.color = packet.color
                         robot.n_task_switch = packet.n_task_switch
 
-                        # if the robot receive its new task, it means the nest had receive its report status
-                        if nest_did_receive:
+                    # if the robot receive its new task, it means the nest had receive its report status
+                    # Hard to tell if the nest receive if you don't receive answer back, but this is here as it is
+                    # Related to the FAITA memory symbol comment a bit below
+                    if nest_did_receive:
 
-                            """ if try report returns True, then the nest has receive the information of the robot"""
-                            """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
-                            """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
+                        """ if try report returns True, then the nest has receive the information of the robot"""
+                        """ if the nest receives a robot's information, it will reply by giving it the current status of each task"""
+                        """ here in the code, this is symbolized by assigning the robot to a new task (since we could say "if I receive something from the nest, it's because I have previously sent my report, thus I will see if I need a new task now given what I just received from the nest)"""
 
-                            # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
-                            # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
-                            # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
-                            # here I did not think this would be a problem until I added noise.
-                            # Since the noise is added, if I did not include the below line (which regarding the current implementation would be the right thing to do)
-                            # then some information would be lost as it resets the robot's knowledge on what it has done (and since a report can fail then he would lost this snapshot's information).
-                            # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
-                            robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
+                        # Including the below line (and "if nest_did_receive") sort of act as how the brain works in FAITA.
+                        # In FAITA every time a robot receive an information it compares it to the memory brain it has of the robot's received information
+                        # if the data differs it means the robot has done more since the last time it has contact "me", so update the internal demand.
+                        # here I did not think this would be a problem until I added noise.
+                        # Since the noise is added, if I did not include the below line (which regarding the current implementation would be the right thing to do)
+                        # then some information would be lost as it resets the robot's knowledge on what it has done (and since a report can fail then he would lost this snapshot's information).
+                        # Adding the line act the same as how the memory of a robot works in FAITA, but it's just not a correct implementation -> gain of time.
+                        robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
 
                     robot.has_to_report = False
                     robot.time_to_task_report = 0
