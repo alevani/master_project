@@ -202,16 +202,8 @@ class Robot:
     def try_register(self, pkg):
 
         # can register is used to simulate somehow a bit of randomness if the receive of the data
-        if self.network_packet == None and self.memory.can_register(pkg[0]):
-            if self.number == 1:
-                # print("Attempt at packet reception")
-                pass
-            if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
-                self.network_packet = pkg
-            else:
-                if self.number == 1:
-                    pass
-                    # print("package_reception_failure")
+        if not uniform(0, 1) < globals.PROB_COMM_FAILURE and self.network_packet == None and self.memory.can_register(pkg[0]):
+            self.network_packet = pkg
 
     def trash_resource(self):
         # The global nest in the file are use for stats, no memory is globally shared
