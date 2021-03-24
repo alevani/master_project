@@ -23,11 +23,6 @@ class RobotMemory:
         for i, m in enumerate(self.memory):
             m.time_since_last_registration += 1
 
-            # If the robot cannot be contacted after a long period of time,
-            # consider it gone.
-            if not i + 1 == self.number and m.time_since_last_registration >= 100:
-                m.has_to_work = False
-
     def can_register(self, robot_number):
         if self.memory[robot_number-1].time_since_last_registration >= self.memory[robot_number-1].time_before_registration:
             self.memory[robot_number-1].time_since_last_registration = 0
@@ -61,15 +56,5 @@ class RobotMemory:
             self.memory[robot_number -
                         1].task_processed_resources = processed_resources
 
-    def energy(self, task):
-        return sum([1 for robot in self.memory if robot.task == task and robot.has_to_work])
-
     def demand(self, task):
         return self.demand_memory[task-1]
-
-    # Return the energy status of a task "task" at time "step"
-    # R > 0 then task "task" has a deficit of energy
-    # R < 0 then task "task" has a surplus of energy
-    # R = 0 then task "task" is in equilibrium
-    def energy_status(self, task):
-        return self.demand(task) - self.energy(task)

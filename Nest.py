@@ -28,9 +28,6 @@ class Nest:
         self.resource_need += resource_stock
         self.resource_stock += resource_stock
 
-    def energy(self, task):
-        return sum([1 for robot in self.robot_task_status if robot.task == task and robot.has_to_work and robot.battery_level > 0])
-
     def demand(self, task):
         print(task)
         if task == 1:
@@ -39,10 +36,3 @@ class Nest:
             return self.resource_stock
         elif task == 3:
             return self.resource_transformed
-
-    # Return the energy status of a task "task" at time "step"
-    # R > 0 then task "task" has a deficit of energy
-    # R < 0 then task "task" has a surplus of energy
-    # R = 0 then task "task" is in equilibrium
-    def energy_status(self, task):
-        return self.demand(task) - self.energy(task)
