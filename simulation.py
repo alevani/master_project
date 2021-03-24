@@ -71,7 +71,7 @@ battery_effects = None
 do_record_trail = None
 exp_number = None
 resource_decrease_number = 0
-nest_start_value = -25
+nest_start_value = 25
 for opt, arg in opts:
     if opt == "-h":
         print(
@@ -104,7 +104,7 @@ for opt, arg in opts:
         elif "£" in arg:
             resource_decrease_number = 7
         elif "æ" in arg:
-            nest_start_value = -50
+            nest_start_value = 50
             resource_decrease_number = 0
 
     elif opt == "-e":
@@ -215,7 +215,7 @@ for _ in range(nb_point):
 
 globals.NEST = Nest(nest_start_value)
 for _ in range(globals.NB_ROBOTS):
-    add_robot()
+    add_robot(nest_start_value)
 
 TaskHandler = TaskHandler(TASKS)
 GreedyTaskHandler = GreedyTaskHandler(TASKS)
@@ -483,8 +483,8 @@ while True:
         VISUALIZER.draw_cnt(globals.CNT)
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
-            robot.memory.demand_memory[0] -= resource_decrease_number
-        globals.NEST.resource_need -= resource_decrease_number
+            robot.memory.demand_memory[0] += resource_decrease_number
+        globals.NEST.resource_need += resource_decrease_number
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -510,7 +510,7 @@ while True:
             txt += str(task_assigned_unassigned[i-1][0]) + \
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
             if i == foraging:
-                txt += str(globals.NEST.resource_need * -1)+";"
+                txt += str(globals.NEST.resource_need)+";"
             elif i == nest_processing:
                 txt += str(globals.NEST.resource_stock)+";"
             elif i == cleaning:

@@ -31,7 +31,7 @@ y_a = int((-H/2 + 0.1 + .5)*100)
 y_b = int((-H/2 + 1.3 + .5)*100)
 
 
-def add_robot(task=0):
+def add_robot(foraging_demand_start_value, task=0):
     posx = randint(x_a, x_b)
     posy = randint(y_a, y_b)
     postheta = randint(0, 360)
@@ -45,7 +45,7 @@ def add_robot(task=0):
         state = 4
 
     globals.ROBOTS.append(Robot(num, deepcopy(PROXIMITY_SENSORS_POSITION), Position(posx/100, posy/100, math.radians(postheta)),
-                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, 100))
+                                BLACK, deepcopy(BOTTOM_LIGHT_SENSORS_POSITION), 1, 1, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, 100, foraging_demand_start_value))
 
 
 def delete_robot():
@@ -54,7 +54,7 @@ def delete_robot():
 
 
 class Robot:
-    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level):
+    def __init__(self, number, proximity_sensors, position, color, bottom_sensors, LEFT_WHEEL_VELOCITY, RIGHT_WHEEL_VELOCITY, ROBOT_TIMESTEP, SIMULATION_TIMESTEP, R, L, task, state, battery_level, foraging_demand_start_value):
         self.number = number
         self.last_foraging_point = None
         self.color = color
@@ -118,7 +118,7 @@ class Robot:
         self.proximity_sensors_backup = deepcopy(proximity_sensors)
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
-        self.memory = RobotMemory(self.number)
+        self.memory = RobotMemory(self.number, foraging_demand_start_value)
 
     def in_comm_range(self, position):
         # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 4 else False
@@ -231,7 +231,7 @@ class Robot:
         self.drop_resource()
 
     def compute_resource(self):
-        globals.NEST.resource_need += self.payload.value
+        globals.NEST.resource_need -= self.payload.value
         globals.NEST.resource_stock += self.payload.value
         self.resource_stock += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_NEST_PROCESSING

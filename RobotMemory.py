@@ -7,7 +7,7 @@ import globals
 
 
 class RobotMemory:
-    def __init__(self, number):
+    def __init__(self, number, foraging_demand_start_value):
         # self.memory[0] == robot N1
         # self.memory[1] == robot N2
         # and so on ..
@@ -16,7 +16,7 @@ class RobotMemory:
         self.number = number
 
         # Foraging, Nest processing, Cleaning
-        self.demand_memory = [-25, 0, 0]
+        self.demand_memory = [foraging_demand_start_value, 0, 0]
 
     def step(self):
 
@@ -46,7 +46,7 @@ class RobotMemory:
         # Further in task completion, update the demand accordingly
         if self.memory[robot_number - 1].task_processed_resources != processed_resources:
 
-            self.demand_memory[0] += (processed_resources[0] -
+            self.demand_memory[0] -= (processed_resources[0] -
                                       self.memory[robot_number - 1].task_processed_resources[0])
             self.demand_memory[1] += (processed_resources[0] -
                                       self.memory[robot_number - 1].task_processed_resources[0])
@@ -65,7 +65,7 @@ class RobotMemory:
         return sum([1 for robot in self.memory if robot.task == task and robot.has_to_work])
 
     def demand(self, task):
-        return self.demand_memory[task-1] if task != 1 else self.demand_memory[task-1] * -1
+        return self.demand_memory[task-1]
 
     # Return the energy status of a task "task" at time "step"
     # R > 0 then task "task" has a deficit of energy
