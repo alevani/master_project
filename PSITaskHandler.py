@@ -12,7 +12,7 @@ class PSITaskHandler:
         self.Xmax = 512
         self.th_values = [ceil(0.333333 * self.Xmax),
                           ceil(0.6666666 * self.Xmax)]
-        self.delta = 25  # was 1
+        self.delta = 12  # was 1
         self.phi_base = 0.3  # was 0.3
 
         # ? do these numbers have to be coherent with how high my task demand can go?

@@ -46,7 +46,7 @@ class RobotMemory:
         # Further in task completion, update the demand accordingly
         if self.memory[robot_number - 1].task_processed_resources != processed_resources:
 
-            self.demand_memory[0] += (processed_resources[0] -
+            self.demand_memory[0] -= (processed_resources[0] -
                                       self.memory[robot_number - 1].task_processed_resources[0])
             self.demand_memory[1] += (processed_resources[0] -
                                       self.memory[robot_number - 1].task_processed_resources[0])

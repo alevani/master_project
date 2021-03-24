@@ -233,7 +233,7 @@ class Robot:
         self.drop_resource()
 
     def compute_resource(self):
-        globals.NEST.resource_need += self.payload.value
+        globals.NEST.resource_need -= self.payload.value
         globals.NEST.resource_stock += self.payload.value
         self.resource_stock += self.payload.value
         globals.POIs[self.payload.index].state = RESOURCE_STATE_NEST_PROCESSING

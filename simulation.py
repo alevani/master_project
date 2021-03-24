@@ -531,30 +531,29 @@ while True:
                 sys.exit()
 
         elif exp_number == 3:
-            if globals.CNT >= 10000:
+            if globals.CNT >= 25000:
                 import sys
                 sys.exit()
 
-            if globals.CNT == 200:
-                class_to_delete = 1
+            if globals.CNT == 10000:
+                classes_to_delete = [2, 3]
 
                 keep_alive_robot = []
                 for robot in globals.ROBOTS:
 
-                    # class_to_delete = randint(1, 3)
-                    if not robot.task == class_to_delete:
+                    if not robot.task in classes_to_delete:
                         keep_alive_robot.append(robot)
 
-                    elif robot.carry_resource and robot.task == class_to_delete:
+                    elif robot.carry_resource and robot.task in classes_to_delete:
                         robot.has_to_finish_task_before_stop = True
                         keep_alive_robot.append(robot)
 
-                    elif robot.task == class_to_delete:
+                    elif robot.task in classes_to_delete:
                         globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
                 globals.ROBOTS = keep_alive_robot
 
-            if globals.CNT == 700:
+            if globals.CNT == 20000:
                 for r in globals.ADD_AVAILABLE_ROBOTS:
                     r.reset()
                 globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
