@@ -74,6 +74,16 @@ Results of experiment 1 for AITA.
 ```
 ![IMAGE ALT TEXT HERE](https://github.com/alevani/master_project/blob/main/assets/AITA.png)
 
+Results of experiment 1 for FAITA. 
+```
+- 40 robots
+- No foraging demand increase
+- Collision on
+- No communication failure
+- Foraging demand starts at 50
+```
+![IMAGE ALT TEXT HERE](https://github.com/alevani/master_project/blob/main/assets/FAITA.png)
+
 Results of experiment 1 over all the different TAs. 
 ```
 - 40 robots
