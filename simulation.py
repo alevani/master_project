@@ -468,6 +468,10 @@ while True:
     if globals.CNT % 10 == 0:
         task_assigned_unassigned = [globals.NEST.TaskHandler.assigned(
             t) for t in TASKS]
+
+        task_assigned_unassigned_pov_nest = [globals.NEST.TaskHandler.assigned_pov_nest(
+            t) for t in TASKS]
+
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
         print("N° | % | State | Task | Q | Timestep since last report | Has to report | N switch")
@@ -483,18 +487,18 @@ while True:
         globals.NEST.TaskHandler.print_stats(task_assigned_unassigned)
 
         # print to csv file
+        # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
         for i in TASKS:
             txt += str(task_assigned_unassigned[i-1][0]) + \
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
-            if i == foraging:
-                txt += str(globals.NEST.resource_need * -1)+";"
-            elif i == nest_processing:
-                txt += str(globals.NEST.resource_stock)+";"
-            elif i == cleaning:
-                txt += str(globals.NEST.resource_transformed)
 
-        txt += ";" + str(float(globals.total_dist))
+            txt += str(task_assigned_unassigned_pov_nest[i-1][0]) + \
+                ";" + str(task_assigned_unassigned_pov_nest[i-1][1])+";"
+
+            txt += str(globals.NEST.demand(i)) + ";"
+
+        txt += str(float(globals.total_dist))
         txt += ";" + str(globals.NEST.total) + ";"
 
         for robot in globals.ROBOTS:

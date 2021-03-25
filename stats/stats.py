@@ -7,16 +7,19 @@ file = open('./£yx.csv')
 
 foraging_need = []
 foraging_assigned = []
-
+foraging_assigned_pov_nest = []
 
 nest_processing_need = []
 nest_processing_assigned = []
+nest_processing_assigned_pov_nest = []
 
 
 not_working_robot = []
+not_working_robot_pov_nest = []
 
 cleaning_need = []
 cleaning_assigned = []
+cleaning_assigned_pov_nest = []
 
 
 distance = []
@@ -26,26 +29,31 @@ robots_n_task_switch = None
 
 step = []
 for line in file:
-    arr = [float(value) for value in line.split(";")[:12]]
+    arr = [float(value) for value in line.split(";")[:16]]
     step.append(arr[0])
 
-    foraging_need.append(arr[3])
     foraging_assigned.append(arr[1])
-
     not_working_robot.append(arr[2])
+    foraging_assigned_pov_nest.append(arr[3])
+    not_working_robot_pov_nest.append(arr[4])
+    foraging_need.append(arr[5])
 
-    nest_processing_need.append(arr[6])
-    nest_processing_assigned.append(arr[4])
-    not_working_robot[len(not_working_robot) - 1] += arr[5]
+    nest_processing_assigned.append(arr[6])
+    not_working_robot[len(not_working_robot) - 1] += arr[7]
+    nest_processing_assigned_pov_nest.append(arr[8])
+    not_working_robot_pov_nest[len(not_working_robot_pov_nest) - 1] += arr[9]
+    nest_processing_need.append(arr[10])
 
-    cleaning_need.append(arr[9])
-    cleaning_assigned.append(arr[7])
-    not_working_robot[len(not_working_robot) - 1] += arr[8]
+    cleaning_assigned.append(arr[11])
+    not_working_robot[len(not_working_robot) - 1] += arr[12]
+    cleaning_assigned_pov_nest.append(arr[13])
+    not_working_robot_pov_nest[len(not_working_robot_pov_nest) - 1] += arr[14]
+    cleaning_need.append(arr[15])
 
-    distance.append(arr[10])
-    total.append(arr[11])
+    distance.append(arr[16])
+    total.append(arr[17])
 
-    arr = sorted([eval(e) for e in line.split(";")[12:-1]])
+    arr = sorted([eval(e) for e in line.split(";")[16:-1]])
     robots_n_task_switch = [e[1] for e in arr]
 
 fig, ax = plt.subplots()

@@ -103,6 +103,12 @@ class TaskHandler:
         else:
             return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()])
 
+    def assigned_pov_nest(self, task):
+        if task == 1:
+            return sum([1 for robot in globals.NEST.robot_task_status if robot.task == task and robot.has_to_work]), sum([1 for robot in globals.NEST.robot_task_status if robot.task == task and not robot.has_to_work]) + sum([1 for robot in globals.NEST.robot_task_status if robot.task == 0])
+        else:
+            return sum([1 for robot in globals.NEST.robot_task_status if robot.task == task and robot.has_to_work]), sum([1 for robot in globals.NEST.robot_task_status if robot.task == task and not robot.has_to_work])
+
     # Local Feedback function
     def feedback(self, task):
         #! that actually also says that, if the demand is 0 (can be also because there are enough ant on a task) then you should still be given a task, as you might be helpful
