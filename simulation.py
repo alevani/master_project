@@ -56,29 +56,31 @@ import sys
 # IDEAS
 ########
 # ? MVC Refactor
-#! TODO have a file.close when sys.exit to makek sure no data is lost
 # TODO do the median and not the mean
 ### GLOBALS ###################################################################
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:f:e:")
+    opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:n:f:e:")
 except getopt.GetoptError:
-    print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
+    print(
+        'python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <probability of communication failure [0,1]> -f <stats_file_name.csv> -e <exp_number>')
     sys.exit(2)
 
-nb_robot = 0
 nb_point = 0
 ACT = None
 battery_effects = None
 do_record_trail = None
 exp_number = None
-
+resource_decrease_number = 0
+nest_start_value = 25
 for opt, arg in opts:
     if opt == "-h":
-        print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
+        print(
+            'python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <probability of communication failure [0,1]> -f <stats_file_name.csv> -e <exp_number>')
         sys.exit(2)
 
     if opt == "-r":
         nb_robot = int(arg)
+
     elif opt == "-p":
         nb_point = int(arg)
     elif opt == "-s":
@@ -89,8 +91,22 @@ for opt, arg in opts:
         do_record_trail = True if arg == "True" else False
     elif opt == "-a":
         globals.do_avoid = True if arg == "True" else False
+    elif opt == "-n":
+        globals.PROB_COMM_FAILURE = float(arg)
+        if globals.PROB_COMM_FAILURE > 1 or globals.PROB_COMM_FAILURE < 0:
+            print(
+                "Warning, probability of communication failure was not within [0,1].")
+            globals.PROB_COMM_FAILURE = 0 if globals.PROB_COMM_FAILURE < 0 else 1
     elif opt == "-f":
         filename = "stats/"+arg
+        if "@" in arg:
+            resource_decrease_number = 5
+        elif "£" in arg:
+            resource_decrease_number = 7
+        elif "æ" in arg:
+            nest_start_value = 50
+            resource_decrease_number = 0
+
     elif opt == "-e":
         exp_number = int(arg)
 
@@ -136,6 +152,7 @@ TASKS.append(nest_processing)
 TASKS.append(cleaning)
 #############################################################################
 n_robot_to_add = 0
+
 ### Start's variables #########################################################
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -197,7 +214,7 @@ for _ in range(nb_point):
             Position(x_scaled, y_scaled), 15000, 2, resource_value, index)
 
 
-globals.NEST = Nest(-25)
+globals.NEST = Nest(nest_start_value)
 for _ in range(nb_robot):
     add_robot()
 
@@ -428,7 +445,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= 7
+        globals.NEST.resource_need -= resource_decrease_number
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -490,27 +507,20 @@ while True:
             import sys
             sys.exit()
 
-        # if globals.CNT == 10000:
-        #     for _ in range(13):
-        #         globals.ROBOTS.pop(randint(0, len(globals.ROBOTS) - 1))
-        # if globals.CNT == 20000:
-        #     for _ in range(13):
-        #         add_robot()
-
         if globals.CNT == 10000:
             class_to_delete = [2, 3]
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
 
-                if not robot.task == class_to_delete:
+                if not robot.task in class_to_delete:
                     keep_alive_robot.append(robot)
 
-                elif robot.carry_resource and robot.task == class_to_delete:
+                elif robot.carry_resource and robot.task in class_to_delete:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                if robot.task == class_to_delete:
+                if robot.task in class_to_delete:
                     n_robot_to_add += 1
                     globals.ADD_AVAILABLE_INDEXES.append(robot.number)
 
