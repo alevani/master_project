@@ -116,7 +116,9 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t/4 for t in total], label="Total processed resources")
+last = total[len(total) - 1]
+total_plot.plot(step, [t/max(1, last)
+                       for t in total], label="Total processed resources")
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
 total_plot.grid()
 
