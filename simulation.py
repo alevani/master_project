@@ -315,15 +315,14 @@ while True:
 
             robot_old_task = robot.task
 
+            robot.memory.step()
+            TaskHandler.assign_task(robot)
+            # GreedyTaskHandler.assign_task(robot)
+
             comm(robot_rays, robot)
 
             if robot.network_packet != None:
                 robot.consume_network_packet()
-
-            robot.memory.step()
-
-            # TaskHandler.assign_task(robot)
-            GreedyTaskHandler.assign_task(robot)
 
             if robot_old_task != robot.task:
                 robot.n_task_switch += 1
