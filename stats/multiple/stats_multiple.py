@@ -2,9 +2,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('./stats20_GTA.csv')
-gata = open('./stats20_GATA.csv')
-aita = open('./stats20_AITA.csv')
+aita = open('../æstats_AITA.csv')
+faita = open('../æstats_FAITA.csv')
+gta = open('../æstats_GTA.csv')
+rnd = open('../æstats_RND.csv')
+psi = open('../æstats_PSI.csv')
 
 
 step = np.arange(10, 3010, 10)
@@ -23,7 +25,7 @@ def read(file):
         arr = sorted([eval(e) for e in line.split(";")[12:-1]])
 
         robots_n_task_switch = [e[1] for e in arr]
- 
+
     return distance, total, robots_n_task_switch
 
 
