@@ -17,6 +17,9 @@ The robot are dispatch from a starting point in an Arena. Their task is selected
 Throughout the simulation, Forager will collect resource from the outside world and gather them in the home area (blue). Then, nest processors will process the resource and move it to the cleaning area (pink) for it to e picked up and move to the waste area (orange).
 
 ### Communication
+
+Communication is different for each TA, but there are some noise mechanisms implemented where possible.
+
 #### AITA
 The knowledge about a task are shared in the nest which serves as an information center where ant report their current task and ask for
 a new assignment under specific conditions. This kind of communication is a centralized communication.
