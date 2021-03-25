@@ -29,7 +29,6 @@ class Nest:
         self.resource_stock += resource_stock
 
     def demand(self, task):
-        print(task)
         if task == 1:
             return self.resource_need
         elif task == 2:
