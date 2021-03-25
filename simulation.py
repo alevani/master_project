@@ -322,7 +322,8 @@ while True:
 
             robot.memory.step()
 
-            TaskHandler.assign_task(robot)
+            # TaskHandler.assign_task(robot)
+            GreedyTaskHandler.assign_task(robot)
 
             if robot_old_task != robot.task:
                 robot.n_task_switch += 1
