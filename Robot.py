@@ -205,8 +205,6 @@ class Robot:
         if not uniform(0, 1) < globals.PROB_COMM_FAILURE:
             if self.network_packet == None and self.memory.can_register(pkg[0]):
                 self.network_packet = pkg
-        else:
-            print("falure")
 
     def trash_resource(self):
         # The global nest in the file are use for stats, no memory is globally shared
