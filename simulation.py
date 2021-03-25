@@ -445,7 +445,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= resource_decrease_number
+        globals.NEST.resource_need += resource_decrease_number
 
     # Task helper
     if globals.CNT % 10 == 0:
@@ -471,7 +471,7 @@ while True:
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
 
             if i == foraging:
-                txt += str(globals.NEST.resource_need * -1)+";"
+                txt += str(globals.NEST.resource_need)+";"
             elif i == nest_processing:
                 txt += str(globals.NEST.resource_stock)+";"
             elif i == cleaning:

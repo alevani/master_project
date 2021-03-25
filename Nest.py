@@ -33,7 +33,7 @@ class Nest:
 
     def demand(self, task):
         if task == 1:
-            return self.resource_need * -1
+            return self.resource_need
         elif task == 2:
             return self.resource_stock
         elif task == 3:
