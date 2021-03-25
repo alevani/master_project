@@ -31,6 +31,8 @@ class RobotMemory:
             self.memory[robot_number-1].time_since_last_registration = 0
             self.memory[robot_number -
                         # This configuration offers the best distribution
+                        # Even though some robot might get deleted in the shot (such as for exp3) it's important to have each time the len of the total amount
+                        # of robot present in the map as this line is only here to simulate some randomness in how send you a package (which have to be dynamic with the number of robot in the arena at time t)
                         1].time_before_registration = randint(40, len(globals.ROBOTS) + 40)
             return True
         else:

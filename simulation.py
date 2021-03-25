@@ -503,20 +503,26 @@ while True:
 
         TaskHandler.print_stats(task_assigned_unassigned)
 
+        average_robot_demand = [0, 0, 0]
+
+        for robot in globals.ROBOTS:
+            for i, d in enumerate(robot.memory.demand_memory):
+                average_robot_demand[i] += d
+
+        average_robot_demand = [
+            e/globals.NB_ROBOTS for e in average_robot_demand]
+        print(average_robot_demand)
         # print to csv file
         # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
         for i in TASKS:
             txt += str(task_assigned_unassigned[i-1][0]) + \
                 ";" + str(task_assigned_unassigned[i-1][1])+";"
-            if i == foraging:
-                txt += str(globals.NEST.resource_need)+";"
-            elif i == nest_processing:
-                txt += str(globals.NEST.resource_stock)+";"
-            elif i == cleaning:
-                txt += str(globals.NEST.resource_transformed)
 
-        txt += ";" + str(float(globals.total_dist))
+            txt += str(globals.NEST.demand(i)) + ";" + \
+                str(average_robot_demand[i - 1]) + ";"
+
+        txt += str(float(globals.total_dist))
         txt += ";" + str(globals.NEST.total) + ";"
 
         for robot in globals.ROBOTS:
