@@ -1,7 +1,7 @@
 # big boilderplate file
 from os import walk
 
-directory = './EXP/ALONE/EXP1/'
+directory = './test/'
 _, _, filenames = next(walk(directory))
 filenames = [directory+f for f in filenames if 'csv' in f]
 
@@ -15,41 +15,47 @@ def read(file):
 
     foraging_need = []
     foraging_assigned = []
+    foraging_average_sensed_demand = []
+    foraging_not_working = []
 
     nest_processing_need = []
     nest_processing_assigned = []
-
-    foraging_not_working = []
     nest_processing_not_working = []
-    cleaning_not_working = []
+    nest_processing_average_sensed_demand = []
 
     cleaning_need = []
     cleaning_assigned = []
+    cleaning_not_working = []
+    cleaning_average_sensed_demand = []
 
     for line in file:
-        arr = [float(value) for value in line.split(";")[:12]]
+        arr = [float(value) for value in line.split(";")[:15]]
 
-        foraging_need.append(arr[3])
         foraging_assigned.append(arr[1])
         foraging_not_working.append(arr[2])
+        foraging_need.append(arr[3])
+        foraging_average_sensed_demand.append(arr[4])
 
-        nest_processing_need.append(arr[6])
-        nest_processing_assigned.append(arr[4])
-        nest_processing_not_working.append(arr[5])
+        nest_processing_assigned.append(arr[5])
+        nest_processing_not_working.append(arr[6])
+        nest_processing_need.append(arr[7])
+        nest_processing_average_sensed_demand.append(arr[8])
 
-        cleaning_need.append(arr[9])
-        cleaning_assigned.append(arr[7])
-        cleaning_not_working.append(arr[8])
+        cleaning_assigned.append(arr[9])
+        cleaning_not_working.append(arr[10])
+        cleaning_need.append(arr[11])
+        cleaning_average_sensed_demand.append(arr[12])
 
-        distance.append(arr[10])
-        total.append(arr[11])
+        distance.append(arr[13])
+        total.append(arr[14])
 
         # ! this has to be complient with if i remove robots .. maybe use a dictionnary with robot's number a key
+        # ! I mean.. even not in avergator task switch has been disregarded, so osef
 
         robots_n_task_switch = sorted([list(eval(e))
-                                       for e in line.split(";")[12:-1]])
+                                       for e in line.split(";")[15:-1]])
 
-    return [distance, total, robots_n_task_switch, foraging_need, foraging_assigned, nest_processing_need, nest_processing_assigned, cleaning_need, cleaning_assigned, foraging_not_working, nest_processing_not_working, cleaning_not_working]
+    return [distance, total, robots_n_task_switch, foraging_need, foraging_assigned, nest_processing_need, nest_processing_assigned, cleaning_need, cleaning_assigned, foraging_not_working, nest_processing_not_working, cleaning_not_working, foraging_average_sensed_demand, nest_processing_average_sensed_demand, cleaning_average_sensed_demand]
 
 
 all = []
@@ -97,6 +103,9 @@ avg_cleaning_assigned = process([a[8] for a in all])
 avg_foraging_not_working = process([a[9] for a in all])
 avg_nest_processing_not_working = process([a[10] for a in all])
 avg_cleaning_not_working = process([a[11] for a in all])
+avg_foraging_average_sensed_demand = process([a[12] for a in all])
+avg_nest_processing_average_sensed_demand = process([a[13] for a in all])
+avg_cleaning_average_sensed_demand = process([a[14] for a in all])
 
 
 txt = ""
@@ -109,12 +118,15 @@ for i in range(len(avg_distance)):
                str(avg_foraging_assigned[i]) + ";" +
                str(avg_foraging_not_working[i]) + ";" +
                str(foraging_need[i]) + ";" +
+               str(avg_foraging_average_sensed_demand[i]) + ";" +
                str(avg_nest_processing_assigned[i]) + ";" +
                str(avg_nest_processing_not_working[i]) + ";" +
                str(avg_nest_processing_need[i]) + ";" +
+               str(avg_nest_processing_average_sensed_demand[i]) + ";" +
                str(avg_cleaning_assigned[i]) + ";" +
                str(avg_cleaning_not_working[i]) + ";" +
                str(avg_cleaning_need[i]) + ";" +
+               str(avg_cleaning_average_sensed_demand[i]) + ";" +
                str(avg_distance[i]) + ";" +
                str(avg_total[i]) + txt + "\n")
 
