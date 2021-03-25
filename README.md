@@ -64,8 +64,15 @@ n -> Delete 1/3 of the robots performing nest processing Not up-to-date
 m -> Delete 1/3 of the robots performing cleaning Not up-to-date
 ```
 
-
-
+Results of experiment 1 for AITA. 
+```
+- 40 robots
+- No foraging demand increase
+- Collision on
+- No communication failure
+- Foraging demand starts at 50
+```
+![IMAGE ALT TEXT HERE](https://github.com/alevani/master_project/blob/main/assets/AITA.png)
 
 Results of experiment 1 over all the different TAs. 
 ```
