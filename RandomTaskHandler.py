@@ -17,7 +17,6 @@ class RandomTaskHandler:
 
     def assign_task(self, robot):
 
-        robot.rest()
         robot.state = 3
         robot.task = randint(1, 3)
         robot.color = self.COLORS[robot.task]

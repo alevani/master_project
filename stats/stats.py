@@ -2,23 +2,21 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('./@stats.csv')
+file = open('./£yx.csv')
 
 
 foraging_need = []
 foraging_assigned = []
-foraging_average_sensed_demand = []
+
 
 nest_processing_need = []
 nest_processing_assigned = []
-nest_processing_average_sensed_demand = []
 
 
 not_working_robot = []
 
 cleaning_need = []
 cleaning_assigned = []
-cleaning_average_sensed_demand = []
 
 
 distance = []
@@ -28,28 +26,26 @@ robots_n_task_switch = None
 
 step = []
 for line in file:
-    arr = [float(value) for value in line.split(";")[:15]]
+    arr = [float(value) for value in line.split(";")[:12]]
     step.append(arr[0])
 
-    foraging_assigned.append(arr[1])
-    not_working_robot.append(arr[2])
     foraging_need.append(arr[3])
-    foraging_average_sensed_demand.append(arr[4])
+    foraging_assigned.append(arr[1])
 
-    nest_processing_assigned.append(arr[5])
-    not_working_robot[len(not_working_robot) - 1] += arr[6]
-    nest_processing_need.append(arr[7])
-    nest_processing_average_sensed_demand.append(arr[8])
+    not_working_robot.append(arr[2])
 
-    cleaning_assigned.append(arr[9])
-    not_working_robot[len(not_working_robot) - 1] += arr[10]
-    cleaning_need.append(arr[11])
-    cleaning_average_sensed_demand.append(arr[12])
+    nest_processing_need.append(arr[6])
+    nest_processing_assigned.append(arr[4])
+    not_working_robot[len(not_working_robot) - 1] += arr[5]
 
-    distance.append(arr[13])
-    total.append(arr[14])
+    cleaning_need.append(arr[9])
+    cleaning_assigned.append(arr[7])
+    not_working_robot[len(not_working_robot) - 1] += arr[8]
 
-    arr = sorted([eval(e) for e in line.split(";")[15:-1]])
+    distance.append(arr[10])
+    total.append(arr[11])
+
+    arr = sorted([eval(e) for e in line.split(";")[12:-1]])
     robots_n_task_switch = [e[1] for e in arr]
 
 fig, ax = plt.subplots()
@@ -67,8 +63,6 @@ fig, foraging_plot = plt.subplots()
 foraging_plot.plot(step, foraging_assigned,
                    label="Robot assigned to the foraging task")
 foraging_plot.plot(step, foraging_need, label="Resource need")
-foraging_plot.plot(step, foraging_average_sensed_demand,
-                   label="Average sensed need")
 foraging_plot.set(xlabel='simulation step', ylabel='value')
 foraging_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -79,8 +73,6 @@ fig, nest_processing = plt.subplots()
 nest_processing.plot(step, nest_processing_assigned,
                      label="Robot assigned to the nest processing task")
 nest_processing.plot(step, nest_processing_need,
-                     label="Average sensed need")
-nest_processing.plot(step, nest_processing_average_sensed_demand,
                      label="Resource need")
 nest_processing.set(xlabel='simulation step', ylabel='value')
 nest_processing.grid()
@@ -92,8 +84,6 @@ fig, cleaning = plt.subplots()
 cleaning.plot(step, cleaning_assigned,
               label="Robot assigned to the cleaning task")
 cleaning.plot(step, cleaning_need, label="Resource need")
-cleaning.plot(step, cleaning_average_sensed_demand,
-              label="Average sensed need")
 cleaning.set(xlabel='simulation step', ylabel='value')
 cleaning.grid()
 
@@ -118,7 +108,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 fig, total_plot = plt.subplots()
-last = (total[len(total) - 1])
+last = total[len(total) - 1]
 total_plot.plot(step, [t/max(1, last)
                        for t in total], label="Total processed resources")
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
