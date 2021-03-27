@@ -149,8 +149,6 @@ TASKS.append(foraging)
 TASKS.append(nest_processing)
 TASKS.append(cleaning)
 #############################################################################
-n_robot_to_add = 0
-
 ### Start's variables #########################################################
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -434,8 +432,8 @@ while True:
         if robot.has_to_finish_task_before_stop:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
-                globals.NEST.report(
-                    robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                robot.reset()
+                globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
     if ACT:
@@ -498,8 +496,8 @@ while True:
             import sys
             sys.exit()
 
-        if globals.CNT == 10000:
-            class_to_delete = [2, 3]
+        if globals.CNT == 200:
+            class_to_delete = [2]
 
             keep_alive_robot = []
             for robot in globals.ROBOTS:
@@ -511,16 +509,14 @@ while True:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                if robot.task in class_to_delete:
-                    n_robot_to_add += 1
-                    globals.ADD_AVAILABLE_INDEXES.append(robot.number)
+                elif robot.task in class_to_delete:
+                    robot.reset()
+                    globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 2000:
-            for _ in range(n_robot_to_add):
-                add_robot(1)
-                # add_robot(randint(1, 3))
+        if globals.CNT == 800:
+            globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
         pygame .display.flip()  # render drawing
