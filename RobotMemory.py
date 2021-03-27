@@ -20,7 +20,7 @@ class RobotMemory:
 
     def step(self):
 
-        for i, m in enumerate(self.memory):
+        for m in self.memory:
             m.time_since_last_registration += 1
 
     def can_register(self, robot_number):
