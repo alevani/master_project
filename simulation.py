@@ -70,7 +70,7 @@ ACT = None
 battery_effects = None
 do_record_trail = None
 exp_number = None
-resource_decrease_number = 0
+resource_decrease_number = 5
 nest_start_value = 25
 for opt, arg in opts:
     if opt == "-h":
@@ -99,13 +99,11 @@ for opt, arg in opts:
             globals.PROB_COMM_FAILURE = 0 if globals.PROB_COMM_FAILURE < 0 else 1
     elif opt == "-f":
         filename = "stats/"+arg
-        if "@" in arg:
-            resource_decrease_number = 5
-        elif "£" in arg:
+
+        if "£" in arg:
             resource_decrease_number = 7
         elif "æ" in arg:
             nest_start_value = 50
-            resource_decrease_number = 0
 
     elif opt == "-e":
         exp_number = int(arg)
