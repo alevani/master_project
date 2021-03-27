@@ -335,8 +335,10 @@ class Robot:
             theta += omega * self.SIMULATION_TIMESTEP
             theta = theta % math.radians(360)
 
-        # ? why is this never a float?
-        globals.total_dist += dist((self.position.x, self.position.y), (x, y))
+        # Robot not active at a task are consider idle, not moving.
+        if self.has_to_work():
+            globals.total_dist += dist((self.position.x,
+                                        self.position.y), (x, y))
 
         self.update_proximity_sensor_position(
             x - self.position.x, y - self.position.y, theta-self.position.theta)
