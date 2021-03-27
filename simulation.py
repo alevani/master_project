@@ -125,7 +125,7 @@ if ACT:
     fpsClock = pygame.time.Clock()
 ###############################################################################
 
-n_robot_to_add = 0
+
 ### Start's variables #########################################################
 # Slow at creation, and heavy, but considerabely increase visualisation speed.
 for x in range(int(W * 100)):
@@ -452,6 +452,9 @@ while True:
             if not robot.carry_resource:
                 globals.NEST.report(
                     robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                robot.reset()
+                robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
+                globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
     globals.NEST.pkg = False
@@ -509,6 +512,7 @@ while True:
         if globals.CNT >= 30000:
             import sys
             sys.exit()
+
     elif exp_number == 1:
         if globals.NEST.total >= 50:
             import sys
@@ -535,16 +539,14 @@ while True:
                 elif robot.task == class_to_delete and robot.has_to_work():
                     globals.NEST.report(
                         robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
-
-                if robot.task == class_to_delete and robot.has_to_work():
-                    n_robot_to_add += 1
-                    globals.ADD_AVAILABLE_INDEXES.append(robot.number)
+                    robot.reset()
+                    robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
+                    globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
             globals.ROBOTS = keep_alive_robot
 
         if globals.CNT == 15000:
-            for _ in range(n_robot_to_add):
-                add_robot(class_to_delete)
+            globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
         pygame .display.flip()  # render drawing
