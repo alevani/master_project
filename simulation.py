@@ -496,7 +496,7 @@ while True:
             import sys
             sys.exit()
 
-        if globals.CNT == 200:
+        if globals.CNT == 10000:
             class_to_delete = [2]
 
             keep_alive_robot = []
@@ -515,7 +515,7 @@ while True:
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 800:
+        if globals.CNT == 20000:
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
