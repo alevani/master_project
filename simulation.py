@@ -555,9 +555,6 @@ while True:
                 globals.ROBOTS = keep_alive_robot
 
             if globals.CNT == 20000:
-
-                for r in globals.ADD_AVAILABLE_ROBOTS:
-                    r.reset()
                 globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
