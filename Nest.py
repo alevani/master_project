@@ -64,7 +64,7 @@ class Nest:
         self.resource_stock -= resource_transformed
         self.resource_transformed += resource_transformed
 
-        self.resource_need += resource_stock
+        self.resource_need -= resource_stock
         self.resource_stock += resource_stock
 
     def energy(self, task):
@@ -72,7 +72,7 @@ class Nest:
 
     def demand(self, task):
         if task == 1:
-            return self.resource_need * -1
+            return self.resource_need
         elif task == 2:
             return self.resource_stock
         elif task == 3:

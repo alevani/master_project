@@ -71,7 +71,7 @@ battery_effects = None
 do_record_trail = None
 exp_number = None
 resource_decrease_number = 5
-nest_start_value = -25
+nest_start_value = 25
 for opt, arg in opts:
     if opt == "-h":
         print('python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -f <stats_file_name.csv> -e <exp_number (1 or 2)>')
@@ -102,7 +102,7 @@ for opt, arg in opts:
         if "£" in arg:
             resource_decrease_number = 7
         elif "æ" in arg:
-            nest_start_value = -50
+            nest_start_value = 50
     elif opt == "-e":
         exp_number = int(arg)
 
@@ -460,7 +460,7 @@ while True:
         VISUALIZER.draw_poi(globals.POIs)
 
     if globals.CNT % 500 == 0:
-        globals.NEST.resource_need -= resource_decrease_number
+        globals.NEST.resource_need += resource_decrease_number
 
     # Task helper
     if globals.CNT % 10 == 0:
