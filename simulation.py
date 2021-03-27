@@ -473,12 +473,14 @@ while True:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
                 robot.has_to_finish_task_before_stop = False
+                globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
         VISUALIZER.draw_poi(globals.POIs)
         VISUALIZER.draw_cnt(globals.CNT)
+
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
             robot.memory.demand_memory[0] += resource_decrease_number
@@ -555,15 +557,16 @@ while True:
                     robot.has_to_finish_task_before_stop = True
                     keep_alive_robot.append(robot)
 
-                if robot.task in classes_to_delete and robot.has_to_work():
+                elif robot.task in classes_to_delete and robot.has_to_work():
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
             globals.ROBOTS = keep_alive_robot
 
         if globals.CNT == 20000:
-            # here I cannot add them to a specific task, because they will
-            # take back the memory status they add from when they have been removed
             for r in globals.ADD_AVAILABLE_ROBOTS:
                 r.reset()
+                r.memory.demand_memory = [
+                    globals.NEST.demand(t) for t in range(1, 4)]
+
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
