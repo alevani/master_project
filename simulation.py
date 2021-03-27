@@ -473,6 +473,7 @@ while True:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
                 robot.has_to_finish_task_before_stop = False
+                robot.reset()
                 globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
@@ -483,6 +484,8 @@ while True:
 
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
+            robot.memory.demand_memory[0] += resource_decrease_number
+        for robot in globals.ADD_AVAILABLE_ROBOTS:
             robot.memory.demand_memory[0] += resource_decrease_number
         globals.NEST.resource_need += resource_decrease_number
 
@@ -512,6 +515,7 @@ while True:
         average_robot_demand = [
             e/globals.NB_ROBOTS for e in average_robot_demand]
         print(average_robot_demand)
+
         # print to csv file
         # TODO add a metric for total distance over POI density
         txt = str(globals.CNT)+";"
@@ -558,15 +562,12 @@ while True:
                     keep_alive_robot.append(robot)
 
                 elif robot.task in classes_to_delete and robot.has_to_work():
+                    robot.reset()
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
+
             globals.ROBOTS = keep_alive_robot
 
         if globals.CNT == 20000:
-            for r in globals.ADD_AVAILABLE_ROBOTS:
-                r.reset()
-                r.memory.demand_memory = [
-                    globals.NEST.demand(t) for t in range(1, 4)]
-
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
 
     if ACT:
