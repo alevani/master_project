@@ -467,8 +467,9 @@ while True:
         if robot.has_to_finish_task_before_stop:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
-                globals.ROBOTS.pop(i)
                 robot.has_to_finish_task_before_stop = False
+                robot.reset()
+                globals.ROBOTS.pop(i)
 
     if ACT:
         VISUALIZER.pygame_event_manager(pygame.event.get())
@@ -476,6 +477,8 @@ while True:
 
     if globals.CNT % 500 == 0:
         for robot in globals.ROBOTS:
+            robot.memory.demand_memory[0] += resource_decrease_number
+        for robot in globals.ADD_AVAILABLE_ROBOTS:
             robot.memory.demand_memory[0] += resource_decrease_number
         globals.NEST.resource_need += resource_decrease_number
 
@@ -538,7 +541,7 @@ while True:
                 sys.exit()
 
             if globals.CNT == 10000:
-                classes_to_delete = [2, 3]
+                classes_to_delete = [2]
 
                 keep_alive_robot = []
                 for robot in globals.ROBOTS:
@@ -549,7 +552,8 @@ while True:
                         robot.has_to_finish_task_before_stop = True
                         keep_alive_robot.append(robot)
 
-                    if robot.task in classes_to_delete:
+                    elif robot.task in classes_to_delete:
+                        robot.reset()
                         globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
                 globals.ROBOTS = keep_alive_robot
