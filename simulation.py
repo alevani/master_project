@@ -509,7 +509,7 @@ while True:
                 average_robot_demand[i] += d
 
         average_robot_demand = [
-            e/len(globals.NB_ROBOTS) for e in average_robot_demand]
+            e/len(globals.ROBOTS) for e in average_robot_demand]
         print(average_robot_demand)
         # print to csv file
         # TODO add a metric for total distance over POI density

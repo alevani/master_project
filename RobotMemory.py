@@ -64,7 +64,7 @@ class RobotMemory:
             self.PSI_demand = [self.get_PSI_demand(
                 m, d) for d in self.demand_memory]
 
-    # used to map the demand to a 1 - 20 scale (as PSI seems to be designed like this.)
+    # used to map the demand to a 1 - 20 scale (as PSI is designed like this.)
     def get_PSI_demand(self, m, demand):
         return math.ceil(demand/m * 20) if demand > 1 else 1
 
