@@ -513,7 +513,7 @@ while True:
                 average_robot_demand[i] += d
 
         average_robot_demand = [
-            e/globals.NB_ROBOTS for e in average_robot_demand]
+            e/len(globals.ROBOTS) for e in average_robot_demand]
         print(average_robot_demand)
 
         # print to csv file
