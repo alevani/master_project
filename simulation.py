@@ -563,6 +563,7 @@ while True:
 
             if globals.CNT == 20000:
                 globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
+                globals.ADD_AVAILABLE_ROBOTS = []
 
     if ACT:
         pygame .display.flip()  # render drawing
