@@ -1,6 +1,7 @@
 from RobotMemoryInformation import RobotMemoryInformation
 from random import randint
 import globals
+import math
 
 # TODO the robot also needs to save its own information
 # otherwise demand is biased
@@ -17,6 +18,7 @@ class RobotMemory:
 
         # Foraging, Nest processing, Cleaning
         self.demand_memory = [foraging_demand_start_value, 0, 0]
+        self.PSI_demand = [20, 1, 1]
 
     def step(self):
 
@@ -56,5 +58,15 @@ class RobotMemory:
             self.memory[robot_number -
                         1].task_processed_resources = processed_resources
 
+            m = max(self.demand_memory[0],
+                    self.demand_memory[1], self.demand_memory[2])
+
+            self.PSI_demand = [self.get_PSI_demand(
+                m, d) for d in self.demand_memory]
+
+    # used to map the demand to a 1 - 20 scale (as PSI seems to be designed like this.)
+    def get_PSI_demand(self, m, demand):
+        return math.ceil(demand/m * 20) if demand > 1 else 1
+
     def demand(self, task):
-        return self.demand_memory[task-1]
+        return self.PSI_demand[task-1]

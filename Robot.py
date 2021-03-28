@@ -121,7 +121,7 @@ class Robot:
         self.bottom_sensors_backup = deepcopy(bottom_sensors)
 
         self.memory = RobotMemory(self.number, foraging_demand_start_value)
-        self.saved_task = None
+        self.new_task = None
         self.time_to_drop_out = 0
         self.x = x
         self.x_low = 1

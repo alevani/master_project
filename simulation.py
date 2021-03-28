@@ -290,13 +290,14 @@ while True:
         # This is because sometimes the robot would not change it task because it was carrying a resource
         # but its x would change anyway and then the X wouldn't match the segment of the task the robot is in
         if robot.has_to_change_task_but_carry_resource and not robot.carry_resource:
-            robot.task = robot.saved_task
+            robot.task = robot.new_task
             PSITaskHandler.eq7(robot)
             robot.has_to_change_task_but_carry_resource = False
 
         if not robot.battery_low:
 
             if robot.network_packet != None:
+
                 robot.consume_network_packet()
                 PSITaskHandler.eq3_4(
                     robot, robot.task_packet)
@@ -313,10 +314,10 @@ while True:
             # Don't switch off task if you are carrying a resouce.
             if not robot.carry_resource:
                 PSITaskHandler.eq7(robot)
-            else:
+            elif not robot.has_to_change_task_but_carry_resource:
                 old_task = robot.task
                 PSITaskHandler.eq7(robot)
-                robot.saved_task = robot.task
+                robot.new_task = robot.task
                 robot.task = old_task
                 robot.has_to_change_task_but_carry_resource = True
 
@@ -469,6 +470,7 @@ while True:
             if not robot.carry_resource:
                 robot.has_to_finish_task_before_stop = False
                 robot.reset()
+                globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
     if ACT:
@@ -486,11 +488,12 @@ while True:
     if globals.CNT % 10 == 0:
         print(chr(27) + "[2J")
         print(" ******* LIVE STATS [" + str(globals.CNT) + "] *******")
-        print("N° | % | Task | x | x_high | x_low")
+        print("N° | % | Task | Demand | PSI demand | x | x_high | x_low")
         for robot in globals.ROBOTS:
             print("["+str(robot.number)+"]: "+str(robot.battery_level) +
                   " | "+TASKS_NAME[robot.task - 1] +
                   " | " + str(robot.memory.demand_memory) +
+                  " | " + str(robot.memory.PSI_demand) +
                   " | "+str(robot.x) +
                   " | "+str(robot.x_high) +
                   " | "+str(robot.x_low))
@@ -506,7 +509,7 @@ while True:
                 average_robot_demand[i] += d
 
         average_robot_demand = [
-            e/globals.NB_ROBOTS for e in average_robot_demand]
+            e/len(globals.NB_ROBOTS) for e in average_robot_demand]
         print(average_robot_demand)
         # print to csv file
         # TODO add a metric for total distance over POI density
@@ -541,7 +544,7 @@ while True:
                 sys.exit()
 
             if globals.CNT == 10000:
-                classes_to_delete = [2]
+                classes_to_delete = [3]
 
                 keep_alive_robot = []
                 for robot in globals.ROBOTS:

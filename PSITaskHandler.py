@@ -13,25 +13,29 @@ class PSITaskHandler:
         self.th_values = [ceil(0.333333 * self.Xmax),
                           ceil(0.6666666 * self.Xmax)]
         self.delta = 25  # was 1
-        self.phi_base = 0.3  # was 0.3
+        self.phi_base = 7.5  # was 0.3
 
         # ? do these numbers have to be coherent with how high my task demand can go?
         self.lower_margin = 3
         self.upper_margin = 3
 
     def _det_class(self, x):
-        if x < self.th_values[0]:
+        if x <= self.th_values[0]:
             return 1
-        elif (x > self.th_values[0] and x < self.th_values[1]):
+        elif (x > self.th_values[0] and x <= self.th_values[1]):
             return 2
         elif x > self.th_values[1]:
             return 3
 
     def eq1(self, r1, r2):
+
         partner_actual_x = r2
+
         r2_task = self._det_class(partner_actual_x)
-        d1 = r1.memory.demand(
-            r1.task if not r1.has_to_change_task_but_carry_resource else r1.saved_task)
+        # d1 = r1.memory.demand(
+        #     r1.task if not r1.has_to_change_task_but_carry_resource else r1.new_task)
+        r1_task = self._det_class(r1.x)
+        d1 = r1.memory.demand(r1_task)
         d2 = r1.memory.demand(r2_task)
 
         if r2_task == r1.task:
@@ -44,8 +48,8 @@ class PSITaskHandler:
         try:
             if ratio != 1:
                 if partner_actual_x > r1.x:
-                    partner_actual_x = self.th_values[r1.task-1] + (
-                        partner_actual_x-self.th_values[r1.task-1])*ratio
+                    partner_actual_x = self.th_values[r1_task-1] + (
+                        partner_actual_x-self.th_values[r1_task-1])*ratio
                 else:
                     partner_actual_x = self.th_values[r2_task-1]-(
                         self.th_values[r2_task-1]-partner_actual_x)*ratio
@@ -157,10 +161,10 @@ class PSITaskHandler:
 
         fail = False
         if r.task == 1:
-            if not r.x < self.th_values[0]:
+            if not r.x <= self.th_values[0]:
                 fail = True
         elif r.task == 2:
-            if not (r.x > self.th_values[0] and r.x < self.th_values[1]):
+            if not (r.x > self.th_values[0] and r.x <= self.th_values[1]):
                 fail = True
         elif r.task == 3:
             if not (r.x > self.th_values[1]):
