@@ -227,7 +227,7 @@ while True:
     if ACT:
         VISUALIZER.draw_arena()
         VISUALIZER.draw_areas(AREAS)
-
+    globals.NEST.step()
     for i, robot in enumerate(globals.ROBOTS):
 
         # If the robot is out of power, don't process it
@@ -451,7 +451,7 @@ while True:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
                 globals.NEST.report(
-                    robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                    robot.number, robot.task, robot.has_to_work(), 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                 robot.reset()
                 robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
                 globals.ADD_AVAILABLE_ROBOTS.append(robot)
@@ -538,14 +538,14 @@ while True:
 
                 elif robot.task == class_to_delete and robot.has_to_work():
                     globals.NEST.report(
-                        robot.number, 0, False, 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
+                        robot.number, robot.task, robot.has_to_work(), 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                     robot.reset()
                     robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
             globals.ROBOTS = keep_alive_robot
 
-        if globals.CNT == 15000:
+        if globals.CNT == 20000:
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
             globals.ADD_AVAILABLE_ROBOTS = []
 

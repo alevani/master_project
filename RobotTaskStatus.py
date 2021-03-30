@@ -4,4 +4,3 @@ class RobotTaskStatus:
         self.has_to_work = has_to_work
         self.battery_level = battery_level
         self.time_since_last_registration = 0
-        self.time_before_registration = 0

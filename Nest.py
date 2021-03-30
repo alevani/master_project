@@ -48,8 +48,14 @@ class Nest:
         else:
             return False, False, None
 
-    # This will keep the state of the allocated task as a backup. so the information that an ant can acquire at time T are a snapshot of the past and not
-    # a live event.
+    def step(self):
+        for m in self.robot_task_status:
+            m.time_since_last_registration += 1
+
+            # If the robot cannot be contacted after a long period of time,
+            # consider it gone.
+            if m.time_since_last_registration >= 2000:
+                m.has_to_work = False
 
     def report(self, robot_number, robot_task, robot_has_to_work, robot_battery_level, trashed_resources, resource_transformed, resource_stock):
         self.robot_task_status[robot_number - 1].task = robot_task
@@ -57,6 +63,8 @@ class Nest:
                                1].has_to_work = robot_has_to_work
         self.robot_task_status[robot_number -
                                1].battery_level = robot_battery_level
+        self.robot_task_status[robot_number -
+                               1].time_since_last_registration = 0
 
         self.resource_transformed -= trashed_resources
         self.total += trashed_resources
