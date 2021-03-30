@@ -152,9 +152,9 @@ class PSITaskHandler:
         # elif r.task > 1 and r.x < self.th_values[r.task - 2]:
         #     r.task -= 1
 
-        if r.x < self.th_values[0]:
+        if r.x <= self.th_values[0]:
             r.task = 1
-        elif (r.x > self.th_values[0] and r.x < self.th_values[1]):
+        elif (r.x > self.th_values[0] and r.x <= self.th_values[1]):
             r.task = 2
         elif r.x > self.th_values[1]:
             r.task = 3
