@@ -2,14 +2,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-aita = open('../æstats_AITA.csv')
-faita = open('../æstats_FAITA.csv')
-gta = open('../æstats_GTA.csv')
-rnd = open('../æstats_RND.csv')
-psi = open('../æstats_PSI.csv')
+aita = open('../£AITA3_stats.csv')
+faita = open('../£FAITA3_stats.csv')
+gta = open('../£GTA3_stats.csv')
+rnd = open('../£RND3_stats.csv')
+psi = open('../£PSI3_stats.csv')
 
 
-step = np.arange(10, 18000, 10)
+step = np.arange(10,  61000, 10)
 
 
 def read(file, shift=0):
@@ -55,24 +55,25 @@ distance_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
+m = max(t_gta[len(t_gta) -1 ],t_aita[len(t_aita) -1 ],t_faita[len(t_faita) -1 ],t_rnd[len(t_rnd) -1 ],t_psi[len(t_psi) -1 ])
+t_gta += [None for i in range(len(step) - len(t_gta))]
+t_faita += [None for i in range(len(step) - len(t_faita))]
+t_aita += [None for i in range(len(step) - len(t_aita))]
+t_rnd += [None for i in range(len(step) - len(t_rnd))]
+t_psi += [None for i in range(len(step) - len(t_psi))]
 
-t_gta += [50 for i in range(len(step) - len(t_gta))]
-t_faita += [50 for i in range(len(step) - len(t_faita))]
-t_aita += [50 for i in range(len(step) - len(t_aita))]
-t_rnd += [50 for i in range(len(step) - len(t_rnd))]
-t_psi += [50 for i in range(len(step) - len(t_psi))]
 
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t/50 if not t == None else None for t in t_gta],
+total_plot.plot(step, [t if not t == None else None for t in t_gta],
                 label="GTA processed resources")
-total_plot.plot(step, [t/50 if not t == None else None for t in t_faita],
+total_plot.plot(step, [t if not t == None else None for t in t_faita],
                 label="FAITA total processed resources")
-total_plot.plot(step, [t/50 if not t == None else None for t in t_aita],
+total_plot.plot(step, [t if not t == None else None for t in t_aita],
                 label="AITA total processed resources")
-total_plot.plot(step, [t/50 if not t == None else None for t in t_rnd],
+total_plot.plot(step, [t if not t == None else None for t in t_rnd],
                 label="RND total processed resources")
-total_plot.plot(step, [t/50 if not t == None else None for t in t_psi],
+total_plot.plot(step, [t if not t == None else None for t in t_psi],
                 label="PSI processed resources")
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
 total_plot.grid()
