@@ -98,11 +98,7 @@ class TaskHandler:
 
     # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
     def assigned(self, task):
-        # Tweak because it did not count the robot that were in task 0 and changing all statistical tool would be too long
-        if task == 1:
-            return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()]) + sum([1 for robot in globals.ROBOTS if robot.task == 0])
-        else:
-            return sum([1 for robot in globals.ROBOTS if robot.task == task and robot.has_to_work()]), sum([1 for robot in globals.ROBOTS if robot.task == task and not robot.has_to_work()])
+        return sum([1 for robot in globals.ROBOTS if robot.task == task]), 0
 
     # Local Feedback function
     def feedback(self, task):
