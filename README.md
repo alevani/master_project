@@ -38,7 +38,7 @@ Conditions for ant task report:
 ## How to: Line command
 ```
 > python simulation.py -r <nb_robot> -p <np_point> -s <is_simulation_visible> -b <do_robot_lose_battery> -t <do_record_trail> -a <avoidance_activation> -n <[0,1]> -f <stats_file_name.csv> -e <exp_number (1 or 2)>
-> python simulation.py -r 50 -p 1000 -s True -b False -t False -a True -f stats.csv -e 1
+> python simulation.py -r 40 -p 2000 -s True -b False -t False -a True -n 0.3 -f stats.csv -e 1
 
 -r = Number of simulated robot
 -p = Number of randomly generated resource
@@ -59,7 +59,7 @@ r -> Increments resrouce's needs by a random number -> Not up-to-date
 x -> if -t = True, show where each robot have been during the simulation
 p -> Pause the simulation
 right-click or click 7 -> add a robot to the simulation Not up-to-date
-left-click -> spread a random number of point in a 100x100 area around the position of the click Not up-to-date
+left-click -> spread a random number of point in a 100x100 area around the position of the click
 click 6 -> Remove a robot from the simulation Not up-to-date
 v -> Delete 1/3 of the robots (random) Not up-to-date
 b -> Delete 1/3 of the robots performing foraging Not up-to-date
