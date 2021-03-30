@@ -451,6 +451,7 @@ while True:
                 globals.NEST.report(
                     robot.number, robot.task, robot.has_to_work(), 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                 robot.reset()
+                robot.has_to_finish_task_before_stop = False
                 robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
                 globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
