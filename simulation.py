@@ -54,8 +54,6 @@ import sys
 # IDEAS
 ########
 # ? MVC Refactor
-#! TODO have a file.close when sys.exit to makek sure no data is lost
-# TODO do the median and not the mean
 ### GLOBALS ###################################################################
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hr:p:s:b:t:a:n:f:e:")
