@@ -433,6 +433,7 @@ while True:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
                 robot.reset()
+                robot.has_to_finish_task_before_stop = False
                 globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
@@ -460,8 +461,7 @@ while True:
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
         TaskHandler.print_stats(task_assigned_unassigned)
-        print(len(globals.ROBOTS))
-        print(len(globals.ADD_AVAILABLE_ROBOTS))
+
         txt = str(globals.CNT)+";"
         for i in TASKS:
             txt += str(task_assigned_unassigned[i-1][0]) + \
