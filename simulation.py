@@ -228,13 +228,14 @@ def comm(robot_rays, robot):
     '''
     # Comm that covers the entire Arena. (sends the information to itself so it can register it in its memory)
     for r in globals.ROBOTS:
+
         if r.number == robot.number:
             r.memory.register(robot.number, robot.task, robot.has_to_work(), [
                 robot.resource_stock, robot.resource_transformed, robot.trashed_resources])
         else:
-
-            r.try_register((robot.number, robot.task, robot.has_to_work(), [
-                robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
+            if robot.in_comm_range(r.position):
+                r.try_register((robot.number, robot.task, robot.has_to_work(), [
+                    robot.resource_stock, robot.resource_transformed, robot.trashed_resources]))
 
     # # Register its own status
     # robot.memory.register(robot.number, robot.task, robot.has_to_work(), [
