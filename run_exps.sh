@@ -18,10 +18,10 @@ for e in {1..3}; do
         for i in {1..5}; do 
             if [[ $e -eq 3 ]]; then
                 for m in @ £ ; do
-                    python simulation.py -p 2000 -r $r -s False -b False -t False -a True -n 0.01 -f "EXP${e}/${m}${current_TA}_r${r}/RUN${i}.csv" -e $e
+                    python simulation.py -p 2000 -r $r -s False -b False -t False -a True -n 0.01 -f "${current_TA}/EXP${e}/${m}${current_TA}_r${r}/RUN${i}.csv" -e $e
                 done
             else
-                python simulation.py -p 2000 -r $r -s False -b False -t False -a True -n 0.01 -f "EXP${e}/${mode}${current_TA}_r${r}/RUN${i}.csv"  -e $e
+                python simulation.py -p 2000 -r $r -s False -b False -t False -a True -n 0.01 -f "${current_TA}/EXP${e}/${mode}${current_TA}_r${r}/RUN${i}.csv"  -e $e
             fi
         done
     done
