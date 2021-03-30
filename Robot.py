@@ -121,8 +121,13 @@ class Robot:
         self.memory = RobotMemory(self.number, foraging_demand_start_value)
 
     def in_comm_range(self, position):
-        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 4 else False
-        return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
+        # Infinite range
+        return True
+
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.15 else False
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.30 else False
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.50 else False
+        # return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 1 else False
 
     def in_range(self, position):
         return True if dist((position.x, position.y), (self.position.x, self.position.y)) <= 0.12 else False
