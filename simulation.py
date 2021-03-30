@@ -460,7 +460,8 @@ while True:
         task_assigned_unassigned = [TaskHandler.assigned(
             t) for t in TASKS]
         TaskHandler.print_stats(task_assigned_unassigned)
-
+        print(len(globals.ROBOTS))
+        print(len(globals.ADD_AVAILABLE_ROBOTS))
         txt = str(globals.CNT)+";"
         for i in TASKS:
             txt += str(task_assigned_unassigned[i-1][0]) + \
@@ -512,8 +513,14 @@ while True:
                 elif robot.task in class_to_delete:
                     robot.reset()
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
+                else:
+                    print("robot lost")
+                    print(robot.number)
+                    print(robot.task)
+                    sys.exit()
 
             globals.ROBOTS = keep_alive_robot
+            keep_alive_robot = []
 
         if globals.CNT == 40000:
             globals.ROBOTS += globals.ADD_AVAILABLE_ROBOTS
