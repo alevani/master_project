@@ -22,8 +22,13 @@ class RobotMemory:
 
     def step(self):
 
-        for m in self.memory:
+        for i, m in enumerate(self.memory):
             m.time_since_last_registration += 1
+
+            # If the robot cannot be contacted after a long period of time,
+            # consider it gone.
+            if not i + 1 == self.number and m.time_since_last_registration >= 150:
+                m.has_to_work = False
 
     def can_register(self, robot_number):
         if self.memory[robot_number-1].time_since_last_registration >= self.memory[robot_number-1].time_before_registration:
