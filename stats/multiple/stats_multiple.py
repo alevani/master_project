@@ -2,11 +2,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-aita = open('../£AITA0_stats.csv')
-faita = open('../£FAITA0_stats.csv')
-gta = open('../£GTA0_stats.csv')
+aita = open('../£AITA3_stats.csv')
+faita = open('../£FAITA3_stats.csv')
+gta = open('../£GTA3_stats.csv')
 rnd = open('../£RND3_stats.csv')
-psi = open('../£PSI0_stats.csv')
+psi = open('../£PSI3_stats.csv')
 
 
 step = np.arange(10,  61000, 10)
