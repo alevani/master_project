@@ -448,11 +448,8 @@ while True:
         if robot.has_to_finish_task_before_stop:
             # If not, the robot has terminated its task, it can be killed
             if not robot.carry_resource:
-                globals.NEST.report(
-                    robot.number, robot.task, robot.has_to_work(), 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                 robot.reset()
                 robot.has_to_finish_task_before_stop = False
-                robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
                 globals.ADD_AVAILABLE_ROBOTS.append(robot)
                 globals.ROBOTS.pop(i)
 
@@ -536,10 +533,7 @@ while True:
                     keep_alive_robot.append(robot)
 
                 elif robot.task == class_to_delete and robot.has_to_work():
-                    globals.NEST.report(
-                        robot.number, robot.task, robot.has_to_work(), 100, robot.trashed_resources, robot.resource_transformed, robot.resource_stock)
                     robot.reset()
-                    robot.trashed_resources, robot.resource_transformed, robot.resource_stock = 0, 0, 0
                     globals.ADD_AVAILABLE_ROBOTS.append(robot)
 
             globals.ROBOTS = keep_alive_robot
