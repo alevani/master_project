@@ -1,9 +1,22 @@
 # big boilderplate file
+import sys
 from os import walk
+import getopt
 
-directory = './EXP/ALONE/EXP1/'
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "f:")
+except getopt.GetoptError:
+    sys.exit(2)
+
+filesave_name = ''
+for opt, arg in opts:
+    if opt == "-f":
+        filesave_name = arg
+
+directory = './'
 _, _, filenames = next(walk(directory))
 filenames = [directory+f for f in filenames if 'csv' in f]
+
 
 # All the array should be of the same lenght
 
@@ -15,41 +28,52 @@ def read(file):
 
     foraging_need = []
     foraging_assigned = []
+    foraging_not_working = []
+    foraging_assigned_pov_nest = []
+    foraging_not_working_pov_nest = []
 
     nest_processing_need = []
     nest_processing_assigned = []
-
-    foraging_not_working = []
     nest_processing_not_working = []
-    cleaning_not_working = []
+    nest_processing_assigned_pov_nest = []
+    nest_processing_not_working_pov_nest = []
 
     cleaning_need = []
     cleaning_assigned = []
+    cleaning_not_working = []
+    cleaning_assigned_pov_nest = []
+    cleaning_not_working_pov_nest = []
 
     for line in file:
-        arr = [float(value) for value in line.split(";")[:12]]
+        arr = [float(value) for value in line.split(";")[:18]]
 
-        foraging_need.append(arr[3])
         foraging_assigned.append(arr[1])
         foraging_not_working.append(arr[2])
+        foraging_assigned_pov_nest.append(arr[3])
+        foraging_not_working_pov_nest.append(arr[4])
+        foraging_need.append(arr[5])
 
-        nest_processing_need.append(arr[6])
-        nest_processing_assigned.append(arr[4])
-        nest_processing_not_working.append(arr[5])
+        nest_processing_assigned.append(arr[6])
+        nest_processing_not_working.append(arr[7])
+        nest_processing_assigned_pov_nest.append(arr[8])
+        nest_processing_not_working_pov_nest.append(arr[9])
+        nest_processing_need.append(arr[10])
 
-        cleaning_need.append(arr[9])
-        cleaning_assigned.append(arr[7])
-        cleaning_not_working.append(arr[8])
+        cleaning_assigned.append(arr[11])
+        cleaning_not_working.append(arr[12])
+        cleaning_assigned_pov_nest.append(arr[13])
+        cleaning_not_working_pov_nest.append(arr[14])
+        cleaning_need.append(arr[15])
 
-        distance.append(arr[10])
-        total.append(arr[11])
+        distance.append(arr[16])
+        total.append(arr[17])
 
         # ! this has to be complient with if i remove robots .. maybe use a dictionnary with robot's number a key
 
         robots_n_task_switch = sorted([list(eval(e))
-                                       for e in line.split(";")[12:-1]])
+                                       for e in line.split(";")[18:-1]])
 
-    return [distance, total, robots_n_task_switch, foraging_need, foraging_assigned, nest_processing_need, nest_processing_assigned, cleaning_need, cleaning_assigned, foraging_not_working, nest_processing_not_working, cleaning_not_working]
+    return [distance, total, robots_n_task_switch, foraging_need, foraging_assigned, nest_processing_need, nest_processing_assigned, cleaning_need, cleaning_assigned, foraging_not_working, nest_processing_not_working, cleaning_not_working, foraging_assigned_pov_nest, foraging_not_working_pov_nest, nest_processing_assigned_pov_nest, nest_processing_not_working_pov_nest, cleaning_assigned_pov_nest, cleaning_not_working_pov_nest]
 
 
 all = []
@@ -98,22 +122,35 @@ avg_foraging_not_working = process([a[9] for a in all])
 avg_nest_processing_not_working = process([a[10] for a in all])
 avg_cleaning_not_working = process([a[11] for a in all])
 
+avg_foraging_assigned_pov_nest = process([a[12] for a in all])
+avg_foraging_not_working_pov_nest = process([a[13] for a in all])
+avg_nest_processing_assigned_pov_nest = process([a[14] for a in all])
+avg_nest_processing_not_working_pov_nest = process([a[15] for a in all])
+avg_cleaning_assigned_pov_nest = process([a[16] for a in all])
+avg_cleaning_not_working_pov_nest = process([a[17] for a in all])
 
+#! nice idea, but is this gonna work when then used in the regular stat file? isn't it gonna be devided by the number of robot or smth?
 txt = ""
 for r in avg_switch:
     txt += ";" + str(r)
 
-file = open('avged_file.csv', 'w+')
+file = open(filesave_name+'.csv', 'w+')
 for i in range(len(avg_distance)):
     file.write(str((i + 1) * 10) + ";" +
                str(avg_foraging_assigned[i]) + ";" +
                str(avg_foraging_not_working[i]) + ";" +
+               str(avg_foraging_assigned_pov_nest[i]) + ";" +
+               str(avg_foraging_not_working_pov_nest[i]) + ";" +
                str(foraging_need[i]) + ";" +
                str(avg_nest_processing_assigned[i]) + ";" +
                str(avg_nest_processing_not_working[i]) + ";" +
+               str(avg_nest_processing_assigned_pov_nest[i]) + ";" +
+               str(avg_nest_processing_not_working_pov_nest[i]) + ";" +
                str(avg_nest_processing_need[i]) + ";" +
                str(avg_cleaning_assigned[i]) + ";" +
                str(avg_cleaning_not_working[i]) + ";" +
+               str(avg_cleaning_assigned_pov_nest[i]) + ";" +
+               str(avg_cleaning_not_working_pov_nest[i]) + ";" +
                str(avg_cleaning_need[i]) + ";" +
                str(avg_distance[i]) + ";" +
                str(avg_total[i]) + txt + "\n")
