@@ -2,7 +2,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('./@stats.csv')
+file = open(
+    '£stats.csv')
 
 
 foraging_need = []
@@ -66,9 +67,9 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 fig, foraging_plot = plt.subplots()
 foraging_plot.plot(step, foraging_assigned,
                    label="Robot assigned to the foraging task")
-foraging_plot.plot(step, foraging_need, label="Resource need")
 foraging_plot.plot(step, foraging_average_sensed_demand,
                    label="Average sensed need")
+foraging_plot.plot(step, foraging_need, label="Resource need")
 foraging_plot.set(xlabel='simulation step', ylabel='value')
 foraging_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -78,9 +79,9 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 fig, nest_processing = plt.subplots()
 nest_processing.plot(step, nest_processing_assigned,
                      label="Robot assigned to the nest processing task")
-nest_processing.plot(step, nest_processing_need,
-                     label="Average sensed need")
 nest_processing.plot(step, nest_processing_average_sensed_demand,
+                     label="Average sensed need")
+nest_processing.plot(step, nest_processing_need,
                      label="Resource need")
 nest_processing.set(xlabel='simulation step', ylabel='value')
 nest_processing.grid()
@@ -91,9 +92,9 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 fig, cleaning = plt.subplots()
 cleaning.plot(step, cleaning_assigned,
               label="Robot assigned to the cleaning task")
-cleaning.plot(step, cleaning_need, label="Resource need")
 cleaning.plot(step, cleaning_average_sensed_demand,
               label="Average sensed need")
+cleaning.plot(step, cleaning_need, label="Resource need")
 cleaning.set(xlabel='simulation step', ylabel='value')
 cleaning.grid()
 
