@@ -1,7 +1,19 @@
-# big boilderplate file
+import sys
 from os import walk
+import getopt
 
-directory = './test/'
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "f:")
+except getopt.GetoptError:
+    sys.exit(2)
+
+filesave_name = ''
+for opt, arg in opts:
+    if opt == "-f":
+        filesave_name = arg
+
+directory = './'
+
 _, _, filenames = next(walk(directory))
 filenames = [directory+f for f in filenames if 'csv' in f]
 
@@ -112,7 +124,7 @@ txt = ""
 for r in avg_switch:
     txt += ";" + str(r)
 
-file = open('avged_file.csv', 'w+')
+file = open(filesave_name+'.csv', 'w+')
 for i in range(len(avg_distance)):
     file.write(str((i + 1) * 10) + ";" +
                str(avg_foraging_assigned[i]) + ";" +
