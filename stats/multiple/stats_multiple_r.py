@@ -3,16 +3,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 f10 = open(
-    '/Users/freak/Desktop/master_project/stats/03FAITA/EXP3/£FAITA_r10/£FAITA_r10.csv')
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r10/æAITA_r10.csv')
 f20 = open(
-    '/Users/freak/Desktop/master_project/stats/03FAITA/EXP3/£FAITA_r20/£FAITA_r20.csv')
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r20/æAITA_r20.csv')
 f30 = open(
-    '/Users/freak/Desktop/master_project/stats/03FAITA/EXP3/£FAITA_r30/£FAITA_r30.csv')
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r30/æAITA_r30.csv')
 f40 = open(
-    '/Users/freak/Desktop/master_project/stats/03FAITA/EXP3/£FAITA_r40/£FAITA_r40.csv')
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r40/æAITA_r40.csv')
 f50 = open(
-    '/Users/freak/Desktop/master_project/stats/03FAITA/EXP3/£FAITA_r50/£FAITA_r50.csv')
-
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r50/æAITA_r50.csv')
+f70 = open(
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r70/æAITA_r70.csv')
+f100 = open(
+    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r100/æAITA_r100.csv')
 
 step = np.arange(10,  61000, 10)
 
@@ -35,11 +38,13 @@ def read(file, shift=0):
 
 
 # Shifts are here because file may have different formats
-d_30, t_30, n_30 = read(f30, 3)
-d_20, t_20, n_20 = read(f20, 3)
-d_10, t_10, n_10 = read(f10, 3)
-d_40, t_40, n_40 = read(f40, 3)
-d_50, t_50, n_50 = read(f50, 3)
+d_30, t_30, n_30 = read(f30, 6)
+d_20, t_20, n_20 = read(f20, 6)
+d_10, t_10, n_10 = read(f10, 6)
+d_40, t_40, n_40 = read(f40, 6)
+d_50, t_50, n_50 = read(f50, 6)
+d_70, t_70, n_70 = read(f70, 6)
+d_100, t_100, n_100 = read(f100, 6)
 
 
 d_30 += [d_30[len(d_30) - 1] for i in range(len(step) - len(d_30))]
@@ -47,6 +52,8 @@ d_20 += [d_20[len(d_20) - 1] for i in range(len(step) - len(d_20))]
 d_10 += [d_10[len(d_10) - 1] for i in range(len(step) - len(d_10))]
 d_40 += [d_40[len(d_40) - 1] for i in range(len(step) - len(d_40))]
 d_50 += [d_50[len(d_50) - 1] for i in range(len(step) - len(d_50))]
+d_70 += [d_70[len(d_70) - 1] for i in range(len(step) - len(d_70))]
+d_100 += [d_100[len(d_100) - 1] for i in range(len(step) - len(d_100))]
 
 fig, distance_plot = plt.subplots()
 distance_plot.plot(step, d_30, label="30 robots")
@@ -54,6 +61,8 @@ distance_plot.plot(step, d_20, label="20 robots")
 distance_plot.plot(step, d_10, label="10 robots")
 distance_plot.plot(step, d_40, label="40 robots")
 distance_plot.plot(step, d_50, label="50 robots")
+distance_plot.plot(step, d_70, label="70 robots")
+distance_plot.plot(step, d_100, label="100 robots")
 distance_plot.set(xlabel='simulation step', ylabel='Covered distance (cm)')
 distance_plot.grid()
 
@@ -67,6 +76,8 @@ t_20 += [None for i in range(len(step) - len(t_20))]
 t_10 += [None for i in range(len(step) - len(t_10))]
 t_40 += [None for i in range(len(step) - len(t_40))]
 t_50 += [None for i in range(len(step) - len(t_50))]
+t_70 += [None for i in range(len(step) - len(t_70))]
+t_100 += [None for i in range(len(step) - len(t_100))]
 
 
 fig, total_plot = plt.subplots()
@@ -80,6 +91,10 @@ total_plot.plot(step, [t if not t == None else None for t in t_40],
                 label="40 robots")
 total_plot.plot(step, [t if not t == None else None for t in t_50],
                 label="50 robots")
+total_plot.plot(step, [t if not t == None else None for t in t_70],
+                label="70 robots")
+total_plot.plot(step, [t if not t == None else None for t in t_100],
+                label="100 robots")
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
 total_plot.grid()
 
