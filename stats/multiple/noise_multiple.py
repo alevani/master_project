@@ -16,7 +16,7 @@ f70 = open(
     '/Users/freak/Desktop/master_project/stats/0FAITA_EXP_NOISE/EXP1/0_æFAITA_r40/0_æFAITA_r40.csv')
 
 
-step = np.arange(10,  61000, 10)
+step = np.arange(10,  4200, 10)
 
 
 def read(file, shift=0):
@@ -45,51 +45,29 @@ d_50, t_50, n_50 = read(f50, 3)
 d_70, t_70, n_70 = read(f70, 3)
 
 
-d_30 += [d_30[len(d_30) - 1] for i in range(len(step) - len(d_30))]
-d_20 += [d_20[len(d_20) - 1] for i in range(len(step) - len(d_20))]
-d_10 += [d_10[len(d_10) - 1] for i in range(len(step) - len(d_10))]
-d_40 += [d_40[len(d_40) - 1] for i in range(len(step) - len(d_40))]
-d_50 += [d_50[len(d_50) - 1] for i in range(len(step) - len(d_50))]
-d_70 += [d_70[len(d_70) - 1] for i in range(len(step) - len(d_70))]
-
-
-fig, distance_plot = plt.subplots()
-distance_plot.plot(step, d_30, label="30 robots")
-distance_plot.plot(step, d_20, label="20 robots")
-distance_plot.plot(step, d_10, label="10 robots")
-distance_plot.plot(step, d_40, label="40 robots")
-distance_plot.plot(step, d_50, label="50 robots")
-distance_plot.plot(step, d_70, label="70 robots")
-
-distance_plot.set(xlabel='simulation step', ylabel='Covered distance (cm)')
-distance_plot.grid()
-
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.)
-
 m = max(t_30[len(t_30) - 1], t_10[len(t_10) - 1],
-        t_20[len(t_20) - 1], t_40[len(t_40) - 1], t_50[len(t_50) - 1])
-t_30 += [None for i in range(len(step) - len(t_30))]
-t_20 += [None for i in range(len(step) - len(t_20))]
-t_10 += [None for i in range(len(step) - len(t_10))]
-t_40 += [None for i in range(len(step) - len(t_40))]
-t_50 += [None for i in range(len(step) - len(t_50))]
-t_70 += [None for i in range(len(step) - len(t_70))]
+    t_20[len(t_20) - 1], t_40[len(t_40) - 1], t_50[len(t_50) - 1])
+t_30 += [50 for i in range(len(step) - len(t_30))]
+t_20 += [50 for i in range(len(step) - len(t_20))]
+t_10 += [50 for i in range(len(step) - len(t_10))]
+t_40 += [50 for i in range(len(step) - len(t_40))]
+t_50 += [50 for i in range(len(step) - len(t_50))]
+t_70 += [50 for i in range(len(step) - len(t_70))]
 
 
 fig, total_plot = plt.subplots()
 total_plot.plot(step, [t if not t == None else None for t in t_30],
-                label="30 robots")
+                label="P = 0.3")
 total_plot.plot(step, [t if not t == None else None for t in t_20],
-                label="20 robots")
+                label="P = 0.1")
 total_plot.plot(step, [t if not t == None else None for t in t_10],
-                label="10 robots")
+                label="P = 0.05")
 total_plot.plot(step, [t if not t == None else None for t in t_40],
-                label="40 robots")
+                label="P = 0.5")
 total_plot.plot(step, [t if not t == None else None for t in t_50],
-                label="50 robots")
+                label="P = 0.7")
 total_plot.plot(step, [t if not t == None else None for t in t_70],
-                label="70 robots")
+                label="P = 0")
 
 total_plot.set(xlabel='simulation step', ylabel='Task completion')
 total_plot.grid()
