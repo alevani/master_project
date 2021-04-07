@@ -49,7 +49,7 @@ for line in file:
     distance.append(arr[13])
     total.append(arr[14])
 
-    arr = sorted([eval(e) for e in line.split(";")[15:-1]])
+    arr = sorted([eval(e) for e in line.split(";")[15:]])
     robots_n_task_switch = [e[1] for e in arr]
 
 fig, ax = plt.subplots()
@@ -134,7 +134,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, len(robots_n_task_switch) + 1), robots_n_task_switch,
+robot_n_task_plot.plot(range(1, len(robots_n_task_switch) + 2), robots_n_task_switch,
                        label="Number of task switch for a robot over the total period")
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 robot_n_task_plot.grid()
