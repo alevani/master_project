@@ -30,7 +30,7 @@ def read(file, shift=0):
         distance.append(arr[10 + shift])
         total.append(arr[11 + shift])
 
-        arr = sorted([eval(e) for e in line.split(";")[12 + shift:-1]])
+        arr = sorted([eval(e) for e in line.split(";")[12 + shift:]])
 
         robots_n_task_switch = [e[1] for e in arr]
 

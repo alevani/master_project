@@ -20,7 +20,7 @@ def read(file):
         distance.append(arr[10])
         total.append(arr[11])
 
-        arr = sorted([eval(e) for e in line.split(";")[12:-1]])
+        arr = sorted([eval(e) for e in line.split(";")[12:]])
 
         robots_n_task_switch = [e[1] for e in arr]
  
@@ -69,11 +69,11 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, len(n_gta) + 1), n_gta,
+robot_n_task_plot.plot(range(1, len(n_gta) +2), n_gta,
                        label="GTA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, len(n_gata) + 1), n_gata,
+robot_n_task_plot.plot(range(1, len(n_gata) +2), n_gata,
                        label="GATA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, len(n_aita) + 1), n_aita,
+robot_n_task_plot.plot(range(1, len(n_aita) +2), n_aita,
                        label="AITA Number of task switch for a robot over the total period")
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 
