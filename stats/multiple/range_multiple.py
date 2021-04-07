@@ -27,6 +27,7 @@ step = np.arange(10,  12000, 10)
 def read(file, shift=0):
     distance = []
     total = []
+    error=[]
     robots_n_task_switch = None
     for line in file:
         arr = [float(value) for value in line.split(";")[:12 + shift]]
@@ -34,22 +35,26 @@ def read(file, shift=0):
         distance.append(arr[10 + shift])
         total.append(arr[11 + shift])
 
+        error.append(abs(arr[4] - arr[3]))
+        error[len(error) -1 ] += abs(arr[7]- arr[8])
+        error[len(error) -1 ] += abs(arr[11]- arr[12])
+
         arr = sorted([eval(e) for e in line.split(";")[12 + shift:]])
 
         robots_n_task_switch = [e[1] for e in arr]
 
-    return distance, total, robots_n_task_switch
+    return distance, total, robots_n_task_switch, error
 
 
 # Shifts are here because file may have different formats
-d_30, t_30, n_30 = read(f30, 3)
-d_20, t_20, n_20 = read(f20, 3)
-d_10, t_10, n_10 = read(f10, 3)
-d_40, t_40, n_40 = read(f40, 3)
-d_50, t_50, n_50 = read(f50, 3)
-d_70, t_70, n_70 = read(f70, 3)
-d_0, t_0, n_0 = read(f0, 3)
-d_8000, t_8000, n_8000 = read(f8000, 3)
+d_30, t_30, n_30, e_30 = read(f30, 3)
+d_20, t_20, n_20, e_20 = read(f20, 3)
+d_10, t_10, n_10, e_10 = read(f10, 3)
+d_40, t_40, n_40, e_40 = read(f40, 3)
+d_50, t_50, n_50, e_50 = read(f50, 3)
+d_70, t_70, n_70, e_70 = read(f70, 3)
+d_0, t_0, n_0, e_0 = read(f0, 3)
+d_8000, t_8000, n_8000, e_8000 = read(f8000, 3)
 
 
 
@@ -69,20 +74,20 @@ fig, total_plot = plt.subplots()
 # total_plot.plot(step, [t if not t == None else None for t in t_0],
 #                 label="0.1m")
 total_plot.plot(step, [t if not t == None else None for t in t_10],
-                label="0.5m")
+                label="Range = 0.5m")
 total_plot.plot(step, [t if not t == None else None for t in t_20],
-                label="1m")
+                label="Range = 1m")
 total_plot.plot(step, [t if not t == None else None for t in t_30],
-                label="5m")
+                label="Range = 5m")
 total_plot.plot(step, [t if not t == None else None for t in t_40],
-                label="7m ")
+                label="Range = 7m ")
 
 total_plot.plot(step, [t if not t == None else None for t in t_50],
-                label="13m")
+                label="Range = 13m")
 total_plot.plot(step, [t if not t == None else None for t in t_70],
-                label="15m")
+                label="Range = 15m")
 total_plot.plot(step, [t if not t == None else None for t in t_8000],
-                label="Infinite range")
+                label="Range = Entire arena")
 
 
 
@@ -91,4 +96,55 @@ total_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+
+
+
+step = np.arange(10,  900000, 10)
+
+e_0 += [None for i in range(len(step) - len(e_0))]
+e_30 += [None for i in range(len(step) - len(e_30))]
+e_20 += [None for i in range(len(step) - len(e_20))]
+e_10 += [None for i in range(len(step) - len(e_10))]
+e_40 += [None for i in range(len(step) - len(e_40))]
+e_50 += [None for i in range(len(step) - len(e_50))]
+e_70 += [None for i in range(len(step) - len(e_70))]
+e_8000 += [None for i in range(len(step) - len(e_8000))]
+fig, error_ = plt.subplots()
+error_.plot(step,e_0,
+                label="Range = 0.1m",linewidth=1.2)
+error_.plot(step,e_10,
+                label="Range = 0.5m",linewidth=1.2)
+error_.plot(step,e_20,
+                 label="Range = 1m",linewidth=1.2)
+error_.plot(step,e_30,
+                label="Range = 5m",linewidth=1.2)
+error_.plot(step,e_8000,
+                label="Range = Entire arena",linewidth=1.2)
+
+error_.set(xlabel='simulation step', ylabel='Difference between swarm perception and reality (in resources)')
+error_.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+fig, robot_n_task_plot = plt.subplots()
+robot_n_task_plot.plot(range(1,41), n_0,
+                       label="Range = 0.1m")
+
+robot_n_task_plot.plot(range(1,41), n_10,
+                       label="Range = 0.5m")
+
+robot_n_task_plot.plot(range(1,41), n_30,
+                       label="Range = 5m")
+
+robot_n_task_plot.plot(range(1,41), n_8000,
+                       label="Range = Entire arena")
+
+robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch over the entire period')
+
+robot_n_task_plot.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
 plt.show()
