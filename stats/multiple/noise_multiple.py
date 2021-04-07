@@ -92,17 +92,21 @@ e_70 += [None for i in range(len(step) - len(e_70))]
 
 fig, error_ = plt.subplots()
 error_.plot(step,e_10,
-                label="P = 0",linewidth=1.2)
+                label="P = 0",linewidth=1)
 # error_.plot(step,e_20,
 #                 label="P = 0.1")
 error_.plot(step,e_30,
-                label="P = 0.3",linewidth=1.2)
+                label="P = 0.3",linewidth=1)
 # error_.plot(step,e_40,
-#                 label="P = 1.2")
+#                 label="P = 1")
 # error_.plot(step,e_50,
 #                 label="P = 0.7")
+#error_.plot(step,e_40,
+ #               label="P = 0.5",linewidth=1)
+error_.plot(step,e_50,
+                label="P = 0.7",linewidth=1)
 error_.plot(step,e_70,
-                label="P = 0.99",linewidth=1.2)
+                label="P = 0.99",linewidth=1)
 
 error_.set(xlabel='simulation step', ylabel='Difference between swarm perception and reality (in resources)')
 error_.grid()
@@ -119,6 +123,8 @@ robot_n_task_plot.plot(range(1,41), n_10,
                        label="P = 0")
 robot_n_task_plot.plot(range(1,41), n_30,
                        label="P = 0.3")
+robot_n_task_plot.plot(range(1,41), n_50,
+                       label="P = 0.7")
 robot_n_task_plot.plot(range(1,41), n_70,
                        label="P = 0.99")
 
