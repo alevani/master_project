@@ -34,7 +34,8 @@ def read(file, shift=0):
         error[len(error) -1 ] += abs(arr[7]- arr[8])
         error[len(error) -1 ] += abs(arr[11]- arr[12])
 
-        arr = sorted([eval(e) for e in line.split(";")[12 + shift:-1]])
+        arr = sorted([eval(e) for e in line.split(";")[12 + shift:]])
+
 
         robots_n_task_switch = [e[1] for e in arr]
 
@@ -49,6 +50,7 @@ d_40, t_40, n_40, e_40 = read(f40, 3)
 d_50, t_50, n_50, e_50 = read(f50, 3)
 d_70, t_70, n_70, e_70 = read(f70, 3)
 
+print(len(n_70))
 
 m = max(t_30[len(t_30) - 1], t_10[len(t_10) - 1],
     t_20[len(t_20) - 1], t_40[len(t_40) - 1], t_50[len(t_50) - 1])
@@ -113,11 +115,11 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, len(n_10) + 1), n_10,
+robot_n_task_plot.plot(range(1,41), n_10,
                        label="P = 0")
-robot_n_task_plot.plot(range(1, len(n_30) + 1), n_30,
+robot_n_task_plot.plot(range(1,41), n_30,
                        label="P = 0.3")
-robot_n_task_plot.plot(range(1, len(n_70) + 1), n_70,
+robot_n_task_plot.plot(range(1,41), n_70,
                        label="P = 0.99")
 
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch over the entire period')
