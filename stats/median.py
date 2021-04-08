@@ -1,6 +1,7 @@
 import sys
 from os import walk
 import getopt
+import statistics
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "f:")
@@ -79,18 +80,15 @@ def process(a):
 
     size = max([len(e) for e in a])
 
-    
     for e in a:
         e += [e[len(e) - 1]
               for i in range(size - len(e))]
 
-    temp = a.pop(0)
+    median = []
+    for i in range(len(a[0])):
+        median.append(statistics.median([e[i] for e in a]))
 
-    for i, _ in enumerate(temp):
-        temp[i] += sum([e[i] for e in a])
-        temp[i] /= len(a) + 1
-    
-    return temp
+    return median
 
 
 avg_distance = process([a[0] for a in all])

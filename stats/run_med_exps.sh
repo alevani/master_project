@@ -4,10 +4,10 @@ for d in */ ; do
     cd $path
     for e in $d*; do
         cd $e
-        cp ../../../averagator.py ./
+        cp ../../../median.py ./
         IFS='/'
         read -a split <<< "$e"
-        python averagator.py -f ${split[1]}
+        python median.py -f ${split[1]}
         IFS=$IFS_save
         cd ../../
     done
