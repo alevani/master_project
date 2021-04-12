@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('0FAITA_EXP_HARD_NOISE/EXP1/0.99/RUN1.csv')
+file = open('03FAITA/EXP2/@FAITA_r40/@FAITA_r40.csv')
 
 
 foraging_need = []
@@ -24,6 +24,10 @@ cleaning_average_sensed_demand = []
 distance = []
 total = []
 
+sq_cleaning = []
+sq_foraging = []
+sq_nest_processing = []
+
 robots_n_task_switch = None
 
 step = []
@@ -35,21 +39,24 @@ for line in file:
     not_working_robot.append(arr[2])
     foraging_need.append(arr[3])
     foraging_average_sensed_demand.append(arr[4])
+    sq_foraging.append((arr[1] - arr[3])**2)
 
     nest_processing_assigned.append(arr[5])
     not_working_robot[len(not_working_robot) - 1] += arr[6]
     nest_processing_need.append(arr[7])
     nest_processing_average_sensed_demand.append(arr[8])
+    sq_nest_processing.append((arr[5] - arr[7])**2)
 
     cleaning_assigned.append(arr[9])
     not_working_robot[len(not_working_robot) - 1] += arr[10]
     cleaning_need.append(arr[11])
     cleaning_average_sensed_demand.append(arr[12])
+    sq_cleaning.append((arr[9] - arr[11])**2)
 
     distance.append(arr[13])
     total.append(arr[14])
 
-    arr = sorted([eval(e) for e in line.split(";")[15:-1]])
+    arr = sorted([eval(e) for e in line.split(";")[15:]])
     robots_n_task_switch = [e[1] for e in arr]
 
 fig, ax = plt.subplots()
@@ -134,10 +141,40 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1,41), robots_n_task_switch,
+robot_n_task_plot.plot(range(1, 41), robots_n_task_switch,
                        label="Number of task switch for a robot over the total period")
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 robot_n_task_plot.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+
+fig, sq_foraging_p = plt.subplots()
+sq_foraging_p.plot(
+    step, sq_foraging, label="Squared difference between the energy supplied and the demand, foraging")
+sq_foraging_p.set(xlabel='simulation step', ylabel='Error')
+sq_foraging_p.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+
+fig, sq_nest_processing_p = plt.subplots()
+sq_nest_processing_p.plot(
+    step, sq_nest_processing, label="Squared difference between the energy supplied and the demand, nest_processing")
+sq_nest_processing_p.set(xlabel='simulation step', ylabel='Error')
+sq_nest_processing_p.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+
+fig, sq_cleaning_p = plt.subplots()
+sq_cleaning_p.plot(
+    step, sq_cleaning, label="Squared difference between the energy supplied and the demand, cleaning")
+sq_cleaning_p.set(xlabel='simulation step', ylabel='Error')
+sq_cleaning_p.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
