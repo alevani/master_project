@@ -2,16 +2,17 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../03GTA/EXP2/£GTA_r40/£GTA_r40.csv')
-psi = open('../03PSI/EXP2/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../03AITA/EXP2/£AITA_r40/£AITA_r40.csv')
-DAITA = open('../03FAITA/EXP2/£FAITA_r40/£FAITA_r40.csv')
-rnd = open('../03RND/EXP2/£RND_r40/£RND_r40.csv')
+gta = open('../COVERED_GTA/EXP1/£GTA_r40/£GTA_r40.csv')
+psi = open('../COVERED_PSI/EXP1/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../COVERED_CAITA/EXP1/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../COVERED_DAITA/EXP1/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../COVERED_RND/EXP1/£RND_r40/£RND_r40.csv')
 
-step = np.arange(10,  30010, 10)
+step = np.arange(10,  13000, 10)
 
 
 def read(file, shift=0):
+    print(file)
     distance = []
     total = []
     robots_n_task_switch = None
@@ -59,11 +60,11 @@ d_rnd += [d_rnd[len(d_rnd) - 1] for i in range(len(step) - len(d_rnd))]
 d_psi += [d_psi[len(d_psi) - 1] for i in range(len(step) - len(d_psi))]
 
 fig, distance_plot = plt.subplots()
-distance_plot.plot(step, d_gta, label="GTA distance")
-distance_plot.plot(step, d_DAITA, label="DAITA distance")
-distance_plot.plot(step, d_CAITA, label="CAITA distance")
-distance_plot.plot(step, d_rnd, label="RND distance")
-distance_plot.plot(step, d_psi, label="PSI distance")
+distance_plot.plot(step, d_gta,linewidth=1, label="GTA")
+distance_plot.plot(step, d_DAITA,linewidth=1, label="DAITA")
+distance_plot.plot(step, d_CAITA,linewidth=1, label="CAITA")
+distance_plot.plot(step, d_rnd,linewidth=1, label="RND")
+distance_plot.plot(step, d_psi,linewidth=1, label="PSI")
 distance_plot.set(xlabel='simulation step', ylabel='Covered distance (cm)')
 distance_plot.grid()
 
@@ -109,34 +110,34 @@ print("CAITA: ", mean(sq_CAITA))
 print("RND: ", mean(sq_rnd))
 
 
-fig, sq_ = plt.subplots()
-sq_.plot(step, sq_gta,
-                label="GTA")
-sq_.plot(step, sq_DAITA,
-                label="DAITA")
-sq_.plot(step, sq_CAITA,
-                label="CAITA")
-# sq_.plot(step, sq_rnd,
-#                 label="RND")
-sq_.plot(step, sq_psi,
-                label="PSI")
-sq_.set(xlabel='simulation step', ylabel='squared error for the combined tasks')
-sq_.grid()
+# fig, sq_ = plt.subplots()
+# sq_.plot(step, sq_gta,
+#                 label="GTA")
+# sq_.plot(step, sq_DAITA,
+#                 label="DAITA")
+# sq_.plot(step, sq_CAITA,
+#                 label="CAITA")
+# # sq_.plot(step, sq_rnd,
+# #                 label="RND")
+# sq_.plot(step, sq_psi,
+#                 label="PSI")
+# sq_.set(xlabel='simulation step', ylabel='squared error for the combined tasks')
+# sq_.grid()
 
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.)
+# plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+#            ncol=2, mode="expand", borderaxespad=0.)
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, 41), n_gta,
+robot_n_task_plot.plot(range(1, 41), n_gta,linewidth=1,
                        label="GTA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_DAITA,
+robot_n_task_plot.plot(range(1, 41), n_DAITA,linewidth=1,
                        label="DAITA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_CAITA,
+robot_n_task_plot.plot(range(1, 41), n_CAITA,linewidth=1,
                        label="CAITA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_rnd,
+robot_n_task_plot.plot(range(1, 41), n_rnd,linewidth=1,
                        label="RND Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_psi,
+robot_n_task_plot.plot(range(1, 41), n_psi,linewidth=1,
                        label="PSI Number of task switch for a robot over the total period")
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 
