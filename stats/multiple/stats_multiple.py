@@ -2,11 +2,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../COVERED_GTA/EXP1/£GTA_r40/£GTA_r40.csv')
-psi = open('../COVERED_PSI/EXP1/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../COVERED_CAITA/EXP1/£CAITA_r40/£CAITA_r40.csv')
-DAITA = open('../COVERED_DAITA/EXP1/£DAITA_r40/£DAITA_r40.csv')
-rnd = open('../COVERED_RND/EXP1/£RND_r40/£RND_r40.csv')
+gta = open('../GTA_50:7/EXP1/£GTA_r40/£GTA_r40.csv')
+psi = open('../PSI_50:7/EXP1/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../CAITA_50:7/EXP1/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../RND_50:7/EXP1/£RND_r40/£RND_r40.csv')
 
 step = np.arange(10,  13000, 10)
 
@@ -60,6 +60,13 @@ d_rnd += [d_rnd[len(d_rnd) - 1] for i in range(len(step) - len(d_rnd))]
 d_psi += [d_psi[len(d_psi) - 1] for i in range(len(step) - len(d_psi))]
 
 fig, distance_plot = plt.subplots()
+
+print("GTA: ", d_gta[len(d_gta) - 1])
+print("psi: ", d_psi[len(d_psi) - 1])
+print("DAITA: ", d_DAITA[len(d_DAITA) - 1])
+print("CAITA: ", d_CAITA[len(d_CAITA) - 1])
+print("RND: ", d_rnd[len(d_rnd) - 1])
+print("------")
 distance_plot.plot(step, d_gta,linewidth=1, label="GTA")
 distance_plot.plot(step, d_DAITA,linewidth=1, label="DAITA")
 distance_plot.plot(step, d_CAITA,linewidth=1, label="CAITA")
@@ -72,11 +79,11 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 m = max(t_gta[len(t_gta) -1 ],t_CAITA[len(t_CAITA) -1 ],t_DAITA[len(t_DAITA) -1 ],t_rnd[len(t_rnd) -1 ],t_psi[len(t_psi) -1 ])
-t_gta += [None for i in range(len(step) - len(t_gta))]
-t_DAITA += [None for i in range(len(step) - len(t_DAITA))]
-t_CAITA += [None for i in range(len(step) - len(t_CAITA))]
-t_rnd += [None for i in range(len(step) - len(t_rnd))]
-t_psi += [None for i in range(len(step) - len(t_psi))]
+t_gta += [150 for i in range(len(step) - len(t_gta))]
+t_DAITA += [150 for i in range(len(step) - len(t_DAITA))]
+t_CAITA += [150 for i in range(len(step) - len(t_CAITA))]
+t_rnd += [150 for i in range(len(step) - len(t_rnd))]
+t_psi += [150 for i in range(len(step) - len(t_psi))]
 
 
 
