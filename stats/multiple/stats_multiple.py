@@ -2,23 +2,38 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-aita = open('../£AITA3_stats.csv')
-faita = open('../£FAITA3_stats.csv')
-gta = open('../£GTA3_stats.csv')
-rnd = open('../£RND3_stats.csv')
-psi = open('../£PSI3_stats.csv')
+gta = open('../03GTA/EXP2/£GTA_r40/£GTA_r40.csv')
+psi = open('../03PSI/EXP2/£PSI_r40/£PSI_r40.csv')
+aita = open('../03AITA/EXP2/£AITA_r40/£AITA_r40.csv')
+faita = open('../03FAITA/EXP2/£FAITA_r40/£FAITA_r40.csv')
+rnd = open('../03RND/EXP2/£RND_r40/£RND_r40.csv')
 
-
-step = np.arange(10,  61000, 10)
+step = np.arange(10,  30010, 10)
 
 
 def read(file, shift=0):
     distance = []
     total = []
     robots_n_task_switch = None
+    sq = []
     for line in file:
         arr = [float(value) for value in line.split(";")[:12 + shift]]
+        
+        if shift == 6:
+          sq.append((arr[1] - arr[5])**2)
+        else:
+          sq.append((arr[1] - arr[3])**2)
 
+        if shift == 3:
+          sq[len(sq) -1] += (arr[5] - arr[7])**2 # 5 et 7 FAITA PSI GTA
+          sq[len(sq) -1] += (arr[9] - arr[11])**2 # 9 et 11 FAITA PSI GTA
+        elif shift == 6:
+          sq[len(sq) -1] += (arr[6] - arr[10])**2 # AITA
+          sq[len(sq) -1] += (arr[11] - arr[15])**2 # AITA
+        else:
+          sq[len(sq) -1] += (arr[4] - arr[6])**2 # RND
+          sq[len(sq) -1] += (arr[9] - arr[7])**2 # RND
+        
         distance.append(arr[10 + shift])
         total.append(arr[11 + shift])
 
@@ -26,15 +41,15 @@ def read(file, shift=0):
 
         robots_n_task_switch = [e[1] for e in arr]
 
-    return distance, total, robots_n_task_switch
+    return distance, total, robots_n_task_switch, sq
 
 
 # Shifts are here because file may have different formats
-d_gta, t_gta, n_gta = read(gta, 3)
-d_faita, t_faita, n_faita = read(faita, 3)
-d_aita, t_aita, n_aita = read(aita, 6)
-d_rnd, t_rnd, n_rnd = read(rnd)
-d_psi, t_psi, n_psi = read(psi, 3)
+d_gta, t_gta, n_gta, sq_gta = read(gta, 3)
+d_faita, t_faita, n_faita, sq_faita = read(faita, 3)
+d_aita, t_aita, n_aita, sq_aita = read(aita, 6)
+d_rnd, t_rnd, n_rnd, sq_rnd = read(rnd)
+d_psi, t_psi, n_psi, sq_psi = read(psi, 3)
 
 
 d_gta += [d_gta[len(d_gta) - 1] for i in range(len(step) - len(d_gta))]
@@ -82,16 +97,34 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 
+fig, sq_ = plt.subplots()
+sq_.plot(step, sq_gta,
+                label="GTA")
+sq_.plot(step, sq_faita,
+                label="FAITA")
+sq_.plot(step, sq_aita,
+                label="AITA")
+# sq_.plot(step, sq_rnd,
+#                 label="RND")
+sq_.plot(step, sq_psi,
+                label="PSI")
+sq_.set(xlabel='simulation step', ylabel='squared error for the combined task')
+sq_.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+
+
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, len(n_gta) + 2), n_gta,
+robot_n_task_plot.plot(range(1, 41), n_gta,
                        label="GTA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, len(n_faita) + 2), n_faita,
+robot_n_task_plot.plot(range(1, 41), n_faita,
                        label="FAITA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, len(n_aita) + 2), n_aita,
+robot_n_task_plot.plot(range(1, 41), n_aita,
                        label="AITA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, len(n_rnd) + 2), n_rnd,
+robot_n_task_plot.plot(range(1, 41), n_rnd,
                        label="RND Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, len(n_psi) + 2), n_psi,
+robot_n_task_plot.plot(range(1, 41), n_psi,
                        label="PSI Number of task switch for a robot over the total period")
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 
