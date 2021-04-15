@@ -67,12 +67,12 @@ print("DAITA: ", d_DAITA[len(d_DAITA) - 1])
 print("CAITA: ", d_CAITA[len(d_CAITA) - 1])
 print("RND: ", d_rnd[len(d_rnd) - 1])
 print("------")
-distance_plot.plot(step, d_gta,linewidth=1, label="GTA")
-distance_plot.plot(step, d_DAITA,linewidth=1, label="DAITA")
-distance_plot.plot(step, d_CAITA,linewidth=1, label="CAITA")
-distance_plot.plot(step, d_rnd,linewidth=1, label="RND")
-distance_plot.plot(step, d_psi,linewidth=1, label="PSI")
-distance_plot.set(xlabel='simulation step', ylabel='Covered distance (cm)')
+distance_plot.plot(step, d_gta, label="GTA")
+distance_plot.plot(step, d_DAITA, label="DAITA")
+distance_plot.plot(step, d_CAITA, label="CAITA")
+distance_plot.plot(step, d_rnd, label="RND")
+distance_plot.plot(step, d_psi, label="PSI")
+distance_plot.set(xlabel='simulation step', ylabel='Covered distance (m)')
 distance_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -106,33 +106,15 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 def mean(list):
   v = 0
+  cnt = 0
   for i in list:
-    v += i
-  return v/len(list)
-
-print("GTA: ", mean(sq_gta))
-print("psi: ", mean(sq_psi))
-print("DAITA: ", mean(sq_DAITA))
-print("CAITA: ", mean(sq_CAITA))
-print("RND: ", mean(sq_rnd))
+    if i == None:
+      cnt +=1
+    else:
+      v += i
+  return v/(len(list)-cnt)
 
 
-# fig, sq_ = plt.subplots()
-# sq_.plot(step, sq_gta,
-#                 label="GTA")
-# sq_.plot(step, sq_DAITA,
-#                 label="DAITA")
-# sq_.plot(step, sq_CAITA,
-#                 label="CAITA")
-# # sq_.plot(step, sq_rnd,
-# #                 label="RND")
-# sq_.plot(step, sq_psi,
-#                 label="PSI")
-# sq_.set(xlabel='simulation step', ylabel='squared error for the combined tasks')
-# sq_.grid()
-
-# plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-#            ncol=2, mode="expand", borderaxespad=0.)
 
 
 fig, robot_n_task_plot = plt.subplots()
@@ -152,6 +134,48 @@ robot_n_task_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+
+
+
+sq_gta += [None for i in range(len(step) - len(sq_gta))]
+sq_DAITA += [None for i in range(len(step) - len(sq_DAITA))]
+sq_CAITA += [None for i in range(len(step) - len(sq_CAITA))]
+sq_rnd += [None for i in range(len(step) - len(sq_rnd))]
+sq_psi += [None for i in range(len(step) - len(sq_psi))]
+
+print("GTA: ", mean(sq_gta))
+print("psi: ", mean(sq_psi))
+print("DAITA: ", mean(sq_DAITA))
+print("CAITA: ", mean(sq_CAITA))
+print("RND: ", mean(sq_rnd))
+
+
+fig, sq_ = plt.subplots()
+sq_.plot(step, sq_gta,
+                label="GTA")
+sq_.plot(step, sq_DAITA,
+                label="DAITA")
+sq_.plot(step, sq_CAITA,
+                label="CAITA")
+# sq_.plot(step, sq_rnd,
+#                 label="RND")
+sq_.plot(step, sq_psi,
+                label="PSI")
+sq_.set(xlabel='simulation step', ylabel='squared error for the combined tasks')
+sq_.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+ax2 = sq_.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:gray'
+ax2.set_ylabel('RND squared error for the combined tasks', color=color)  # we already handled the x-label with ax1
+ax2.plot(step, sq_rnd, color=color,alpha=0.3)
+ax2.tick_params(axis='y', labelcolor=color)
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
+
+
 
 
 plt.show()
