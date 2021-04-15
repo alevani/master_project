@@ -94,7 +94,7 @@ class TaskHandler:
               sum([1 for i in globals.POIs if i.state == RESOURCE_STATE_FORAGING]))
 
         #! not really its place.
-        print("Total distance: " + str(int(globals.total_dist))+" cm")
+        print("Total distance: " + str(int(globals.total_dist))+" m")
 
     # Return the number of ant assigned to a task "task" at time "step" (0 for actively engaged and 1 for assigned but doing nothing)
     def assigned(self, task):
