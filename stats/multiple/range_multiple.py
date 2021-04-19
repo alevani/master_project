@@ -70,22 +70,22 @@ t_8000 += [150 for i in range(len(step) - len(t_8000))]
 
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t if not t == None else None for t in t_0],
+total_plot.plot(step, [t/150 if not t == None else None for t in t_0],
                 label="0.1m")
-total_plot.plot(step, [t if not t == None else None for t in t_10],
+total_plot.plot(step, [t/150 if not t == None else None for t in t_10],
                 label="Range = 0.5m")
-total_plot.plot(step, [t if not t == None else None for t in t_20],
+total_plot.plot(step, [t/150 if not t == None else None for t in t_20],
                 label="Range = 1m")
-total_plot.plot(step, [t if not t == None else None for t in t_30],
+total_plot.plot(step, [t/150 if not t == None else None for t in t_30],
                 label="Range = 5m")
-total_plot.plot(step, [t if not t == None else None for t in t_40],
+total_plot.plot(step, [t/150 if not t == None else None for t in t_40],
                 label="Range = 7m ")
 
-total_plot.plot(step, [t if not t == None else None for t in t_50],
+total_plot.plot(step, [t/150 if not t == None else None for t in t_50],
                 label="Range = 13m (entire arena)")
 
 
-total_plot.set(xlabel='simulation step', ylabel='Task completion')
+total_plot.set(xlabel='simulation step', ylabel='Task completion rate')
 total_plot.grid()
 
 
