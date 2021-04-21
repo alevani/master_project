@@ -2,13 +2,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../GTA_50:7/EXP1/£GTA_r40/£GTA_r40.csv')
-psi = open('../PSI_50:7/EXP1/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../CAITA_50:7/EXP1/£CAITA_r40/£CAITA_r40.csv')
-DAITA = open('../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
-rnd = open('../RND_50:7/EXP1/£RND_r40/£RND_r40.csv')
+gta = open('../GTA_50:7/EXP2/£GTA_r40/£GTA_r40.csv')
+psi = open('../PSI_50:7/EXP2/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../CAITA_50:7/EXP2/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../RND_50:7/EXP2/£RND_r40/£RND_r40.csv')
 
-step = np.arange(10,  12540, 10)
+step = np.arange(10,  31000, 10)
 
 
 def read(file, shift=0):
@@ -61,11 +61,11 @@ d_psi += [d_psi[len(d_psi) - 1] for i in range(len(step) - len(d_psi))]
 
 fig, distance_plot = plt.subplots()
 
-print("GTA: ", d_gta[len(d_gta) - 1])
-print("psi: ", d_psi[len(d_psi) - 1])
-print("DAITA: ", d_DAITA[len(d_DAITA) - 1])
-print("CAITA: ", d_CAITA[len(d_CAITA) - 1])
-print("RND: ", d_rnd[len(d_rnd) - 1])
+print("GTA: ", int(d_gta[len(d_gta) - 1]))
+print("psi: ", int(d_psi[len(d_psi) - 1]))
+print("DAITA: ", int(d_DAITA[len(d_DAITA) - 1]))
+print("CAITA: ", int(d_CAITA[len(d_CAITA) - 1]))
+print("RND: ", int(d_rnd[len(d_rnd) - 1]))
 print("------")
 distance_plot.plot(step, d_gta, label="GTA")
 distance_plot.plot(step, d_DAITA, label="DAITA")
