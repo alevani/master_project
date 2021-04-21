@@ -2,13 +2,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../GTA_50:7/EXP1/£GTA_r40/£GTA_r40.csv')
-psi = open('../PSI_50:7/EXP1/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../CAITA_50:7/EXP1/£CAITA_r40/£CAITA_r40.csv')
-DAITA = open('../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
-rnd = open('../RND_50:7/EXP1/£RND_r40/£RND_r40.csv')
+gta = open('../GTA_50:7/EXP2/£GTA_r40/£GTA_r40.csv')
+psi = open('../PSI_50:7/EXP2/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../CAITA_50:7/EXP2/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../RND_50:7/EXP2/£RND_r40/£RND_r40.csv')
 
-step = np.arange(10,  13000, 10)
+step = np.arange(10,  30010, 10)
 
 
 def read(file, shift=0):
