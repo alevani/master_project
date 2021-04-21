@@ -3,21 +3,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 f10 = open(
-    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r10/æAITA_r10.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r10/£DAITA_r10.csv')
 f20 = open(
-    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r20/æAITA_r20.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r20/£DAITA_r20.csv')
 f30 = open(
-    '/Users/freak/Desktop/master_project/stats/03AITA/EXP1/æAITA_r30/æAITA_r30.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r30/£DAITA_r30.csv')
 f40 = open(
-    '/Users/freak/Desktop/master_project/stats/03HARDFAITA/EXP1/æFAITA_r40/æFAITA_r40.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
 f50 = open(
-    '/Users/freak/Desktop/master_project/stats/03HARDFAITA/EXP1/æFAITA_r50/æFAITA_r50.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r50/£DAITA_r50.csv')
 f70 = open(
-    '/Users/freak/Desktop/master_project/stats/03HARDFAITA/EXP1/æFAITA_r70/æFAITA_r70.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r70/£DAITA_r70.csv')
 f100 = open(
-    '/Users/freak/Desktop/master_project/stats/03HARDFAITA/EXP1/æFAITA_r100/æFAITA_r100.csv')
+    '../DAITA_50:7/EXP1/£DAITA_r100/£DAITA_r100.csv')
 
-step = np.arange(10,  61000, 10)
+step = np.arange(10,  50000, 10)
 
 
 def read(file, shift=0):
@@ -38,9 +38,12 @@ def read(file, shift=0):
 
 
 # Shifts are here because file may have different formats
-d_30, t_30, n_30 = read(f30, 6)
-d_20, t_20, n_20 = read(f20, 6)
-d_10, t_10, n_10 = read(f10, 6)
+d_30, t_30, n_30 = read(f30, 3)
+d_20, t_20, n_20 = read(f20, 3)
+d_10, t_10, n_10 = read(f10, 3)
+d_10 = d_10[:4000]
+t_10 = t_10[:4000]
+n_10 = n_10[:4000]
 d_40, t_40, n_40 = read(f40, 3)
 d_50, t_50, n_50 = read(f50, 3)
 d_70, t_70, n_70 = read(f70, 3)
@@ -81,12 +84,12 @@ t_100 += [None for i in range(len(step) - len(t_100))]
 
 
 fig, total_plot = plt.subplots()
-# total_plot.plot(step, [t if not t == None else None for t in t_30],
-#                 label="30 robots")
-# total_plot.plot(step, [t if not t == None else None for t in t_20],
-#                 label="20 robots")
-# total_plot.plot(step, [t if not t == None else None for t in t_10],
-#                 label="10 robots")
+total_plot.plot(step, [t if not t == None else None for t in t_30],
+                label="30 robots")
+total_plot.plot(step, [t if not t == None else None for t in t_20],
+                label="20 robots")
+total_plot.plot(step, [t if not t == None else None for t in t_10],
+                label="10 robots")
 total_plot.plot(step, [t if not t == None else None for t in t_40],
                 label="40 robots")
 total_plot.plot(step, [t if not t == None else None for t in t_50],
