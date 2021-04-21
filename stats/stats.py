@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('./@stats.csv')
+file = open('CAITA_50:7/EXP1/£CAITA_r100/£CAITA_r100.csv')
 
 
 foraging_need = []
@@ -28,6 +28,7 @@ total = []
 robots_n_task_switch = None
 
 step = []
+
 for line in file:
     arr = [float(value) for value in line.split(";")[:18]]
     step.append(arr[0])
@@ -37,6 +38,9 @@ for line in file:
     foraging_assigned_pov_nest.append(arr[3])
     not_working_robot_pov_nest.append(arr[4])
     foraging_need.append(arr[5])
+
+    if arr[0] % 500 == 0:
+      print(foraging_need[len(foraging_need)-1] - foraging_need[len(foraging_need) -2])
 
     nest_processing_assigned.append(arr[6])
     not_working_robot[len(not_working_robot) - 1] += arr[7]
@@ -141,7 +145,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, len(robots_n_task_switch) + 2), robots_n_task_switch,
+robot_n_task_plot.plot(range(1, len(robots_n_task_switch) + 1), robots_n_task_switch,
                        label="Number of task switch for a robot over the total period")
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 robot_n_task_plot.grid()
