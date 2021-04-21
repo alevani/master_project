@@ -10,7 +10,15 @@ rnd = open('../RND_50:7/EXP2/£RND_r40/£RND_r40.csv')
 
 step = np.arange(10,  31000, 10)
 
-
+def mean(list):
+  v = 0
+  cnt = 0
+  for i in list:
+    if i == None:
+      cnt +=1
+    else:
+      v += i
+  return v/(len(list)-cnt)
 def read(file, shift=0):
     print(file)
     distance = []
@@ -67,6 +75,13 @@ print("DAITA: ", int(d_DAITA[len(d_DAITA) - 1]))
 print("CAITA: ", int(d_CAITA[len(d_CAITA) - 1]))
 print("RND: ", int(d_rnd[len(d_rnd) - 1]))
 print("------")
+print(n_gta)
+print("GTA: ", int(mean(n_gta)))
+print("psi: ", int(mean(n_psi)))
+print("DAITA: ", int(mean(n_DAITA)))
+print("CAITA: ", int(mean(n_CAITA)))
+print("RND: ", int(mean(n_rnd)))
+print("------")
 distance_plot.plot(step, d_gta, label="GTA")
 distance_plot.plot(step, d_DAITA, label="DAITA")
 distance_plot.plot(step, d_CAITA, label="CAITA")
@@ -104,15 +119,7 @@ total_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
-def mean(list):
-  v = 0
-  cnt = 0
-  for i in list:
-    if i == None:
-      cnt +=1
-    else:
-      v += i
-  return v/(len(list)-cnt)
+
 
 
 
