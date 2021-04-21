@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('03RND/EXP2/£RND_r40/£RND_r40.csv')
+file = open('DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
 
 
 foraging_need = []
@@ -40,6 +40,9 @@ for line in file:
     foraging_need.append(arr[3])
     foraging_average_sensed_demand.append(arr[4])
     sq_foraging.append((arr[1] - arr[3])**2)
+
+    if arr[0] % 500 == 0:
+      print(foraging_need[len(foraging_need)-1] - foraging_need[len(foraging_need) -2])
 
     nest_processing_assigned.append(arr[5])
     not_working_robot[len(not_working_robot) - 1] += arr[6]
