@@ -2,13 +2,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../GTA_50:7/EXP2/£GTA_r40/£GTA_r40.csv')
-psi = open('../PSI_50:7/EXP2/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../CAITA_50:7/EXP2/£CAITA_r40/£CAITA_r40.csv')
-DAITA = open('../DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
-rnd = open('../RND_50:7/EXP2/£RND_r40/£RND_r40.csv')
+gta = open('../GTA_50:7/EXP1/£GTA_r40/£GTA_r40.csv')
+psi = open('../PSI_50:7/EXP1/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../CAITA_50:7/EXP1/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../RND_50:7/EXP1/£RND_r40/£RND_r40.csv')
 
-step = np.arange(10,  30010, 10)
+step = np.arange(10,  12540, 10)
 
 
 def read(file, shift=0):
@@ -118,19 +118,29 @@ def mean(list):
 
 
 fig, robot_n_task_plot = plt.subplots()
-robot_n_task_plot.plot(range(1, 41), n_gta,linewidth=1,
+robot_n_task_plot.plot(range(1, 41), n_gta,
                        label="GTA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_DAITA,linewidth=1,
+robot_n_task_plot.plot(range(1, 41), n_DAITA,
                        label="DAITA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_CAITA,linewidth=1,
+robot_n_task_plot.plot(range(1, 41), n_CAITA,
                        label="CAITA Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_rnd,linewidth=1,
+robot_n_task_plot.plot(range(1, 41), n_rnd,
                        label="RND Number of task switch for a robot over the total period")
-robot_n_task_plot.plot(range(1, 41), n_psi,linewidth=1,
-                       label="PSI Number of task switch for a robot over the total period")
+
 robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
 
 robot_n_task_plot.grid()
+
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+ax0 = robot_n_task_plot.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:gray'
+ax0.set_ylabel('PSI Number of task switch for a robot over the total period', color=color)  # we already handled the x-label with ax1
+ax0.plot(range(1, 41), n_psi, color=color,alpha=0.3)
+ax0.tick_params(axis='y', labelcolor=color)
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
@@ -143,11 +153,11 @@ sq_CAITA += [None for i in range(len(step) - len(sq_CAITA))]
 sq_rnd += [None for i in range(len(step) - len(sq_rnd))]
 sq_psi += [None for i in range(len(step) - len(sq_psi))]
 
-print("GTA: ", mean(sq_gta))
-print("psi: ", mean(sq_psi))
-print("DAITA: ", mean(sq_DAITA))
-print("CAITA: ", mean(sq_CAITA))
-print("RND: ", mean(sq_rnd))
+print("GTA: ", int(mean(sq_gta)))
+print("psi: ", int(mean(sq_psi)))
+print("DAITA: ", int(mean(sq_DAITA)))
+print("CAITA: ", int(mean(sq_CAITA)))
+print("RND: ", int(mean(sq_rnd)))
 
 
 fig, sq_ = plt.subplots()
