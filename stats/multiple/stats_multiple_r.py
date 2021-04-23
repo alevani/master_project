@@ -9,15 +9,15 @@ f20 = open(
 f30 = open(
     '../DAITA_50:7/EXP1/£DAITA_r30/£DAITA_r30.csv')
 f40 = open(
-    '../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
+    '../RATIO_DAITA100/EXP1/£DAITA_r40/£DAITA_r40.csv')
 f50 = open(
-    '../DAITA_50:7/EXP1/£DAITA_r50/£DAITA_r50.csv')
+    '../RATIO_DAITA100/EXP1/£DAITA_r50/£DAITA_r50.csv')
 f70 = open(
-    '../DAITA_50:7/EXP1/£DAITA_r70/£DAITA_r70.csv')
+    '../RATIO_DAITA100/EXP1/£DAITA_r70/£DAITA_r70.csv')
 f100 = open(
-    '../DAITA_50:7/EXP1/£DAITA_r100/£DAITA_r100.csv')
+    '../RATIO_DAITA100/EXP1/£DAITA_r100/£DAITA_r100.csv')
 
-step = np.arange(10,  50000, 10)
+step = np.arange(10,  15000, 10)
 
 
 def read(file, shift=0):
@@ -59,9 +59,9 @@ d_70 += [d_70[len(d_70) - 1] for i in range(len(step) - len(d_70))]
 d_100 += [d_100[len(d_100) - 1] for i in range(len(step) - len(d_100))]
 
 fig, distance_plot = plt.subplots()
-distance_plot.plot(step, d_30, label="30 robots")
-distance_plot.plot(step, d_20, label="20 robots")
-distance_plot.plot(step, d_10, label="10 robots")
+# distance_plot.plot(step, d_10, label="10 robots")
+# distance_plot.plot(step, d_20, label="20 robots")
+# distance_plot.plot(step, d_30, label="30 robots")
 distance_plot.plot(step, d_40, label="40 robots")
 distance_plot.plot(step, d_50, label="50 robots")
 distance_plot.plot(step, d_70, label="70 robots")
@@ -74,22 +74,24 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 m = max(t_30[len(t_30) - 1], t_10[len(t_10) - 1],
         t_20[len(t_20) - 1], t_40[len(t_40) - 1], t_50[len(t_50) - 1])
-t_30 += [None for i in range(len(step) - len(t_30))]
-t_20 += [None for i in range(len(step) - len(t_20))]
-t_10 += [None for i in range(len(step) - len(t_10))]
-t_40 += [None for i in range(len(step) - len(t_40))]
-t_50 += [None for i in range(len(step) - len(t_50))]
-t_70 += [None for i in range(len(step) - len(t_70))]
-t_100 += [None for i in range(len(step) - len(t_100))]
+t_30 += [150 for i in range(len(step) - len(t_30))]
+t_20 += [150 for i in range(len(step) - len(t_20))]
+t_10 += [150 for i in range(len(step) - len(t_10))]
+t_40 += [150 for i in range(len(step) - len(t_40))]
+t_50 += [150 for i in range(len(step) - len(t_50))]
+t_70 += [150 for i in range(len(step) - len(t_70))]
+t_100 += [150 for i in range(len(step) - len(t_100))]
 
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t if not t == None else None for t in t_30],
-                label="30 robots")
-total_plot.plot(step, [t if not t == None else None for t in t_20],
-                label="20 robots")
-total_plot.plot(step, [t if not t == None else None for t in t_10],
-                label="10 robots")
+# total_plot.plot(step, [t if not t == None else None for t in t_20],
+#                 label="20 robots")
+# total_plot.plot(step, [t if not t == None else None for t in t_10],
+#                 label="10 robots")
+# total_plot.plot(step, [t if not t == None else None for t in t_30],
+#                 label="30 robots")
+
+
 total_plot.plot(step, [t if not t == None else None for t in t_40],
                 label="40 robots")
 total_plot.plot(step, [t if not t == None else None for t in t_50],
