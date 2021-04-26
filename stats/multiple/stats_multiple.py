@@ -2,13 +2,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../GTA_50:7/EXP2/£GTA_r40/£GTA_r40.csv')
-psi = open('../PSI_50:7/EXP2/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../CAITA_50:7/EXP2/£CAITA_r40/£CAITA_r40.csv')
-DAITA = open('../DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
-rnd = open('../RND_50:7/EXP2/£RND_r40/£RND_r40.csv')
+gta = open('../GTA_50:7/EXP1/£GTA_r40/£GTA_r40.csv')
+psi = open('../PSI_50:7/EXP1/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../CAITA_50:7/EXP1/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../RND_50:7/EXP1/£RND_r40/£RND_r40.csv')
 
-step = np.arange(10,  31000, 10)
+step = np.arange(10,  12600, 10)
 
 def mean(list):
   v = 0
@@ -68,20 +68,19 @@ d_rnd += [d_rnd[len(d_rnd) - 1] for i in range(len(step) - len(d_rnd))]
 d_psi += [d_psi[len(d_psi) - 1] for i in range(len(step) - len(d_psi))]
 
 fig, distance_plot = plt.subplots()
-
+print("---DIST---")
 print("GTA: ", int(d_gta[len(d_gta) - 1]))
 print("psi: ", int(d_psi[len(d_psi) - 1]))
 print("DAITA: ", int(d_DAITA[len(d_DAITA) - 1]))
 print("CAITA: ", int(d_CAITA[len(d_CAITA) - 1]))
 print("RND: ", int(d_rnd[len(d_rnd) - 1]))
-print("------")
-print(n_gta)
+print("---N SWTICH MEAN---")
 print("GTA: ", int(mean(n_gta)))
 print("psi: ", int(mean(n_psi)))
 print("DAITA: ", int(mean(n_DAITA)))
 print("CAITA: ", int(mean(n_CAITA)))
 print("RND: ", int(mean(n_rnd)))
-print("------")
+print("---LEN---")
 distance_plot.plot(step, d_gta, label="GTA")
 distance_plot.plot(step, d_DAITA, label="DAITA")
 distance_plot.plot(step, d_CAITA, label="CAITA")
@@ -93,7 +92,12 @@ distance_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
-m = max(t_gta[len(t_gta) -1 ],t_CAITA[len(t_CAITA) -1 ],t_DAITA[len(t_DAITA) -1 ],t_rnd[len(t_rnd) -1 ],t_psi[len(t_psi) -1 ])
+print("GTA: ", int(len(t_gta)))
+print("psi: ", int(len(t_psi)))
+print("DAITA: ", int(len(t_DAITA)))
+print("CAITA: ", int(len(t_CAITA)))
+print("RND: ", int(len(t_rnd)))
+print("---SQ---")
 t_gta += [150 for i in range(len(step) - len(t_gta))]
 t_DAITA += [150 for i in range(len(step) - len(t_DAITA))]
 t_CAITA += [150 for i in range(len(step) - len(t_CAITA))]
@@ -101,19 +105,18 @@ t_rnd += [150 for i in range(len(step) - len(t_rnd))]
 t_psi += [150 for i in range(len(step) - len(t_psi))]
 
 
-
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t if not t == None else None for t in t_gta],
-                label="GTA processed resources")
-total_plot.plot(step, [t if not t == None else None for t in t_DAITA],
-                label="DAITA total processed resources")
-total_plot.plot(step, [t if not t == None else None for t in t_CAITA],
-                label="CAITA total processed resources")
-total_plot.plot(step, [t if not t == None else None for t in t_rnd],
-                label="RND total processed resources")
-total_plot.plot(step, [t if not t == None else None for t in t_psi],
-                label="PSI processed resources")
-total_plot.set(xlabel='simulation step', ylabel='Task completion')
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_gta],
+                label="GTA")
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_DAITA],
+                label="DAITA")
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_CAITA],
+                label="CAITA")
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_rnd],
+                label="RND")
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_psi],
+                label="PSI")
+total_plot.set(xlabel='simulation step', ylabel='Task completion rate (%)')
 total_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
