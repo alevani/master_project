@@ -23,7 +23,15 @@ f8000 = open(
 
 step = np.arange(10,  32000, 10)
 
-
+def mean(list):
+  v = 0
+  cnt = 0
+  for i in list:
+    if i == None:
+      cnt +=1
+    else:
+      v += i
+  return v/(len(list)-cnt)
 def read(file, shift=0):
     distance = []
     total = []
@@ -70,22 +78,22 @@ t_8000 += [150 for i in range(len(step) - len(t_8000))]
 
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t/150 if not t == None else None for t in t_0],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_0],
                 label="0.1m")
-total_plot.plot(step, [t/150 if not t == None else None for t in t_10],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_10],
                 label="Range = 0.5m")
-total_plot.plot(step, [t/150 if not t == None else None for t in t_20],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_20],
                 label="Range = 1m")
-total_plot.plot(step, [t/150 if not t == None else None for t in t_30],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_30],
                 label="Range = 5m")
-total_plot.plot(step, [t/150 if not t == None else None for t in t_40],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_40],
                 label="Range = 7m ")
 
-total_plot.plot(step, [t/150 if not t == None else None for t in t_50],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_50],
                 label="Range = 13m (entire arena)")
 
 
-total_plot.set(xlabel='simulation step', ylabel='Task completion rate')
+total_plot.set(xlabel='simulation step', ylabel='Task completion rate (%)')
 total_plot.grid()
 
 
@@ -104,8 +112,18 @@ e_50 += [None for i in range(len(step) - len(e_50))]
 e_70 += [None for i in range(len(step) - len(e_70))]
 e_8000 += [None for i in range(len(step) - len(e_8000))]
 fig, error_ = plt.subplots()
-error_.plot(step, e_0,
-            label="Range = 0.1m", linewidth=1.2)
+
+
+print(mean(e_0))
+print(mean(e_10))
+print(mean(e_20))
+print(mean(e_30))
+print(mean(e_40))
+print(mean(e_50))
+print(mean(e_70))
+print(mean(e_8000))
+
+
 error_.plot(step, e_10,
             label="Range = 0.5m", linewidth=1.2)
 error_.plot(step, e_20,
@@ -118,11 +136,23 @@ error_.plot(step, e_50,
             label="Range = 13m (entire arena)", linewidth=1.2)
 
 error_.set(xlabel='simulation step',
-           ylabel='Difference between swarm perception and reality (in resources)')
+           ylabel='Swarm perception error (in resources)')
 error_.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+
+
+ax2 = error_.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:gray'
+ax2.set_ylabel('Range = 0.1m, swarm perception error (in resources)', color=color)  # we already handled the x-label with ax1
+ax2.plot(step, e_0, color=color,alpha=0.3)
+ax2.tick_params(axis='y', labelcolor=color)
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
+
+
 
 fig, robot_n_task_plot = plt.subplots()
 robot_n_task_plot.plot(range(1, 41), n_0,
@@ -131,18 +161,18 @@ robot_n_task_plot.plot(range(1, 41), n_0,
 robot_n_task_plot.plot(range(1, 41), n_10,
                        label="Range = 0.5m")
 
-robot_n_task_plot.plot(range(1, 41), n_20,
-                       label="Range = 1m")
+# robot_n_task_plot.plot(range(1, 41), n_20,
+#                        label="Range = 1m")
 robot_n_task_plot.plot(range(1, 41), n_30,
                        label="Range = 5m")
-robot_n_task_plot.plot(range(1, 41), n_40,
-                       label="Range = 7m")
+# robot_n_task_plot.plot(range(1, 41), n_40,
+#                        label="Range = 7m")
 
 robot_n_task_plot.plot(range(1, 41), n_8000,
                        label="Range = 13m (entire arena)")
 
-robot_n_task_plot.set(xlabel='Robot Number',
-                      ylabel='Number of task switch over the entire period')
+robot_n_task_plot.set(xlabel='Robot ID',
+                      ylabel='Number of task switch')
 
 robot_n_task_plot.grid()
 
