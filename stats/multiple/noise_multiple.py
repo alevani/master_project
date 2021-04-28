@@ -18,6 +18,15 @@ f70 = open(
 
 step = np.arange(10,  12000, 10)
 
+def mean(list):
+  v = 0
+  cnt = 0
+  for i in list:
+    if i == None:
+      cnt +=1
+    else:
+      v += i
+  return v/(len(list)-cnt)
 
 def read(file, shift=0):
     distance = []
@@ -64,24 +73,26 @@ t_70 += [150 for i in range(len(step) - len(t_70))]
 
 
 fig, total_plot = plt.subplots()
-total_plot.plot(step, [t if not t == None else None for t in t_10],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_10],
                 label="P = 0")
-total_plot.plot(step, [t if not t == None else None for t in t_20],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_20],
                 label="P = 0.1")
-total_plot.plot(step, [t if not t == None else None for t in t_30],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_30],
                 label="P = 0.3")
-total_plot.plot(step, [t if not t == None else None for t in t_40],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_40],
                 label="P = 0.5")
-total_plot.plot(step, [t if not t == None else None for t in t_50],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_50],
                 label="P = 0.7")
-total_plot.plot(step, [t if not t == None else None for t in t_70],
+total_plot.plot(step, [t/1.5 if not t == None else None for t in t_70],
                 label="P = 0.99")
 
-total_plot.set(xlabel='simulation step', ylabel='Task completion')
+total_plot.set(xlabel='simulation step', ylabel='Task completion rate (%)')
 total_plot.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
+print("---DIST---")
+
 
 e_30 += [None for i in range(len(step) - len(e_30))]
 e_20 += [None for i in range(len(step) - len(e_20))]
@@ -89,6 +100,15 @@ e_10 += [None for i in range(len(step) - len(e_10))]
 e_40 += [None for i in range(len(step) - len(e_40))]
 e_50 += [None for i in range(len(step) - len(e_50))]
 e_70 += [None for i in range(len(step) - len(e_70))]
+
+print("---ERROR MEAN---")
+print("10: ", mean(e_10))
+print("20: ", mean(e_20))
+print("30: ", mean(e_30))
+print("40: ", mean(e_40))
+print("50: ", mean(e_50))
+print("70: ", mean(e_70))
+
 
 fig, error_ = plt.subplots()
 error_.plot(step,e_10,
@@ -108,7 +128,7 @@ error_.plot(step,e_50,
 error_.plot(step,e_70,
                 label="P = 0.99",linewidth=1)
 
-error_.set(xlabel='simulation step', ylabel='Difference between swarm perception and reality (in resources)')
+error_.set(xlabel='simulation step', ylabel='Swarm perception error (in resources)')
 error_.grid()
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -128,7 +148,7 @@ robot_n_task_plot.plot(range(1,41), n_50,
 robot_n_task_plot.plot(range(1,41), n_70,
                        label="P = 0.99")
 
-robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch over the entire period')
+robot_n_task_plot.set(xlabel='Robot ID', ylabel='Number of task switch')
 
 robot_n_task_plot.grid()
 
