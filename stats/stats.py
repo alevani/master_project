@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
+file = open('DAITA_NOISE_507/EXP1/0.99/0.99.csv')
 
 
 foraging_need = []
@@ -63,10 +63,10 @@ for line in file:
     robots_n_task_switch = [e[1] for e in arr]
 
 fig, ax = plt.subplots()
-ax.plot(step, foraging_need, label="Resource need")
-ax.plot(step, nest_processing_need, label="Nest processing need")
-ax.plot(step, cleaning_need, label="Cleaning need")
-ax.set(xlabel='simulation step', ylabel='Needs')
+ax.plot(step, foraging_need, label="Foraging task")
+ax.plot(step, nest_processing_need, label="Nest processing task")
+ax.plot(step, cleaning_need, label="Cleaning task")
+ax.set(xlabel='simulation step', ylabel="Task's demand (in energy)")
 ax.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
@@ -75,41 +75,41 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 fig, foraging_plot = plt.subplots()
 
-foraging_plot.plot(step, foraging_assigned,
-                   label="Robot assigned to the foraging task")
+#foraging_plot.plot(step, foraging_assigned,
+#                   label="Robot assigned to the foraging task")
 
 foraging_plot.plot(step, foraging_average_sensed_demand,
                    label="Average sensed need")
 
-foraging_plot.plot(step, foraging_need, label="Resource need")
+foraging_plot.plot(step, foraging_need, label="Real need")
 
-foraging_plot.set(xlabel='simulation step', ylabel='value')
+foraging_plot.set(xlabel='simulation step', ylabel="Foraging task's demand (in energy)")
 foraging_plot.grid()
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 
 
 fig, nest_processing = plt.subplots()
-nest_processing.plot(step, nest_processing_assigned,
-                     label="Robot assigned to the nest processing task")
+#nest_processing.plot(step, nest_processing_assigned,
+                     #label="Robot assigned to the nest processing task")
 nest_processing.plot(step, nest_processing_average_sensed_demand,
                      label="Average sensed need")
 nest_processing.plot(step, nest_processing_need,
-                     label="Resource need")
-nest_processing.set(xlabel='simulation step', ylabel='value')
+                     label="Real need")
+nest_processing.set(xlabel='simulation step', ylabel="Nest processing task's demand (in energy)")
 nest_processing.grid()
 
 
 plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
 fig, cleaning = plt.subplots()
-cleaning.plot(step, cleaning_assigned,
-              label="Robot assigned to the cleaning task")
+#cleaning.plot(step, cleaning_assigned,
+ #             label="Robot assigned to the cleaning task")
 
 cleaning.plot(step, cleaning_average_sensed_demand,
               label="Average sensed need")
-cleaning.plot(step, cleaning_need, label="Resource need")
-cleaning.set(xlabel='simulation step', ylabel='value')
+cleaning.plot(step, cleaning_need, label="Real need")
+cleaning.set(xlabel='simulation step', ylabel="Cleaning task's demand (in energy)")
 cleaning.grid()
 
 

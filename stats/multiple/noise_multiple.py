@@ -3,17 +3,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 f10 = open(
-    '../0FAITA_EXP_HARD_NOISE/EXP1/0/0.csv')
+    '../DAITA_NOISE_507/EXP1/0/0.csv')
 f20 = open(
-    '../0FAITA_EXP_HARD_NOISE/EXP1/0.1/0.1.csv')
+    '../DAITA_NOISE_507/EXP1/0.1/0.1.csv')
 f30 = open(
-    '../0FAITA_EXP_HARD_NOISE/EXP1/0.3/0.3.csv')
+    '../DAITA_NOISE_507/EXP1/0.3/0.3.csv')
 f40 = open(
-    '../0FAITA_EXP_HARD_NOISE/EXP1/0.5/0.5.csv')
+    '../DAITA_NOISE_507/EXP1/0.5/0.5.csv')
 f50 = open(
-    '../0FAITA_EXP_HARD_NOISE/EXP1/0.7/0.7.csv')
+    '../DAITA_NOISE_507/EXP1/0.7/0.7.csv')
 f70 = open(
-    '../0FAITA_EXP_HARD_NOISE/EXP1/0.99/0.99.csv')
+    '../DAITA_NOISE_507/EXP1/0.99/0.99.csv')
 
 
 step = np.arange(10,  12000, 10)
@@ -74,17 +74,17 @@ t_70 += [150 for i in range(len(step) - len(t_70))]
 
 fig, total_plot = plt.subplots()
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_10],
-                label="P = 0")
+                label="Pnoise = 0")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_20],
-                label="P = 0.1")
+                label="Pnoise = 0.1")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_30],
-                label="P = 0.3")
+                label="Pnoise = 0.3")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_40],
-                label="P = 0.5")
+                label="Pnoise = 0.5")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_50],
-                label="P = 0.7")
+                label="Pnoise = 0.7")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_70],
-                label="P = 0.99")
+                label="Pnoise = 0.99")
 
 total_plot.set(xlabel='simulation step', ylabel='Task completion rate (%)')
 total_plot.grid()
@@ -112,21 +112,21 @@ print("70: ", mean(e_70))
 
 fig, error_ = plt.subplots()
 error_.plot(step,e_10,
-                label="P = 0",linewidth=1)
+                label="Pnoise 0",linewidth=1)
 # error_.plot(step,e_20,
-#                 label="P = 0.1")
+#                 label="Pnoise 0.1")
 error_.plot(step,e_30,
-                label="P = 0.3",linewidth=1)
+                label="Pnoise 0.3",linewidth=1)
 # error_.plot(step,e_40,
-#                 label="P = 1")
+#                 label="Pnoise 1")
 # error_.plot(step,e_50,
-#                 label="P = 0.7")
+#                 label="Pnoise 0.7")
 #error_.plot(step,e_40,
- #               label="P = 0.5",linewidth=1)
+ #               label="Pnoise 0.5",linewidth=1)
 error_.plot(step,e_50,
-                label="P = 0.7",linewidth=1)
+                label="Pnoise 0.7",linewidth=1)
 error_.plot(step,e_70,
-                label="P = 0.99",linewidth=1)
+                label="Pnoise 0.99",linewidth=1)
 
 error_.set(xlabel='simulation step', ylabel='Swarm perception error (in resources)')
 error_.grid()
@@ -140,13 +140,13 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 fig, robot_n_task_plot = plt.subplots()
 robot_n_task_plot.plot(range(1,41), n_10,
-                       label="P = 0")
+                       label="Pnoise 0")
 robot_n_task_plot.plot(range(1,41), n_30,
-                       label="P = 0.3")
+                       label="Pnoise 0.3")
 robot_n_task_plot.plot(range(1,41), n_50,
-                       label="P = 0.7")
+                       label="Pnoise 0.7")
 robot_n_task_plot.plot(range(1,41), n_70,
-                       label="P = 0.99")
+                       label="Pnoise 0.99")
 
 robot_n_task_plot.set(xlabel='Robot ID', ylabel='Number of task switch')
 
