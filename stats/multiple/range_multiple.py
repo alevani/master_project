@@ -4,24 +4,24 @@ import numpy as np
 
 
 f0 = open(
-    '../0FAITA_EXP_HARD_RANGE/EXP1/range0.1/range0.1.csv')
+    '../DAITA_RANGE_507/range0.1/£FAITA_r40/£FAITA_r40.csv')
 f10 = open(
-    '../0FAITA_EXP_HARD_RANGE/EXP1/range0.5/range0.5.csv')
+    '../DAITA_RANGE_507/range0.5/£FAITA_r40/£FAITA_r40.csv')
 f20 = open(
-    '../0FAITA_EXP_HARD_RANGE/EXP1/range1/range1.csv')
+    '../DAITA_RANGE_507/range1/£FAITA_r40/£FAITA_r40.csv')
 f30 = open(
-    '../0FAITA_EXP_HARD_RANGE/EXP1/range5/range5.csv')
+    '../DAITA_RANGE_507/range5/£FAITA_r40/£FAITA_r40.csv')
 f40 = open(
-    '../0FAITA_EXP_HARD_RANGE/EXP1/range7/range7.csv')
+    '../DAITA_RANGE_507/range7/£FAITA_r40/£FAITA_r40.csv')
 f50 = open(
-    '../0FAITA_EXP_HARD_RANGE/EXP1/range13/range13.csv')
+    '../DAITA_RANGE_507/range13/£FAITA_r40/£FAITA_r40.csv')
 f70 = open(
     '../0FAITA_EXP_HARD_RANGE/EXP1/range15/range15.csv')
 f8000 = open(
     '../0FAITA_EXP_HARD_RANGE/EXP1/range80000/range80000.csv')
 
 
-step = np.arange(10,  32000, 10)
+step = np.arange(10,  27000, 10)
 
 def mean(list):
   v = 0
@@ -79,7 +79,7 @@ t_8000 += [150 for i in range(len(step) - len(t_8000))]
 
 fig, total_plot = plt.subplots()
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_0],
-                label="0.1m")
+                label="Range = 0.1m")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_10],
                 label="Range = 0.5m")
 total_plot.plot(step, [t/1.5 if not t == None else None for t in t_20],
@@ -120,8 +120,8 @@ print(mean(e_20))
 print(mean(e_30))
 print(mean(e_40))
 print(mean(e_50))
-print(mean(e_70))
-print(mean(e_8000))
+# print(mean(e_70))
+# print(mean(e_8000))
 
 
 error_.plot(step, e_10,
@@ -168,7 +168,7 @@ robot_n_task_plot.plot(range(1, 41), n_30,
 # robot_n_task_plot.plot(range(1, 41), n_40,
 #                        label="Range = 7m")
 
-robot_n_task_plot.plot(range(1, 41), n_8000,
+robot_n_task_plot.plot(range(1, 41), n_50,
                        label="Range = 13m (entire arena)")
 
 robot_n_task_plot.set(xlabel='Robot ID',

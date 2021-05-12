@@ -2,13 +2,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-gta = open('../GTA_50:7/EXP1/£GTA_r40/£GTA_r40.csv')
-psi = open('../PSI_50:7/EXP1/£PSI_r40/£PSI_r40.csv')
-CAITA = open('../CAITA_50:7/EXP1/£CAITA_r40/£CAITA_r40.csv')
-DAITA = open('../DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
-rnd = open('../RND_50:7/EXP1/£RND_r40/£RND_r40.csv')
+gta = open('../GTA_50:7/EXP2/£GTA_r40/£GTA_r40.csv')
+psi = open('../PSI_50:7/EXP2/£PSI_r40/£PSI_r40.csv')
+CAITA = open('../CAITA_50:7/EXP2/£CAITA_r40/£CAITA_r40.csv')
+DAITA = open('../DAITA_50:7/EXP2/£DAITA_r40/£DAITA_r40.csv')
+rnd = open('../RND_50:7/EXP2/£RND_r40/£RND_r40.csv')
 
-step = np.arange(10,  12600, 10)
+step = np.arange(10,  30010, 10)
 
 def mean(list):
   v = 0
@@ -129,15 +129,15 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 
 fig, robot_n_task_plot = plt.subplots()
 robot_n_task_plot.plot(range(1, 41), n_gta,
-                       label="GTA Number of task switch for a robot over the total period")
+                       label="GTA")
 robot_n_task_plot.plot(range(1, 41), n_DAITA,
-                       label="DAITA Number of task switch for a robot over the total period")
+                       label="DAITA")
 robot_n_task_plot.plot(range(1, 41), n_CAITA,
-                       label="CAITA Number of task switch for a robot over the total period")
+                       label="CAITA")
 robot_n_task_plot.plot(range(1, 41), n_rnd,
-                       label="RND Number of task switch for a robot over the total period")
+                       label="RND")
 
-robot_n_task_plot.set(xlabel='Robot Number', ylabel='Number of task switch')
+robot_n_task_plot.set(xlabel='Robot ID', ylabel='Number of task switch for a robot')
 
 robot_n_task_plot.grid()
 
@@ -152,8 +152,6 @@ ax0.tick_params(axis='y', labelcolor=color)
 
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.)
 
 
 

@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-file = open('DAITA_NOISE_507/EXP1/0.99/0.99.csv')
+file = open('DAITA_50:7/EXP1/£DAITA_r40/£DAITA_r40.csv')
 
 
 foraging_need = []
